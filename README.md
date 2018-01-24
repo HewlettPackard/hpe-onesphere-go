@@ -1,8 +1,6 @@
-# (C) Copyright 2018 Hewlett Packard Enterprise Development LP.
-
 # GO Language Binding for HPE OneSphere Composable API (ns-api-go)
 
-The GO language binding package for GO developers to call HPE OneSphere Composable APIs
+The GO language binding package for GO developers to call HPE OneSphere APIs
 
 ## Prerequisites
 
