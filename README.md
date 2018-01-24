@@ -1,4 +1,4 @@
-# GO Language Binding for HPE OneSphere Composable API (ns-api-go)
+# GO Language Binding for HPE OneSphere APIs
 
 The GO language binding package for GO developers to call HPE OneSphere APIs
 
