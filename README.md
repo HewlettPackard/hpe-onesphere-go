@@ -21,21 +21,20 @@ Example:
 package main
 
 import (
-    ncsmodule "./ncsmodule"
+    osbinding "./onesphere"
     "fmt"
 )
 
 func main() {
-    ncsmodule.Connect("https://onespheretme1.stackbeta.hpe.com", "peng.liu@hpe.com", "Passw0rd!")
-    fmt.Println("Token:", ncsmodule.Token)
+    osbinding.Connect("https://onespheretme1.stackbeta.hpe.com", "peng.liu@hpe.com", "Passw0rd!")
+    fmt.Println("Token:", osbinding.Token)
 
-    fmt.Println("Status:", ncsmodule.GetStatus())
-    //fmt.Println("ConnectApp:", ncsmodule.GetConnectApp("windows"))
-    fmt.Println("Session:", ncsmodule.GetSession("full"))
-    fmt.Println("ProviderTypes:", ncsmodule.GetProviderTypes())
-    fmt.Println("ZoneTypes:", ncsmodule.GetZoneTypes())
-    fmt.Println("Roles:", ncsmodule.GetRoles())
-    fmt.Println("Users:", ncsmodule.GetUsers())
+    fmt.Println("Status:", osbinding.GetStatus())
+    fmt.Println("Session:", osbinding.GetSession("full"))
+    fmt.Println("ProviderTypes:", osbinding.GetProviderTypes())
+    fmt.Println("ZoneTypes:", osbinding.GetZoneTypes())
+    fmt.Println("Roles:", osbinding.GetRoles())
+    fmt.Println("Users:", osbinding.GetUsers())
 }
 ```
 
