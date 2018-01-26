@@ -26,7 +26,7 @@ import (
 )
 
 func main() {
-    osbinding.Connect("https://onespheretme1.stackbeta.hpe.com", "peng.liu@hpe.com", "Passw0rd!")
+    osbinding.Connect("https://onesphere-host-url", "username", "password")
     fmt.Println("Token:", osbinding.Token)
 
     fmt.Println("Status:", osbinding.GetStatus())
