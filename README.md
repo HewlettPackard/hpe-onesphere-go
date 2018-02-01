@@ -13,7 +13,7 @@ https://golang.org/dl/
 
 ## Usage
 
-Copy the ncsmodule into your GO project folder.
+Copy the onesphere folder into your GO project folder.
 
 Example:
 
@@ -31,10 +31,14 @@ func main() {
 
     fmt.Println("Status:", osbinding.GetStatus())
     fmt.Println("Session:", osbinding.GetSession("full"))
+    fmt.Println("Account:", osbinding.GetAccount("full"))
     fmt.Println("ProviderTypes:", osbinding.GetProviderTypes())
     fmt.Println("ZoneTypes:", osbinding.GetZoneTypes())
+    fmt.Println("ServiceTypes:", osbinding.GetServiceTypes())
     fmt.Println("Roles:", osbinding.GetRoles())
     fmt.Println("Users:", osbinding.GetUsers())
+    fmt.Println("TagKeys:", osbinding.GetTagKeys("full"))
+    fmt.Println("Tags:", osbinding.GetTags("full"))
 }
 ```
 
