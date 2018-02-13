@@ -132,6 +132,44 @@ func GetAccount(view string) string {
     return callHttpRequest("GET", fullUrl, values)
 }
 
+// Appliances APIs
+
+func GetAppliances() string {
+    fullUrl := HostUrl + "/rest/appliances"
+    return callHttpRequest("GET", fullUrl, nil)
+}
+
+func CreateAppliance(epAddress, epUsername, epPassword, 
+                     name, regionUri, applianceType string) string {
+    fullUrl := HostUrl + "/rest/appliances"
+    values := map[string]interface{}{
+        "endpoint": map[string]interface{}{
+            "address": epAddress,
+            "password": epPassword,
+            "username": epUsername},
+        "name": name,
+        "regionUri": regionUri,
+        "type": applianceType}
+    return callHttpRequest("POST", fullUrl, values)
+}
+
+func GetAppliance(applianceID string) string {
+    fullUrl := HostUrl + "/rest/appliances/" + applianceID
+    return callHttpRequest("GET", fullUrl, nil)
+}
+
+func DeleteAppliance(applianceID string) string {
+    fullUrl := HostUrl + "/rest/appliances/" + applianceID
+    return callHttpRequest("DELETE", fullUrl, nil)
+}
+
+// infoArray: [{os, path, value}]
+func UpdateAppliance(applianceID string, infoArray []string) string {
+    fullUrl := HostUrl + "/rest/appliances/" + applianceID
+    values := infoArray 
+    return callHttpRequest("PUT", fullUrl, values)
+}
+
 // Providers APIs
 
 func GetProviderTypes() string {
@@ -140,7 +178,7 @@ func GetProviderTypes() string {
 }
 
 func GetProviders(parentUri, providerTypeUri string) string {
-    fullUrl := HostUrl + "/rest/provider-types"
+    fullUrl := HostUrl + "/rest/providers"
     values := map[string]string{"parentUri": parentUri, "providerTypeUri": providerTypeUri}
     return callHttpRequest("GET", fullUrl, values)
 }
@@ -149,28 +187,24 @@ func CreateProvider(providerID, providerTypeUri, accessKey, secretKey,
                     s3CostBucket, parentUri, state string, 
                     paymentProvider bool) string {
     fullUrl := HostUrl + "/rest/providers"
-    type dataStruct struct {
-        id string
-        providerTypeUri string
-        accessKey string
-        secretKey string
-        paymentProvider bool
-        s3CostBucket string
-        parentUri string
-        state string
-    }
-    values := dataStruct{providerID, providerTypeUri, accessKey, secretKey, paymentProvider, s3CostBucket, parentUri, state}
+    values := map[string]interface{}{
+        "id": providerID,
+        "providerTypeUri": providerTypeUri,
+        "accessKey": accessKey,
+        "secretKey": secretKey,
+        "paymentProvider": paymentProvider,
+        "s3CostBucket": s3CostBucket,
+        "parentUri": parentUri,
+        "state": state}
     return callHttpRequest("POST", fullUrl, values)
 }
 
 // view="full"
 func GetProvider(providerID, view string, discover bool) string {
     fullUrl := HostUrl + "/rest/providers/" + providerID
-    type dataStruct struct {
-        view string
-        discover bool
-    }
-    values := dataStruct{view, discover}
+    values := map[string]interface{}{
+        "view": view,
+        "discover": discover}
     return callHttpRequest("GET", fullUrl, values)
 }
 
@@ -194,26 +228,18 @@ func GetRegions(providerUri, view string) string {
 
 func CreateRegion(name, providerUri, locLatitude, locLongitude string) string {
     fullUrl := HostUrl + "/rest/regions"
-    type locStruct struct {
-        latitude string
-        longitude string
-    }
-    type dataStruct struct {
-        name string
-        providerUri string
-        locStruct
-    }
-    values := dataStruct{name, providerUri, locStruct{locLatitude, locLongitude}}
+    values := map[string]interface{}{
+        "location": map[string]interface{}{
+            "latitude": locLatitude,
+            "longitude": locLongitude},
+        "name": name,
+        "providerUri": providerUri}
     return callHttpRequest("POST", fullUrl, values)
 }
 
 func GetRegion(regionID, view string, discover bool) string {
     fullUrl := HostUrl + "/rest/regions/" + regionID
-    type dataStruct struct {
-        view string
-        discover bool
-    }
-    values := dataStruct{view, discover}
+    values := map[string]interface{}{"view": view, "discover": discover}
     return callHttpRequest("GET", fullUrl, values)
 }
 
@@ -294,17 +320,15 @@ func GetCatalog(catalogID string) string {
 func UpdateCatalog(catalogID, name, status, uri, url, serviceTypeUri, 
                    timeCreated, timeModified string) string {
     fullUrl := HostUrl + "/rest/catalogs/" + catalogID
-    type dataStruct struct {
-        created string
-        id string
-        modified string
-        name string
-        status string
-        uri string
-        url string
-        serviceTypeUri string
-    }
-    values := dataStruct{timeCreated, catalogID, timeModified, name, status, uri, url, serviceTypeUri}
+    values := map[string]interface{}{
+        "created": timeCreated,
+        "id": catalogID,
+        "modified": timeModified,
+        "name": name,
+        "status": status,
+        "uri": uri,
+        "url": url,
+        "serviceTypeUri": serviceTypeUri}
     return callHttpRequest("PUT", fullUrl, values)
 }
 
@@ -505,15 +529,17 @@ func GetMetrics(
         start string,
         count int) string {
     fullUrl := HostUrl + "/rest/metrics"
-    type dataStruct struct {
-        resourceUri, category, query, name []string
-        periodStart string
-        period, periodCount int
-        view string
-        start string
-        count int
-    }
-    values := dataStruct{resourceUriArray, categoryArray, queryArray, nameArray, periodStart, period, periodCount, view, start, count}
+    values := map[string]interface{}{
+        "resourceUri": resourceUriArray,
+        "category": categoryArray,
+        "query": queryArray,
+        "nameArray": nameArray,
+        "periodStart": periodStart,
+        "period": period,
+        "periodCount": periodCount,
+        "view": view,
+        "start": start,
+        "count": count}
     return callHttpRequest("GET", fullUrl, values)
 }
 
