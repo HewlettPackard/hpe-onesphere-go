@@ -298,6 +298,13 @@ func GetZoneApplianceImage(zoneID string) string {
     return callHttpRequest("GET", fullUrl, nil)
 }
 
+// Catalog Types APIs
+
+func GetCatalogTypes() string {
+    fullUrl := HostUrl + "/rest/catalog-types"
+    return callHttpRequest("GET", fullUrl, nil)
+}
+
 // Catalogs APIs
 
 func GetCatalogs(query string) string {
