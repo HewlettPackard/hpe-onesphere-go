@@ -22,7 +22,7 @@ package osbinding
 
 import (
     //"fmt"
-    //"strings"
+    "strings"
     "bytes"
     //"io"
     "io/ioutil"
@@ -33,6 +33,42 @@ import (
 
 var Token string
 var HostUrl string
+
+func callHttpRequest(method, url string, params map[string]string, values interface{}) string {
+    jsonValue, err := json.Marshal(values)
+    if err != nil {
+        panic(err)
+    }
+    req, err := http.NewRequest(method, url, bytes.NewBuffer(jsonValue))
+    if err != nil {
+        panic(err)
+    }
+    req.Header.Set("Accept", "application/json")
+    req.Header.Set("Content-Type", "application/json")
+    req.Header.Set("Authorization", Token)
+
+    if params != nil && len(params) > 0 {
+        q := req.URL.Query()
+        for key, value := range params {
+            q.Add(key, value)
+        }
+        req.URL.RawQuery = q.Encode()
+    }
+
+    client := &http.Client{}
+    resp, err := client.Do(req)
+    if err != nil {
+        panic(err)
+    }
+    defer resp.Body.Close()
+
+    bodyBytes, err := ioutil.ReadAll(resp.Body)
+    if err != nil {
+        panic(err)
+    }
+    bodyStr := string(bodyBytes)
+    return bodyStr
+}
 
 func Connect(hostUrl, user, password string) {
     HostUrl = hostUrl
@@ -68,44 +104,16 @@ func Connect(hostUrl, user, password string) {
     Token = dat["token"]
 }
 
-func callHttpRequest(method, url string, values interface{}) string {
-    jsonValue, err := json.Marshal(values)
-    if err != nil {
-        panic(err)
-    }
-    req, err := http.NewRequest(method, url, bytes.NewBuffer(jsonValue))
-    if err != nil {
-        panic(err)
-    }
-    req.Header.Set("Accept", "application/json")
-    req.Header.Set("Content-Type", "application/json")
-    req.Header.Set("Authorization", Token)
-
-    client := &http.Client{}
-    resp, err := client.Do(req)
-    if err != nil {
-        panic(err)
-    }
-    defer resp.Body.Close()
-
-    bodyBytes, err := ioutil.ReadAll(resp.Body)
-    if err != nil {
-        panic(err)
-    }
-    bodyStr := string(bodyBytes)
-    return bodyStr
-}
-
 func GetStatus() string {
     fullUrl := HostUrl + "/rest/status"
-    return callHttpRequest("GET", fullUrl, nil)
+    return callHttpRequest("GET", fullUrl, nil, nil)
 }
 
 // os="windows" or os="mac"
 func GetConnectApp(os string) string {
     fullUrl := HostUrl + "/rest/connect-app"
-    values := map[string]string{"os": os}
-    return callHttpRequest("GET", fullUrl, values)
+    params := map[string]string{"os": os}
+    return callHttpRequest("GET", fullUrl, params, nil)
 }
 
 // Session APIs
@@ -113,14 +121,14 @@ func GetConnectApp(os string) string {
 // view="full"
 func GetSession(view string) string {
     fullUrl := HostUrl + "/rest/session"
-    values := map[string]string{"view": view}
-    return callHttpRequest("GET", fullUrl, values)
+    params := map[string]string{"view": view}
+    return callHttpRequest("GET", fullUrl, params, nil)
 }
 
 func GetSessionIdp(username string) string {
     fullUrl := HostUrl + "/rest/session/idp"
     values := map[string]string{"userName": username}
-    return callHttpRequest("GET", fullUrl, values)
+    return callHttpRequest("GET", fullUrl, nil, values)
 }
 
 // Account APIs
@@ -128,15 +136,22 @@ func GetSessionIdp(username string) string {
 // view="full"
 func GetAccount(view string) string {
     fullUrl := HostUrl + "/rest/account"
-    values := map[string]string{"view": view}
-    return callHttpRequest("GET", fullUrl, values)
+    params := map[string]string{"view": view}
+    return callHttpRequest("GET", fullUrl, params, nil)
 }
 
 // Appliances APIs
 
-func GetAppliances() string {
+func GetAppliances(name, regionUri string) string {
     fullUrl := HostUrl + "/rest/appliances"
-    return callHttpRequest("GET", fullUrl, nil)
+    params := map[string]string{}
+    if strings.TrimSpace(name) != "" {
+        params["name"] = name
+    }
+    if strings.TrimSpace(regionUri) != "" {
+        params["regionUri"] = regionUri
+    }
+    return callHttpRequest("GET", fullUrl, params, nil)
 }
 
 func CreateAppliance(epAddress, epUsername, epPassword, 
@@ -150,37 +165,37 @@ func CreateAppliance(epAddress, epUsername, epPassword,
         "name": name,
         "regionUri": regionUri,
         "type": applianceType}
-    return callHttpRequest("POST", fullUrl, values)
+    return callHttpRequest("POST", fullUrl, nil, values)
 }
 
 func GetAppliance(applianceID string) string {
     fullUrl := HostUrl + "/rest/appliances/" + applianceID
-    return callHttpRequest("GET", fullUrl, nil)
+    return callHttpRequest("GET", fullUrl, nil, nil)
 }
 
 func DeleteAppliance(applianceID string) string {
     fullUrl := HostUrl + "/rest/appliances/" + applianceID
-    return callHttpRequest("DELETE", fullUrl, nil)
+    return callHttpRequest("DELETE", fullUrl, nil, nil)
 }
 
 // infoArray: [{os, path, value}]
 func UpdateAppliance(applianceID string, infoArray []string) string {
     fullUrl := HostUrl + "/rest/appliances/" + applianceID
     values := infoArray 
-    return callHttpRequest("PUT", fullUrl, values)
+    return callHttpRequest("PUT", fullUrl, nil, values)
 }
 
 // Providers APIs
 
 func GetProviderTypes() string {
     fullUrl := HostUrl + "/rest/provider-types"
-    return callHttpRequest("GET", fullUrl, nil)
+    return callHttpRequest("GET", fullUrl, nil, nil)
 }
 
 func GetProviders(parentUri, providerTypeUri string) string {
     fullUrl := HostUrl + "/rest/providers"
     values := map[string]string{"parentUri": parentUri, "providerTypeUri": providerTypeUri}
-    return callHttpRequest("GET", fullUrl, values)
+    return callHttpRequest("GET", fullUrl, nil, values)
 }
 
 func CreateProvider(providerID, providerTypeUri, accessKey, secretKey, 
@@ -196,7 +211,7 @@ func CreateProvider(providerID, providerTypeUri, accessKey, secretKey,
         "s3CostBucket": s3CostBucket,
         "parentUri": parentUri,
         "state": state}
-    return callHttpRequest("POST", fullUrl, values)
+    return callHttpRequest("POST", fullUrl, nil, values)
 }
 
 // view="full"
@@ -205,17 +220,17 @@ func GetProvider(providerID, view string, discover bool) string {
     values := map[string]interface{}{
         "view": view,
         "discover": discover}
-    return callHttpRequest("GET", fullUrl, values)
+    return callHttpRequest("GET", fullUrl, nil, values)
 }
 
 func DeleteProvider(providerID string) string {
     fullUrl := HostUrl + "/rest/providers/" + providerID
-    return callHttpRequest("DELETE", fullUrl, nil)
+    return callHttpRequest("DELETE", fullUrl, nil, nil)
 }
 
 func UpdateProvider(providerID, infoArray string) string {
     fullUrl := HostUrl + "/rest/providers/" + providerID
-    return callHttpRequest("PUT", fullUrl, infoArray)
+    return callHttpRequest("PUT", fullUrl, nil, infoArray)
 }
 
 // Regions APIs
@@ -223,7 +238,7 @@ func UpdateProvider(providerID, infoArray string) string {
 func GetRegions(providerUri, view string) string {
     fullUrl := HostUrl + "/rest/regions"
     values := map[string]string{"providerUri": providerUri, "view": view}
-    return callHttpRequest("GET", fullUrl, values)
+    return callHttpRequest("GET", fullUrl, nil, values)
 }
 
 func CreateRegion(name, providerUri, locLatitude, locLongitude string) string {
@@ -234,25 +249,25 @@ func CreateRegion(name, providerUri, locLatitude, locLongitude string) string {
             "longitude": locLongitude},
         "name": name,
         "providerUri": providerUri}
-    return callHttpRequest("POST", fullUrl, values)
+    return callHttpRequest("POST", fullUrl, nil, values)
 }
 
 func GetRegion(regionID, view string, discover bool) string {
     fullUrl := HostUrl + "/rest/regions/" + regionID
     values := map[string]interface{}{"view": view, "discover": discover}
-    return callHttpRequest("GET", fullUrl, values)
+    return callHttpRequest("GET", fullUrl, nil, values)
 }
 
 func UpdateRegion(regionID, info string) string {
     fullUrl := HostUrl + "/rest/regions/" + regionID
-    return callHttpRequest("PUT", fullUrl, info)
+    return callHttpRequest("PUT", fullUrl, nil, info)
 }
 
 // Zone Types APIs
 
 func GetZoneTypes() string {
     fullUrl := HostUrl + "/rest/zone-types"
-    return callHttpRequest("GET", fullUrl, nil)
+    return callHttpRequest("GET", fullUrl, nil, nil)
 }
 
 // Zones APIs
@@ -260,95 +275,107 @@ func GetZoneTypes() string {
 func GetZones(regionUri, query string) string {
     fullUrl := HostUrl + "/rest/zones"
     values := map[string]string{"regionUri": regionUri, "query": query}
-    return callHttpRequest("GET", fullUrl, values)
+    return callHttpRequest("GET", fullUrl, nil, values)
 }
 
 func CreateZone(name, providerUri, regionUri, zoneTypeUri string) string {
     fullUrl := HostUrl + "/rest/zones"
     values := map[string]string{"name": name, "providerUri": providerUri, 
                                 "regionUri": regionUri, "zoneTypeUri": zoneTypeUri}
-    return callHttpRequest("POST", fullUrl, values)
+    return callHttpRequest("POST", fullUrl, nil, values)
 }
 
 func GetZone(zoneID, view string) string {
     fullUrl := HostUrl + "/rest/zones/" + zoneID
     values := map[string]string{"view": view}
-    return callHttpRequest("GET", fullUrl, values)
+    return callHttpRequest("GET", fullUrl, nil, values)
 }
 
 func UpdateZone(zoneID, infoArray string) string {
     fullUrl := HostUrl + "/rest/zones/" + zoneID
-    return callHttpRequest("PUT", fullUrl, infoArray)
+    return callHttpRequest("PUT", fullUrl, nil, infoArray)
 }
 
 func DeleteZone(zoneID string, force bool) string {
     fullUrl := HostUrl + "/rest/zones/" + zoneID
     values := map[string]bool{"force": force}
-    return callHttpRequest("DELETE", fullUrl, values)
+    return callHttpRequest("DELETE", fullUrl, nil, values)
 }
 
 func ActionOnZone(zoneID, action string) string {
     fullUrl := HostUrl + "/rest/zones/" + zoneID + "/actions"
     values := map[string]string{"type": action}
-    return callHttpRequest("POST", fullUrl, values)
+    return callHttpRequest("POST", fullUrl, nil, values)
 }
 
 func GetZoneApplianceImage(zoneID string) string {
     fullUrl := HostUrl + "/rest/zones/" + zoneID + "/appliance-image"
-    return callHttpRequest("GET", fullUrl, nil)
+    return callHttpRequest("GET", fullUrl, nil, nil)
 }
 
 // Catalog Types APIs
 
 func GetCatalogTypes() string {
     fullUrl := HostUrl + "/rest/catalog-types"
-    return callHttpRequest("GET", fullUrl, nil)
+    return callHttpRequest("GET", fullUrl, nil, nil)
 }
 
 // Catalogs APIs
 
-func GetCatalogs(query string) string {
+func GetCatalogs(query, view string) string {
     fullUrl := HostUrl + "/rest/catalogs"
-    values := map[string]string{"q": query}
-    return callHttpRequest("GET", fullUrl, values)
+    params := map[string]string{}
+    if strings.TrimSpace(query) != "" {
+        params["userQuery"] = query
+    }
+    if strings.TrimSpace(view) != "" {
+        params["view"] = view
+    }
+    return callHttpRequest("GET", fullUrl, params, nil)
 }
 
-func CreateCatalog(name, url string) string {
+func CreateCatalog(accessKey, catalogTypeUri, name, password, regionName, secretKey, url, username string) string {
     fullUrl := HostUrl + "/rest/catalogs"
-    values := map[string]string{"name": name, "url": url}
-    return callHttpRequest("POST", fullUrl, values)
+    values := map[string]string{
+                "accessKey": accessKey,
+                "catalogTypeUri": catalogTypeUri,
+                "name": name,
+                "password": password,
+                "regionName": regionName,
+                "secretKey": secretKey,
+                "url": url,
+                "username": username}
+    return callHttpRequest("POST", fullUrl, nil, values)
 }
 
 func GetCatalog(catalogID string) string {
     fullUrl := HostUrl + "/rest/catalogs/" + catalogID
-    return callHttpRequest("GET", fullUrl, nil)
+    return callHttpRequest("GET", fullUrl, nil, nil)
 }
 
-func UpdateCatalog(catalogID, name, status, uri, url, serviceTypeUri, 
-                   timeCreated, timeModified string) string {
+func DeleteCatalog(catalogID string) string {
+    fullUrl := HostUrl + "/rest/catalogs/" + catalogID
+    return callHttpRequest("DELETE", fullUrl, nil, nil)
+}
+
+func UpdateCatalog(catalogID, name, password, accessKey, secretKey, regionName, state string) string {
     fullUrl := HostUrl + "/rest/catalogs/" + catalogID
     values := map[string]interface{}{
-        "created": timeCreated,
-        "id": catalogID,
-        "modified": timeModified,
-        "name": name,
-        "status": status,
-        "uri": uri,
-        "url": url,
-        "serviceTypeUri": serviceTypeUri}
-    return callHttpRequest("PUT", fullUrl, values)
+                "name": name, "password": password, "accessKey": accessKey,
+                "secretKey": secretKey, "regionName": regionName, "state": state}
+    return callHttpRequest("PUT", fullUrl, nil, values)
 }
 
 // Service Types APIs
 
 func GetServiceTypes() string {
     fullUrl := HostUrl + "/service-types"
-    return callHttpRequest("GET", fullUrl, nil)
+    return callHttpRequest("GET", fullUrl, nil, nil)
 }
 
 func GetServiceType(serviceTypeID string) string {
     fullUrl := HostUrl + "/service-types/" + serviceTypeID
-    return callHttpRequest("GET", fullUrl, nil)
+    return callHttpRequest("GET", fullUrl, nil, nil)
 }
 
 // Services APIs
@@ -364,13 +391,13 @@ func GetServices(query, userQuery, serviceTypeUri, zoneUri,
         "workspaceUri": workspaceUri, 
         "catalogUri": catalogUri, 
         "view": view}
-    return callHttpRequest("GET", fullUrl, values)
+    return callHttpRequest("GET", fullUrl, nil, values)
 }
 
 func GetService(serviceID, view string) string {
     fullUrl := HostUrl + "/rest/services/" + serviceID
     values := map[string]string{"view": view}
-    return callHttpRequest("GET", fullUrl, values)
+    return callHttpRequest("GET", fullUrl, nil, values)
 }
 
 // Virtual Machine Profiles APIs
@@ -378,12 +405,12 @@ func GetService(serviceID, view string) string {
 func GetVirtualMachineProfiles(query, zoneUri, serviceUri string) string {
     fullUrl := HostUrl + "/rest/virtual-machine-profiles"
     values := map[string]string{"q": query, "zoneUri": zoneUri, "serviceUri": serviceUri}
-    return callHttpRequest("GET", fullUrl, values)
+    return callHttpRequest("GET", fullUrl, nil, values)
 }
 
 func GetVirtualMachineProfile(vmProfileID string) string {
     fullUrl := HostUrl + "/rest/virtual-machine-profiles/" + vmProfileID
-    return callHttpRequest("GET", fullUrl, nil)
+    return callHttpRequest("GET", fullUrl, nil, nil)
 }
 
 // Networks APIs
@@ -391,12 +418,12 @@ func GetVirtualMachineProfile(vmProfileID string) string {
 func GetNetworks(query, zoneUri string) string {
     fullUrl := HostUrl + "/rest/networks"
     values := map[string]string{"q": query, "zoneUri": zoneUri}
-    return callHttpRequest("GET", fullUrl, values)
+    return callHttpRequest("GET", fullUrl, nil, values)
 }
 
 func GetNetwork(networkID string) string {
     fullUrl := HostUrl + "/rest/networks/" + networkID
-    return callHttpRequest("GET", fullUrl, nil)
+    return callHttpRequest("GET", fullUrl, nil, nil)
 }
 
 // Workspaces APIs
@@ -404,30 +431,30 @@ func GetNetwork(networkID string) string {
 func GetWorkspaces(query, view string) string {
     fullUrl := HostUrl + "/rest/workspaces"
     values := map[string]string{"q": query, "view": view}
-    return callHttpRequest("GET", fullUrl, values)
+    return callHttpRequest("GET", fullUrl, nil, values)
 }
 
 func CreateWorkspace(name, description, tagUrisArray string) string {
     fullUrl := HostUrl + "/rest/workspaces"
     values := map[string]string{"name": name, "description": description, "tagUris": tagUrisArray}
-    return callHttpRequest("POST", fullUrl, values)
+    return callHttpRequest("POST", fullUrl, nil, values)
 }
 
 func GetWorkspace(workspaceID, view string) string {
     fullUrl := HostUrl + "/rest/workspaces/" + workspaceID
     values := map[string]string{"view": view}
-    return callHttpRequest("GET", fullUrl, values)
+    return callHttpRequest("GET", fullUrl, nil, values)
 }
 
 func UpdateWorkspace(workspaceID, name, description, tagUrisArray string) string {
     fullUrl := HostUrl + "/rest/workspaces/" + workspaceID
     values := map[string]string{"name": name, "description": description, "tagUris": tagUrisArray}
-    return callHttpRequest("PUT", fullUrl, values)
+    return callHttpRequest("PUT", fullUrl, nil, values)
 }
 
 func DeleteWorkspace(workspaceID string) string {
     fullUrl := HostUrl + "/rest/workspaces/" + workspaceID
-    return callHttpRequest("DELETE", fullUrl, nil)
+    return callHttpRequest("DELETE", fullUrl, nil, nil)
 }
 
 // Deployments APIs
@@ -435,39 +462,39 @@ func DeleteWorkspace(workspaceID string) string {
 func GetDeployments(query, view string) string {
     fullUrl := HostUrl + "/rest/deployments"
     values := map[string]string{"query": query, "view": view}
-    return callHttpRequest("GET", fullUrl, values)
+    return callHttpRequest("GET", fullUrl, nil, values)
 }
 
 func CreateDeployment(info string) string {
     fullUrl := HostUrl + "/rest/deployments"
-    return callHttpRequest("POST", fullUrl, info)
+    return callHttpRequest("POST", fullUrl, nil, info)
 }
 
 func GetDeployment(deploymentID, view string) string {
     fullUrl := HostUrl + "/rest/deployments/" + deploymentID
     values := map[string]string{"view": view}
-    return callHttpRequest("GET", fullUrl, values)
+    return callHttpRequest("GET", fullUrl, nil, values)
 }
 
 func UpdateDeployment(deploymentID, info string) string {
     fullUrl := HostUrl + "/rest/deployments/" + deploymentID
-    return callHttpRequest("PUT", fullUrl, info)
+    return callHttpRequest("PUT", fullUrl, nil, info)
 }
 
 func DeleteDeployment(deploymentID string) string {
     fullUrl := HostUrl + "/rest/deployments/" + deploymentID
-    return callHttpRequest("DELETE", fullUrl, nil)
+    return callHttpRequest("DELETE", fullUrl, nil, nil)
 }
 
 func ActionOnDeployment(deploymentID, actionType, force string) string {
     fullUrl := HostUrl + "/rest/deployments/" + deploymentID + "/actions"
     values := map[string]string{"force": string(force), "type": actionType}
-    return callHttpRequest("POST", fullUrl, values)
+    return callHttpRequest("POST", fullUrl, nil, values)
 }
 
 func GetDeploymentConsole(deploymentID string) string {
     fullUrl := HostUrl + "/rest/deployments/" + deploymentID + "/console"
-    return callHttpRequest("GET", fullUrl, nil)
+    return callHttpRequest("GET", fullUrl, nil, nil)
 }
 
 // Memberships APIs
@@ -475,55 +502,55 @@ func GetDeploymentConsole(deploymentID string) string {
 func GetMemberships(query string) string {
     fullUrl := HostUrl + "/rest/memberships"
     values := map[string]string{"query": query}
-    return callHttpRequest("GET", fullUrl, values)
+    return callHttpRequest("GET", fullUrl, nil, values)
 }
 
 func CreateMembership(userUri, roleUri, workspaceUri string) string {
     fullUrl := HostUrl + "/rest/memberships"
     values := map[string]string{"userUri": userUri, "roleUri": roleUri, "workspaceUri": workspaceUri}
-    return callHttpRequest("POST", fullUrl, values)
+    return callHttpRequest("POST", fullUrl, nil, values)
 }
 
 func DeleteMembership(userUri, roleUri, workspaceUri string) string {
     fullUrl := HostUrl + "/rest/memberships"
     values := map[string]string{"userUri": userUri, "roleUri": roleUri, "workspaceUri": workspaceUri}
-    return callHttpRequest("DELETE", fullUrl, values)
+    return callHttpRequest("DELETE", fullUrl, nil, values)
 }
 
 // Roles APIs
 
 func GetRoles() string {
     fullUrl := HostUrl + "/rest/roles"
-    return callHttpRequest("GET", fullUrl, nil)
+    return callHttpRequest("GET", fullUrl, nil, nil)
 }
 
 // Users APIs
 
 func GetUsers() string {
     fullUrl := HostUrl + "/rest/users"
-    return callHttpRequest("GET", fullUrl, nil)
+    return callHttpRequest("GET", fullUrl, nil, nil)
 }
 
 func CreateUser(name, password, email, role string) string {
     fullUrl := HostUrl + "/rest/users"
     values := map[string]string{"name": name, "email": email, "password": password, "role": role}
-    return callHttpRequest("POST", fullUrl, values)
+    return callHttpRequest("POST", fullUrl, nil, values)
 }
 
 func GetUser(userID string) string {
     fullUrl := HostUrl + "/rest/users/" + userID
-    return callHttpRequest("GET", fullUrl, nil)
+    return callHttpRequest("GET", fullUrl, nil, nil)
 }
 
 func UpdateUser(userID, name, password, email, role string) string {
     fullUrl := HostUrl + "/rest/users/" + userID
     values := map[string]string{"name": name, "email": email, "password": password, "role": role}
-    return callHttpRequest("PUT", fullUrl, values)
+    return callHttpRequest("PUT", fullUrl, nil, values)
 }
 
 func DeleteUser(userID string) string {
     fullUrl := HostUrl + "/rest/users/" + userID
-    return callHttpRequest("DELETE", fullUrl, nil)
+    return callHttpRequest("DELETE", fullUrl, nil, nil)
 }
 
 // Metrics APIs
@@ -547,7 +574,7 @@ func GetMetrics(
         "view": view,
         "start": start,
         "count": count}
-    return callHttpRequest("GET", fullUrl, values)
+    return callHttpRequest("GET", fullUrl, nil, values)
 }
 
 // Events APIs
@@ -555,7 +582,7 @@ func GetMetrics(
 func GetEvents(resourceUri string) string {
     fullUrl := HostUrl + "/rest/events"
     values := map[string]string{"resourceUri": resourceUri}
-    return callHttpRequest("GET", fullUrl, values)
+    return callHttpRequest("GET", fullUrl, nil, values)
 }
 
 // Volumes APIs
@@ -563,12 +590,12 @@ func GetEvents(resourceUri string) string {
 func GetVolumes(query string) string {
     fullUrl := HostUrl + "/rest/volumes"
     values := map[string]string{"query": query}
-    return callHttpRequest("GET", fullUrl, values)
+    return callHttpRequest("GET", fullUrl, nil, values)
 }
 
 func GetVolume(volumeID string) string {
     fullUrl := HostUrl + "/rest/volumes/" + volumeID
-    return callHttpRequest("GET", fullUrl, nil)
+    return callHttpRequest("GET", fullUrl, nil, nil)
 }
 
 // Tag Keys APIs
@@ -576,24 +603,24 @@ func GetVolume(volumeID string) string {
 func GetTagKeys(view string) string {
     fullUrl := HostUrl + "/rest/tag-keys"
     values := map[string]string{"view": view}
-    return callHttpRequest("GET", fullUrl, values)
+    return callHttpRequest("GET", fullUrl, nil, values)
 }
 
 func CreateTagKey(name string) string {
     fullUrl := HostUrl + "/rest/tag-keys"
     values := map[string]string{"name": name}
-    return callHttpRequest("POST", fullUrl, values)
+    return callHttpRequest("POST", fullUrl, nil, values)
 }
 
 func GetTagKey(tagKeyID, view string) string {
     fullUrl := HostUrl + "/rest/tag-keys/" + tagKeyID
     values := map[string]string{"view": view}
-    return callHttpRequest("GET", fullUrl, values)
+    return callHttpRequest("GET", fullUrl, nil, values)
 }
 
 func DeleteTagKey(tagKeyID string) string {
     fullUrl := HostUrl + "/rest/tag-keys/" + tagKeyID
-    return callHttpRequest("DELETE", fullUrl, nil)
+    return callHttpRequest("DELETE", fullUrl, nil, nil)
 }
 
 // Tags APIs
@@ -601,24 +628,24 @@ func DeleteTagKey(tagKeyID string) string {
 func GetTags(view string) string {
     fullUrl := HostUrl + "/rest/tags"
     values := map[string]string{"view": view}
-    return callHttpRequest("GET", fullUrl, values)
+    return callHttpRequest("GET", fullUrl, nil, values)
 }
 
 func CreateTag(name, tagKeyUri string) string {
     fullUrl := HostUrl + "/rest/tags"
     values := map[string]string{"name": name, "tagKeyUri": tagKeyUri}
-    return callHttpRequest("POST", fullUrl, values)
+    return callHttpRequest("POST", fullUrl, nil, values)
 }
 
 func GetTag(tagID, view string) string {
     fullUrl := HostUrl + "/rest/tags/" + tagID
     values := map[string]string{"view": view}
-    return callHttpRequest("GET", fullUrl, values)
+    return callHttpRequest("GET", fullUrl, nil, values)
 }
 
 func DeleteTag(tagID string) string {
     fullUrl := HostUrl + "/rest/tags/" + tagID
-    return callHttpRequest("DELETE", fullUrl, nil)
+    return callHttpRequest("DELETE", fullUrl, nil, nil)
 }
 
 // Keypairs APIs
@@ -626,6 +653,6 @@ func DeleteTag(tagID string) string {
 func GetKeyPair(regionUri, workspaceUri string) string {
     fullUrl := HostUrl + "/rest/keypairs"
     values := map[string]string{"regionUri": regionUri, "workspaceUri": workspaceUri}
-    return callHttpRequest("GET", fullUrl, values)
+    return callHttpRequest("GET", fullUrl, nil, values)
 }
 
