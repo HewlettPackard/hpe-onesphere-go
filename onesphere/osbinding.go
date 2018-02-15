@@ -104,33 +104,6 @@ func Connect(hostUrl, user, password string) {
     Token = dat["token"]
 }
 
-func GetStatus() string {
-    fullUrl := HostUrl + "/rest/status"
-    return callHttpRequest("GET", fullUrl, nil, nil)
-}
-
-// os="windows" or os="mac"
-func GetConnectApp(os string) string {
-    fullUrl := HostUrl + "/rest/connect-app"
-    params := map[string]string{"os": os}
-    return callHttpRequest("GET", fullUrl, params, nil)
-}
-
-// Session APIs
-
-// view="full"
-func GetSession(view string) string {
-    fullUrl := HostUrl + "/rest/session"
-    params := map[string]string{"view": view}
-    return callHttpRequest("GET", fullUrl, params, nil)
-}
-
-func GetSessionIdp(username string) string {
-    fullUrl := HostUrl + "/rest/session/idp"
-    values := map[string]string{"userName": username}
-    return callHttpRequest("GET", fullUrl, nil, values)
-}
-
 // Account APIs
 
 // view="full"
@@ -183,6 +156,130 @@ func UpdateAppliance(applianceID string, infoArray []string) string {
     fullUrl := HostUrl + "/rest/appliances/" + applianceID
     values := infoArray 
     return callHttpRequest("PUT", fullUrl, nil, values)
+}
+
+// Catalog Types APIs
+
+func GetCatalogTypes() string {
+    fullUrl := HostUrl + "/rest/catalog-types"
+    return callHttpRequest("GET", fullUrl, nil, nil)
+}
+
+// Catalogs APIs
+
+func GetCatalogs(query, view string) string {
+    fullUrl := HostUrl + "/rest/catalogs"
+    params := map[string]string{}
+    if strings.TrimSpace(query) != "" {
+        params["userQuery"] = query
+    }
+    if strings.TrimSpace(view) != "" {
+        params["view"] = view
+    }
+    return callHttpRequest("GET", fullUrl, params, nil)
+}
+
+func CreateCatalog(accessKey, catalogTypeUri, name, password, regionName, secretKey, url, username string) string {
+    fullUrl := HostUrl + "/rest/catalogs"
+    values := map[string]string{
+                "accessKey": accessKey,
+                "catalogTypeUri": catalogTypeUri,
+                "name": name,
+                "password": password,
+                "regionName": regionName,
+                "secretKey": secretKey,
+                "url": url,
+                "username": username}
+    return callHttpRequest("POST", fullUrl, nil, values)
+}
+
+func GetCatalog(catalogID string) string {
+    fullUrl := HostUrl + "/rest/catalogs/" + catalogID
+    return callHttpRequest("GET", fullUrl, nil, nil)
+}
+
+func DeleteCatalog(catalogID string) string {
+    fullUrl := HostUrl + "/rest/catalogs/" + catalogID
+    return callHttpRequest("DELETE", fullUrl, nil, nil)
+}
+
+func UpdateCatalog(catalogID, name, password, accessKey, secretKey, regionName, state string) string {
+    fullUrl := HostUrl + "/rest/catalogs/" + catalogID
+    values := map[string]interface{}{
+                "name": name, "password": password, "accessKey": accessKey,
+                "secretKey": secretKey, "regionName": regionName, "state": state}
+    return callHttpRequest("PUT", fullUrl, nil, values)
+}
+
+// Connect App APIs
+
+// os="windows" or os="mac"
+func GetConnectApp(os string) string {
+    fullUrl := HostUrl + "/rest/connect-app"
+    params := map[string]string{"os": os}
+    return callHttpRequest("GET", fullUrl, params, nil)
+}
+
+// Deployments APIs
+
+func GetDeployments(query, userQuery, view string) string {
+    fullUrl := HostUrl + "/rest/deployments"
+    params := map[string]string{"query": query, "userQuery": userQuery, "view": view}
+    return callHttpRequest("GET", fullUrl, params, nil)
+}
+
+func CreateDeployment(info string) string {
+    fullUrl := HostUrl + "/rest/deployments"
+    return callHttpRequest("POST", fullUrl, nil, info)
+}
+
+func GetDeployment(deploymentID, view string) string {
+    fullUrl := HostUrl + "/rest/deployments/" + deploymentID
+    values := map[string]string{"view": view}
+    return callHttpRequest("GET", fullUrl, nil, values)
+}
+
+func UpdateDeployment(deploymentID, info string) string {
+    fullUrl := HostUrl + "/rest/deployments/" + deploymentID
+    return callHttpRequest("PUT", fullUrl, nil, info)
+}
+
+func DeleteDeployment(deploymentID string) string {
+    fullUrl := HostUrl + "/rest/deployments/" + deploymentID
+    return callHttpRequest("DELETE", fullUrl, nil, nil)
+}
+
+func ActionOnDeployment(deploymentID, actionType string, force bool) string {
+    fullUrl := HostUrl + "/rest/deployments/" + deploymentID + "/actions"
+    values := map[string]interface{}{"force": force, "type": actionType}
+    return callHttpRequest("POST", fullUrl, nil, values)
+}
+
+func GetDeploymentConsole(deploymentID string) string {
+    fullUrl := HostUrl + "/rest/deployments/" + deploymentID + "/console"
+    return callHttpRequest("GET", fullUrl, nil, nil)
+}
+
+// Status APIs
+
+func GetStatus() string {
+    fullUrl := HostUrl + "/rest/status"
+    return callHttpRequest("GET", fullUrl, nil, nil)
+}
+
+// Session APIs
+
+// view="full"
+func GetSession(view string) string {
+    fullUrl := HostUrl + "/rest/session"
+    params := map[string]string{"view": view}
+    return callHttpRequest("GET", fullUrl, params, nil)
+}
+
+func GetSessionIdp(username string) string {
+    fullUrl := HostUrl + "/rest/session/idp"
+    values := map[string]string{"userName": username}
+    return callHttpRequest("GET", fullUrl, nil, values)
 }
 
 // Providers APIs
@@ -313,59 +410,6 @@ func GetZoneApplianceImage(zoneID string) string {
     return callHttpRequest("GET", fullUrl, nil, nil)
 }
 
-// Catalog Types APIs
-
-func GetCatalogTypes() string {
-    fullUrl := HostUrl + "/rest/catalog-types"
-    return callHttpRequest("GET", fullUrl, nil, nil)
-}
-
-// Catalogs APIs
-
-func GetCatalogs(query, view string) string {
-    fullUrl := HostUrl + "/rest/catalogs"
-    params := map[string]string{}
-    if strings.TrimSpace(query) != "" {
-        params["userQuery"] = query
-    }
-    if strings.TrimSpace(view) != "" {
-        params["view"] = view
-    }
-    return callHttpRequest("GET", fullUrl, params, nil)
-}
-
-func CreateCatalog(accessKey, catalogTypeUri, name, password, regionName, secretKey, url, username string) string {
-    fullUrl := HostUrl + "/rest/catalogs"
-    values := map[string]string{
-                "accessKey": accessKey,
-                "catalogTypeUri": catalogTypeUri,
-                "name": name,
-                "password": password,
-                "regionName": regionName,
-                "secretKey": secretKey,
-                "url": url,
-                "username": username}
-    return callHttpRequest("POST", fullUrl, nil, values)
-}
-
-func GetCatalog(catalogID string) string {
-    fullUrl := HostUrl + "/rest/catalogs/" + catalogID
-    return callHttpRequest("GET", fullUrl, nil, nil)
-}
-
-func DeleteCatalog(catalogID string) string {
-    fullUrl := HostUrl + "/rest/catalogs/" + catalogID
-    return callHttpRequest("DELETE", fullUrl, nil, nil)
-}
-
-func UpdateCatalog(catalogID, name, password, accessKey, secretKey, regionName, state string) string {
-    fullUrl := HostUrl + "/rest/catalogs/" + catalogID
-    values := map[string]interface{}{
-                "name": name, "password": password, "accessKey": accessKey,
-                "secretKey": secretKey, "regionName": regionName, "state": state}
-    return callHttpRequest("PUT", fullUrl, nil, values)
-}
-
 // Service Types APIs
 
 func GetServiceTypes() string {
@@ -455,46 +499,6 @@ func UpdateWorkspace(workspaceID, name, description, tagUrisArray string) string
 func DeleteWorkspace(workspaceID string) string {
     fullUrl := HostUrl + "/rest/workspaces/" + workspaceID
     return callHttpRequest("DELETE", fullUrl, nil, nil)
-}
-
-// Deployments APIs
-
-func GetDeployments(query, view string) string {
-    fullUrl := HostUrl + "/rest/deployments"
-    values := map[string]string{"query": query, "view": view}
-    return callHttpRequest("GET", fullUrl, nil, values)
-}
-
-func CreateDeployment(info string) string {
-    fullUrl := HostUrl + "/rest/deployments"
-    return callHttpRequest("POST", fullUrl, nil, info)
-}
-
-func GetDeployment(deploymentID, view string) string {
-    fullUrl := HostUrl + "/rest/deployments/" + deploymentID
-    values := map[string]string{"view": view}
-    return callHttpRequest("GET", fullUrl, nil, values)
-}
-
-func UpdateDeployment(deploymentID, info string) string {
-    fullUrl := HostUrl + "/rest/deployments/" + deploymentID
-    return callHttpRequest("PUT", fullUrl, nil, info)
-}
-
-func DeleteDeployment(deploymentID string) string {
-    fullUrl := HostUrl + "/rest/deployments/" + deploymentID
-    return callHttpRequest("DELETE", fullUrl, nil, nil)
-}
-
-func ActionOnDeployment(deploymentID, actionType, force string) string {
-    fullUrl := HostUrl + "/rest/deployments/" + deploymentID + "/actions"
-    values := map[string]string{"force": string(force), "type": actionType}
-    return callHttpRequest("POST", fullUrl, nil, values)
-}
-
-func GetDeploymentConsole(deploymentID string) string {
-    fullUrl := HostUrl + "/rest/deployments/" + deploymentID + "/console"
-    return callHttpRequest("GET", fullUrl, nil, nil)
 }
 
 // Memberships APIs
