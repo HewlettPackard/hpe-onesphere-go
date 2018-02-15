@@ -328,6 +328,26 @@ func GetMetrics(
     return callHttpRequest("GET", fullUrl, params, nil)
 }
 
+// Networks APIs
+
+func GetNetworks(query string) string {
+    fullUrl := HostUrl + "/rest/networks"
+    params := map[string]string{"query": query}
+    return callHttpRequest("GET", fullUrl, params, nil)
+}
+
+func GetNetwork(networkID string) string {
+    fullUrl := HostUrl + "/rest/networks/" + networkID
+    return callHttpRequest("GET", fullUrl, nil, nil)
+}
+
+// infoArray: [{op, path, value}]
+func UpdateNetwork(networkID string, infoArray []string) string {
+    fullUrl := HostUrl + "/rest/networks/" + networkID
+    values := infoArray
+    return callHttpRequest("PUT", fullUrl, nil, values)
+}
+
 // Status APIs
 
 func GetStatus() string {
@@ -522,19 +542,6 @@ func GetVirtualMachineProfiles(query, zoneUri, serviceUri string) string {
 
 func GetVirtualMachineProfile(vmProfileID string) string {
     fullUrl := HostUrl + "/rest/virtual-machine-profiles/" + vmProfileID
-    return callHttpRequest("GET", fullUrl, nil, nil)
-}
-
-// Networks APIs
-
-func GetNetworks(query, zoneUri string) string {
-    fullUrl := HostUrl + "/rest/networks"
-    values := map[string]string{"q": query, "zoneUri": zoneUri}
-    return callHttpRequest("GET", fullUrl, nil, values)
-}
-
-func GetNetwork(networkID string) string {
-    fullUrl := HostUrl + "/rest/networks/" + networkID
     return callHttpRequest("GET", fullUrl, nil, nil)
 }
 
