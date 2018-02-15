@@ -287,19 +287,19 @@ func GetMembershipRoles() string {
 
 func GetMemberships(query string) string {
     fullUrl := HostUrl + "/rest/memberships"
-    values := map[string]string{"query": query}
-    return callHttpRequest("GET", fullUrl, nil, values)
+    params := map[string]string{"query": query}
+    return callHttpRequest("GET", fullUrl, params, nil)
 }
 
-func CreateMembership(userUri, roleUri, workspaceUri string) string {
+func CreateMembership(userUri, roleUri, projectUri string) string {
     fullUrl := HostUrl + "/rest/memberships"
-    values := map[string]string{"userUri": userUri, "roleUri": roleUri, "workspaceUri": workspaceUri}
+    values := map[string]string{"userUri": userUri, "membershipRoleUri": roleUri, "projectUri": projectUri}
     return callHttpRequest("POST", fullUrl, nil, values)
 }
 
-func DeleteMembership(userUri, roleUri, workspaceUri string) string {
+func DeleteMembership(userUri, roleUri, projectUri string) string {
     fullUrl := HostUrl + "/rest/memberships"
-    values := map[string]string{"userUri": userUri, "roleUri": roleUri, "workspaceUri": workspaceUri}
+    values := map[string]string{"userUri": userUri, "membershipRoleUri": roleUri, "projectUri": projectUri}
     return callHttpRequest("DELETE", fullUrl, nil, values)
 }
 
