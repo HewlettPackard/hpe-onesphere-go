@@ -260,6 +260,49 @@ func GetDeploymentConsole(deploymentID string) string {
     return callHttpRequest("GET", fullUrl, nil, nil)
 }
 
+// Events APIs
+
+func GetEvents(resourceUri string) string {
+    fullUrl := HostUrl + "/rest/events"
+    params := map[string]string{"resourceUri": resourceUri}
+    return callHttpRequest("GET", fullUrl, params, nil)
+}
+
+// Keypairs APIs
+
+func GetKeyPair(regionUri, projectUri string) string {
+    fullUrl := HostUrl + "/rest/keypairs"
+    params := map[string]string{"regionUri": regionUri, "projectUri": projectUri}
+    return callHttpRequest("GET", fullUrl, params, nil)
+}
+
+// Membership Roles APIs
+
+func GetMembershipRoles() string {
+    fullUrl := HostUrl + "/rest/membership-roles"
+    return callHttpRequest("GET", fullUrl, nil, nil)
+}
+
+// Memberships APIs
+
+func GetMemberships(query string) string {
+    fullUrl := HostUrl + "/rest/memberships"
+    values := map[string]string{"query": query}
+    return callHttpRequest("GET", fullUrl, nil, values)
+}
+
+func CreateMembership(userUri, roleUri, workspaceUri string) string {
+    fullUrl := HostUrl + "/rest/memberships"
+    values := map[string]string{"userUri": userUri, "roleUri": roleUri, "workspaceUri": workspaceUri}
+    return callHttpRequest("POST", fullUrl, nil, values)
+}
+
+func DeleteMembership(userUri, roleUri, workspaceUri string) string {
+    fullUrl := HostUrl + "/rest/memberships"
+    values := map[string]string{"userUri": userUri, "roleUri": roleUri, "workspaceUri": workspaceUri}
+    return callHttpRequest("DELETE", fullUrl, nil, values)
+}
+
 // Status APIs
 
 func GetStatus() string {
@@ -501,26 +544,6 @@ func DeleteWorkspace(workspaceID string) string {
     return callHttpRequest("DELETE", fullUrl, nil, nil)
 }
 
-// Memberships APIs
-
-func GetMemberships(query string) string {
-    fullUrl := HostUrl + "/rest/memberships"
-    values := map[string]string{"query": query}
-    return callHttpRequest("GET", fullUrl, nil, values)
-}
-
-func CreateMembership(userUri, roleUri, workspaceUri string) string {
-    fullUrl := HostUrl + "/rest/memberships"
-    values := map[string]string{"userUri": userUri, "roleUri": roleUri, "workspaceUri": workspaceUri}
-    return callHttpRequest("POST", fullUrl, nil, values)
-}
-
-func DeleteMembership(userUri, roleUri, workspaceUri string) string {
-    fullUrl := HostUrl + "/rest/memberships"
-    values := map[string]string{"userUri": userUri, "roleUri": roleUri, "workspaceUri": workspaceUri}
-    return callHttpRequest("DELETE", fullUrl, nil, values)
-}
-
 // Roles APIs
 
 func GetRoles() string {
@@ -578,14 +601,6 @@ func GetMetrics(
         "view": view,
         "start": start,
         "count": count}
-    return callHttpRequest("GET", fullUrl, nil, values)
-}
-
-// Events APIs
-
-func GetEvents(resourceUri string) string {
-    fullUrl := HostUrl + "/rest/events"
-    values := map[string]string{"resourceUri": resourceUri}
     return callHttpRequest("GET", fullUrl, nil, values)
 }
 
@@ -650,13 +665,5 @@ func GetTag(tagID, view string) string {
 func DeleteTag(tagID string) string {
     fullUrl := HostUrl + "/rest/tags/" + tagID
     return callHttpRequest("DELETE", fullUrl, nil, nil)
-}
-
-// Keypairs APIs
-
-func GetKeyPair(regionUri, workspaceUri string) string {
-    fullUrl := HostUrl + "/rest/keypairs"
-    values := map[string]string{"regionUri": regionUri, "workspaceUri": workspaceUri}
-    return callHttpRequest("GET", fullUrl, nil, values)
 }
 
