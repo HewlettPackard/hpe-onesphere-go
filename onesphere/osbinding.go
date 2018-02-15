@@ -23,6 +23,7 @@ package osbinding
 import (
     //"fmt"
     "strings"
+    "strconv"
     "bytes"
     //"io"
     "io/ioutil"
@@ -303,6 +304,30 @@ func DeleteMembership(userUri, roleUri, projectUri string) string {
     return callHttpRequest("DELETE", fullUrl, nil, values)
 }
 
+// Metrics APIs
+
+func GetMetrics(
+        resourceUri, category, groupBy, query, name string,
+        periodStart, period string,
+        periodCount int,
+        view string,
+        start, count int) string {
+    fullUrl := HostUrl + "/rest/metrics"
+    params := map[string]string{
+        "resourceUri": resourceUri,
+        "category": category,
+        "groupBy": groupBy,
+        "query": query,
+        "nameArray": name,
+        "periodStart": periodStart,
+        "period": period,
+        "periodCount": strconv.Itoa(periodCount),
+        "view": view,
+        "start": strconv.Itoa(start),
+        "count": strconv.Itoa(count)}
+    return callHttpRequest("GET", fullUrl, params, nil)
+}
+
 // Status APIs
 
 func GetStatus() string {
@@ -578,30 +603,6 @@ func UpdateUser(userID, name, password, email, role string) string {
 func DeleteUser(userID string) string {
     fullUrl := HostUrl + "/rest/users/" + userID
     return callHttpRequest("DELETE", fullUrl, nil, nil)
-}
-
-// Metrics APIs
-
-func GetMetrics(
-        resourceUriArray, categoryArray, queryArray, nameArray []string, 
-        periodStart string,
-        period, periodCount int,
-        view string,
-        start string,
-        count int) string {
-    fullUrl := HostUrl + "/rest/metrics"
-    values := map[string]interface{}{
-        "resourceUri": resourceUriArray,
-        "category": categoryArray,
-        "query": queryArray,
-        "nameArray": nameArray,
-        "periodStart": periodStart,
-        "period": period,
-        "periodCount": periodCount,
-        "view": view,
-        "start": start,
-        "count": count}
-    return callHttpRequest("GET", fullUrl, nil, values)
 }
 
 // Volumes APIs
