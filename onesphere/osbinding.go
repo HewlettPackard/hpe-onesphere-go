@@ -168,11 +168,11 @@ func GetCatalogTypes() string {
 
 // Catalogs APIs
 
-func GetCatalogs(query, view string) string {
+func GetCatalogs(userQuery, view string) string {
     fullUrl := HostUrl + "/rest/catalogs"
     params := map[string]string{}
-    if strings.TrimSpace(query) != "" {
-        params["userQuery"] = query
+    if strings.TrimSpace(userQuery) != "" {
+        params["userQuery"] = userQuery
     }
     if strings.TrimSpace(view) != "" {
         params["view"] = view
@@ -194,9 +194,10 @@ func CreateCatalog(accessKey, catalogTypeUri, name, password, regionName, secret
     return callHttpRequest("POST", fullUrl, nil, values)
 }
 
-func GetCatalog(catalogID string) string {
+func GetCatalog(catalogID, view string) string {
     fullUrl := HostUrl + "/rest/catalogs/" + catalogID
-    return callHttpRequest("GET", fullUrl, nil, nil)
+    params := map[string]string{"view": view}
+    return callHttpRequest("GET", fullUrl, params, nil)
 }
 
 func DeleteCatalog(catalogID string) string {
@@ -360,6 +361,49 @@ func ChangePassword(password, token string) string {
     fullUrl := HostUrl + "/rest/password-reset/change"
     values := map[string]string{"password": password, "token": token}
     return callHttpRequest("POST", fullUrl, nil, values)
+}
+
+// Projects APIs
+
+func GetProjects(userQuery, view string) string {
+    fullUrl := HostUrl + "/rest/projects"
+    params := map[string]string{}
+    if strings.TrimSpace(userQuery) != "" {
+        params["userQuery"] = userQuery
+    }
+    if strings.TrimSpace(view) != "" {
+        params["view"] = view
+    }
+    return callHttpRequest("GET", fullUrl, params, nil)
+}
+
+func CreateProject(name, description string, tagUris []string) string {
+    fullUrl := HostUrl + "/rest/projects"
+    values := map[string]interface{}{
+                "name": name,
+                "description": description,
+                "tagUris": tagUris}
+    return callHttpRequest("POST", fullUrl, nil, values)
+}
+
+func GetProject(projectID, view string) string {
+    fullUrl := HostUrl + "/rest/projects/" + projectID
+    params := map[string]string{"view": view}
+    return callHttpRequest("GET", fullUrl, params, nil)
+}
+
+func DeleteProject(projectID string) string {
+    fullUrl := HostUrl + "/rest/projects/" + projectID
+    return callHttpRequest("DELETE", fullUrl, nil, nil)
+}
+
+func UpdateProject(projectID, name, description string, tagUris []string) string {
+    fullUrl := HostUrl + "/rest/projects/" + projectID
+    values := map[string]interface{}{
+                "name": name,
+                "description": description,
+                "tagUris": tagUris}
+    return callHttpRequest("PUT", fullUrl, nil, values)
 }
 
 // Status APIs
