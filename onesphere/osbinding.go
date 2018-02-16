@@ -348,6 +348,20 @@ func UpdateNetwork(networkID string, infoArray []string) string {
     return callHttpRequest("PUT", fullUrl, nil, values)
 }
 
+// Password Reset APIs
+
+func ResetSingleUsePassword(email string) string {
+    fullUrl := HostUrl + "/rest/password-reset"
+    values := map[string]string{"email": email}
+    return callHttpRequest("POST", fullUrl, nil, values)
+}
+
+func ChangePassword(password, token string) string {
+    fullUrl := HostUrl + "/rest/password-reset/change"
+    values := map[string]string{"password": password, "token": token}
+    return callHttpRequest("POST", fullUrl, nil, values)
+}
+
 // Status APIs
 
 func GetStatus() string {
