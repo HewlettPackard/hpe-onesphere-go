@@ -461,6 +461,27 @@ func UpdateProvider(providerID, infoArray string) string {
     return callHttpRequest("PUT", fullUrl, nil, infoArray)
 }
 
+// Rates APIs
+
+func GetRates(resourceUri, effectiveForDate, effectiveDate, metricName string,
+              active bool, start, count int) string {
+    fullUrl := HostUrl + "/rest/rates"
+    params := map[string]string{
+        "resourceUri": resourceUri,
+        "effectiveForDate": effectiveForDate,
+        "effectiveDate": effectiveDate,
+        "metricName": metricName,
+        "active": strconv.FormatBool(active),
+        "start": strconv.Itoa(start),
+        "count": strconv.Itoa(count)}
+    return callHttpRequest("GET", fullUrl, params, nil)
+}
+
+func GetRate(rateID string) string {
+    fullUrl := HostUrl + "/rest/rates/" + rateID
+    return callHttpRequest("GET", fullUrl, nil, nil)
+}
+
 // Status APIs
 
 func GetStatus() string {
