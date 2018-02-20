@@ -406,34 +406,14 @@ func UpdateProject(projectID, name, description string, tagUris []string) string
     return callHttpRequest("PUT", fullUrl, nil, values)
 }
 
-// Status APIs
-
-func GetStatus() string {
-    fullUrl := HostUrl + "/rest/status"
-    return callHttpRequest("GET", fullUrl, nil, nil)
-}
-
-// Session APIs
-
-// view="full"
-func GetSession(view string) string {
-    fullUrl := HostUrl + "/rest/session"
-    params := map[string]string{"view": view}
-    return callHttpRequest("GET", fullUrl, params, nil)
-}
-
-func GetSessionIdp(username string) string {
-    fullUrl := HostUrl + "/rest/session/idp"
-    values := map[string]string{"userName": username}
-    return callHttpRequest("GET", fullUrl, nil, values)
-}
-
-// Providers APIs
+// Provider Types APIs
 
 func GetProviderTypes() string {
     fullUrl := HostUrl + "/rest/provider-types"
     return callHttpRequest("GET", fullUrl, nil, nil)
 }
+
+// Providers APIs
 
 func GetProviders(parentUri, providerTypeUri string) string {
     fullUrl := HostUrl + "/rest/providers"
@@ -474,6 +454,28 @@ func DeleteProvider(providerID string) string {
 func UpdateProvider(providerID, infoArray string) string {
     fullUrl := HostUrl + "/rest/providers/" + providerID
     return callHttpRequest("PUT", fullUrl, nil, infoArray)
+}
+
+// Status APIs
+
+func GetStatus() string {
+    fullUrl := HostUrl + "/rest/status"
+    return callHttpRequest("GET", fullUrl, nil, nil)
+}
+
+// Session APIs
+
+// view="full"
+func GetSession(view string) string {
+    fullUrl := HostUrl + "/rest/session"
+    params := map[string]string{"view": view}
+    return callHttpRequest("GET", fullUrl, params, nil)
+}
+
+func GetSessionIdp(username string) string {
+    fullUrl := HostUrl + "/rest/session/idp"
+    values := map[string]string{"userName": username}
+    return callHttpRequest("GET", fullUrl, nil, values)
 }
 
 // Regions APIs
