@@ -415,15 +415,16 @@ func GetProviderTypes() string {
 
 // Providers APIs
 
-func GetProviders(parentUri, providerTypeUri string) string {
+func GetProviders(query string) string {
     fullUrl := HostUrl + "/rest/providers"
-    values := map[string]string{"parentUri": parentUri, "providerTypeUri": providerTypeUri}
-    return callHttpRequest("GET", fullUrl, nil, values)
+    params := map[string]string{"query": query}
+    return callHttpRequest("GET", fullUrl, params, nil)
 }
 
-func CreateProvider(providerID, providerTypeUri, accessKey, secretKey, 
-                    s3CostBucket, parentUri, state string, 
-                    paymentProvider bool) string {
+// state: "Enabled|Disabled"
+func CreateProvider(providerID, providerTypeUri, accessKey, secretKey string,
+                    paymentProvider bool,
+                    s3CostBucket, masterUri, state string) string {
     fullUrl := HostUrl + "/rest/providers"
     values := map[string]interface{}{
         "id": providerID,
@@ -432,18 +433,19 @@ func CreateProvider(providerID, providerTypeUri, accessKey, secretKey,
         "secretKey": secretKey,
         "paymentProvider": paymentProvider,
         "s3CostBucket": s3CostBucket,
-        "parentUri": parentUri,
+        "masterUri": masterUri,
         "state": state}
     return callHttpRequest("POST", fullUrl, nil, values)
 }
 
 // view="full"
+// discover: boolean
 func GetProvider(providerID, view string, discover bool) string {
     fullUrl := HostUrl + "/rest/providers/" + providerID
-    values := map[string]interface{}{
+    params := map[string]string{
         "view": view,
-        "discover": discover}
-    return callHttpRequest("GET", fullUrl, nil, values)
+        "discover": strconv.FormatBool(discover)}
+    return callHttpRequest("GET", fullUrl, params, nil)
 }
 
 func DeleteProvider(providerID string) string {
@@ -451,6 +453,8 @@ func DeleteProvider(providerID string) string {
     return callHttpRequest("DELETE", fullUrl, nil, nil)
 }
 
+// infoArray: [{op, path, value}]
+// op: "add|replace|remove"
 func UpdateProvider(providerID, infoArray string) string {
     fullUrl := HostUrl + "/rest/providers/" + providerID
     return callHttpRequest("PUT", fullUrl, nil, infoArray)
