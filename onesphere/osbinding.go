@@ -152,7 +152,8 @@ func DeleteAppliance(applianceID string) string {
     return callHttpRequest("DELETE", fullUrl, nil, nil)
 }
 
-// infoArray: [{os, path, value}]
+// infoArray: [{op, path, value}]
+// op: "replace|remove"
 func UpdateAppliance(applianceID string, infoArray []string) string {
     fullUrl := HostUrl + "/rest/appliances/" + applianceID
     values := infoArray 
