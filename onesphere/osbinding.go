@@ -482,28 +482,6 @@ func GetRate(rateID string) string {
     return callHttpRequest("GET", fullUrl, nil, nil)
 }
 
-// Status APIs
-
-func GetStatus() string {
-    fullUrl := HostUrl + "/rest/status"
-    return callHttpRequest("GET", fullUrl, nil, nil)
-}
-
-// Session APIs
-
-// view="full"
-func GetSession(view string) string {
-    fullUrl := HostUrl + "/rest/session"
-    params := map[string]string{"view": view}
-    return callHttpRequest("GET", fullUrl, params, nil)
-}
-
-func GetSessionIdp(username string) string {
-    fullUrl := HostUrl + "/rest/session/idp"
-    values := map[string]string{"userName": username}
-    return callHttpRequest("GET", fullUrl, nil, values)
-}
-
 // Regions APIs
 
 func GetRegions(providerUri, view string) string {
@@ -534,53 +512,10 @@ func UpdateRegion(regionID, info string) string {
     return callHttpRequest("PUT", fullUrl, nil, info)
 }
 
-// Zone Types APIs
+// Roles APIs
 
-func GetZoneTypes() string {
-    fullUrl := HostUrl + "/rest/zone-types"
-    return callHttpRequest("GET", fullUrl, nil, nil)
-}
-
-// Zones APIs
-
-func GetZones(regionUri, query string) string {
-    fullUrl := HostUrl + "/rest/zones"
-    values := map[string]string{"regionUri": regionUri, "query": query}
-    return callHttpRequest("GET", fullUrl, nil, values)
-}
-
-func CreateZone(name, providerUri, regionUri, zoneTypeUri string) string {
-    fullUrl := HostUrl + "/rest/zones"
-    values := map[string]string{"name": name, "providerUri": providerUri, 
-                                "regionUri": regionUri, "zoneTypeUri": zoneTypeUri}
-    return callHttpRequest("POST", fullUrl, nil, values)
-}
-
-func GetZone(zoneID, view string) string {
-    fullUrl := HostUrl + "/rest/zones/" + zoneID
-    values := map[string]string{"view": view}
-    return callHttpRequest("GET", fullUrl, nil, values)
-}
-
-func UpdateZone(zoneID, infoArray string) string {
-    fullUrl := HostUrl + "/rest/zones/" + zoneID
-    return callHttpRequest("PUT", fullUrl, nil, infoArray)
-}
-
-func DeleteZone(zoneID string, force bool) string {
-    fullUrl := HostUrl + "/rest/zones/" + zoneID
-    values := map[string]bool{"force": force}
-    return callHttpRequest("DELETE", fullUrl, nil, values)
-}
-
-func ActionOnZone(zoneID, action string) string {
-    fullUrl := HostUrl + "/rest/zones/" + zoneID + "/actions"
-    values := map[string]string{"type": action}
-    return callHttpRequest("POST", fullUrl, nil, values)
-}
-
-func GetZoneApplianceImage(zoneID string) string {
-    fullUrl := HostUrl + "/rest/zones/" + zoneID + "/appliance-image"
+func GetRoles() string {
+    fullUrl := HostUrl + "/rest/roles"
     return callHttpRequest("GET", fullUrl, nil, nil)
 }
 
@@ -618,96 +553,25 @@ func GetService(serviceID, view string) string {
     return callHttpRequest("GET", fullUrl, nil, values)
 }
 
-// Virtual Machine Profiles APIs
+// Session APIs
 
-func GetVirtualMachineProfiles(query, zoneUri, serviceUri string) string {
-    fullUrl := HostUrl + "/rest/virtual-machine-profiles"
-    values := map[string]string{"q": query, "zoneUri": zoneUri, "serviceUri": serviceUri}
+// view="full"
+func GetSession(view string) string {
+    fullUrl := HostUrl + "/rest/session"
+    params := map[string]string{"view": view}
+    return callHttpRequest("GET", fullUrl, params, nil)
+}
+
+func GetSessionIdp(username string) string {
+    fullUrl := HostUrl + "/rest/session/idp"
+    values := map[string]string{"userName": username}
     return callHttpRequest("GET", fullUrl, nil, values)
 }
 
-func GetVirtualMachineProfile(vmProfileID string) string {
-    fullUrl := HostUrl + "/rest/virtual-machine-profiles/" + vmProfileID
-    return callHttpRequest("GET", fullUrl, nil, nil)
-}
+// Status APIs
 
-// Workspaces APIs
-
-func GetWorkspaces(query, view string) string {
-    fullUrl := HostUrl + "/rest/workspaces"
-    values := map[string]string{"q": query, "view": view}
-    return callHttpRequest("GET", fullUrl, nil, values)
-}
-
-func CreateWorkspace(name, description, tagUrisArray string) string {
-    fullUrl := HostUrl + "/rest/workspaces"
-    values := map[string]string{"name": name, "description": description, "tagUris": tagUrisArray}
-    return callHttpRequest("POST", fullUrl, nil, values)
-}
-
-func GetWorkspace(workspaceID, view string) string {
-    fullUrl := HostUrl + "/rest/workspaces/" + workspaceID
-    values := map[string]string{"view": view}
-    return callHttpRequest("GET", fullUrl, nil, values)
-}
-
-func UpdateWorkspace(workspaceID, name, description, tagUrisArray string) string {
-    fullUrl := HostUrl + "/rest/workspaces/" + workspaceID
-    values := map[string]string{"name": name, "description": description, "tagUris": tagUrisArray}
-    return callHttpRequest("PUT", fullUrl, nil, values)
-}
-
-func DeleteWorkspace(workspaceID string) string {
-    fullUrl := HostUrl + "/rest/workspaces/" + workspaceID
-    return callHttpRequest("DELETE", fullUrl, nil, nil)
-}
-
-// Roles APIs
-
-func GetRoles() string {
-    fullUrl := HostUrl + "/rest/roles"
-    return callHttpRequest("GET", fullUrl, nil, nil)
-}
-
-// Users APIs
-
-func GetUsers() string {
-    fullUrl := HostUrl + "/rest/users"
-    return callHttpRequest("GET", fullUrl, nil, nil)
-}
-
-func CreateUser(name, password, email, role string) string {
-    fullUrl := HostUrl + "/rest/users"
-    values := map[string]string{"name": name, "email": email, "password": password, "role": role}
-    return callHttpRequest("POST", fullUrl, nil, values)
-}
-
-func GetUser(userID string) string {
-    fullUrl := HostUrl + "/rest/users/" + userID
-    return callHttpRequest("GET", fullUrl, nil, nil)
-}
-
-func UpdateUser(userID, name, password, email, role string) string {
-    fullUrl := HostUrl + "/rest/users/" + userID
-    values := map[string]string{"name": name, "email": email, "password": password, "role": role}
-    return callHttpRequest("PUT", fullUrl, nil, values)
-}
-
-func DeleteUser(userID string) string {
-    fullUrl := HostUrl + "/rest/users/" + userID
-    return callHttpRequest("DELETE", fullUrl, nil, nil)
-}
-
-// Volumes APIs
-
-func GetVolumes(query string) string {
-    fullUrl := HostUrl + "/rest/volumes"
-    values := map[string]string{"query": query}
-    return callHttpRequest("GET", fullUrl, nil, values)
-}
-
-func GetVolume(volumeID string) string {
-    fullUrl := HostUrl + "/rest/volumes/" + volumeID
+func GetStatus() string {
+    fullUrl := HostUrl + "/rest/status"
     return callHttpRequest("GET", fullUrl, nil, nil)
 }
 
@@ -759,5 +623,110 @@ func GetTag(tagID, view string) string {
 func DeleteTag(tagID string) string {
     fullUrl := HostUrl + "/rest/tags/" + tagID
     return callHttpRequest("DELETE", fullUrl, nil, nil)
+}
+
+// Users APIs
+
+func GetUsers() string {
+    fullUrl := HostUrl + "/rest/users"
+    return callHttpRequest("GET", fullUrl, nil, nil)
+}
+
+func CreateUser(name, password, email, role string) string {
+    fullUrl := HostUrl + "/rest/users"
+    values := map[string]string{"name": name, "email": email, "password": password, "role": role}
+    return callHttpRequest("POST", fullUrl, nil, values)
+}
+
+func GetUser(userID string) string {
+    fullUrl := HostUrl + "/rest/users/" + userID
+    return callHttpRequest("GET", fullUrl, nil, nil)
+}
+
+func UpdateUser(userID, name, password, email, role string) string {
+    fullUrl := HostUrl + "/rest/users/" + userID
+    values := map[string]string{"name": name, "email": email, "password": password, "role": role}
+    return callHttpRequest("PUT", fullUrl, nil, values)
+}
+
+func DeleteUser(userID string) string {
+    fullUrl := HostUrl + "/rest/users/" + userID
+    return callHttpRequest("DELETE", fullUrl, nil, nil)
+}
+
+// Virtual Machine Profiles APIs
+
+func GetVirtualMachineProfiles(query, zoneUri, serviceUri string) string {
+    fullUrl := HostUrl + "/rest/virtual-machine-profiles"
+    values := map[string]string{"q": query, "zoneUri": zoneUri, "serviceUri": serviceUri}
+    return callHttpRequest("GET", fullUrl, nil, values)
+}
+
+func GetVirtualMachineProfile(vmProfileID string) string {
+    fullUrl := HostUrl + "/rest/virtual-machine-profiles/" + vmProfileID
+    return callHttpRequest("GET", fullUrl, nil, nil)
+}
+
+// Volumes APIs
+
+func GetVolumes(query string) string {
+    fullUrl := HostUrl + "/rest/volumes"
+    values := map[string]string{"query": query}
+    return callHttpRequest("GET", fullUrl, nil, values)
+}
+
+func GetVolume(volumeID string) string {
+    fullUrl := HostUrl + "/rest/volumes/" + volumeID
+    return callHttpRequest("GET", fullUrl, nil, nil)
+}
+
+// Zone Types APIs
+
+func GetZoneTypes() string {
+    fullUrl := HostUrl + "/rest/zone-types"
+    return callHttpRequest("GET", fullUrl, nil, nil)
+}
+
+// Zones APIs
+
+func GetZones(regionUri, query string) string {
+    fullUrl := HostUrl + "/rest/zones"
+    values := map[string]string{"regionUri": regionUri, "query": query}
+    return callHttpRequest("GET", fullUrl, nil, values)
+}
+
+func CreateZone(name, providerUri, regionUri, zoneTypeUri string) string {
+    fullUrl := HostUrl + "/rest/zones"
+    values := map[string]string{"name": name, "providerUri": providerUri, 
+                                "regionUri": regionUri, "zoneTypeUri": zoneTypeUri}
+    return callHttpRequest("POST", fullUrl, nil, values)
+}
+
+func GetZone(zoneID, view string) string {
+    fullUrl := HostUrl + "/rest/zones/" + zoneID
+    values := map[string]string{"view": view}
+    return callHttpRequest("GET", fullUrl, nil, values)
+}
+
+func UpdateZone(zoneID, infoArray string) string {
+    fullUrl := HostUrl + "/rest/zones/" + zoneID
+    return callHttpRequest("PUT", fullUrl, nil, infoArray)
+}
+
+func DeleteZone(zoneID string, force bool) string {
+    fullUrl := HostUrl + "/rest/zones/" + zoneID
+    values := map[string]bool{"force": force}
+    return callHttpRequest("DELETE", fullUrl, nil, values)
+}
+
+func ActionOnZone(zoneID, action string) string {
+    fullUrl := HostUrl + "/rest/zones/" + zoneID + "/actions"
+    values := map[string]string{"type": action}
+    return callHttpRequest("POST", fullUrl, nil, values)
+}
+
+func GetZoneApplianceImage(zoneID string) string {
+    fullUrl := HostUrl + "/rest/zones/" + zoneID + "/appliance-image"
+    return callHttpRequest("GET", fullUrl, nil, nil)
 }
 
