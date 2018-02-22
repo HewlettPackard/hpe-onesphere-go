@@ -580,24 +580,17 @@ func GetServiceType(serviceTypeID string) string {
 
 // Services APIs
 
-func GetServices(query, userQuery, serviceTypeUri, zoneUri, 
-                 workspaceUri, catalogUri, view string) string {
+func GetServices(query, userQuery, view string) string {
     fullUrl := HostUrl + "/rest/services"
-    values := map[string]string{
-        "query": query, 
-        "userQuery": userQuery, 
-        "serviceTypeUri": serviceTypeUri, 
-        "zoneUri": zoneUri, 
-        "workspaceUri": workspaceUri, 
-        "catalogUri": catalogUri, 
-        "view": view}
-    return callHttpRequest("GET", fullUrl, nil, values)
+    params := map[string]string{"query": query, "userQuery": userQuery, "view": view}
+    return callHttpRequest("GET", fullUrl, params, nil)
 }
 
+// view: "full|deployment"
 func GetService(serviceID, view string) string {
     fullUrl := HostUrl + "/rest/services/" + serviceID
-    values := map[string]string{"view": view}
-    return callHttpRequest("GET", fullUrl, nil, values)
+    params := map[string]string{"view": view}
+    return callHttpRequest("GET", fullUrl, params, nil)
 }
 
 // Session APIs
