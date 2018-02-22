@@ -156,7 +156,7 @@ func DeleteAppliance(applianceID string) string {
 // op: "replace|remove"
 func UpdateAppliance(applianceID string, infoArray []string) string {
     fullUrl := HostUrl + "/rest/appliances/" + applianceID
-    values := infoArray 
+    values := infoArray
     return callHttpRequest("PUT", fullUrl, nil, values)
 }
 
@@ -484,10 +484,10 @@ func GetRate(rateID string) string {
 
 // Regions APIs
 
-func GetRegions(providerUri, view string) string {
+func GetRegions(query, view string) string {
     fullUrl := HostUrl + "/rest/regions"
-    values := map[string]string{"providerUri": providerUri, "view": view}
-    return callHttpRequest("GET", fullUrl, nil, values)
+    params := map[string]string{"query": query, "view": view}
+    return callHttpRequest("GET", fullUrl, params, nil)
 }
 
 func CreateRegion(name, providerUri, locLatitude, locLongitude string) string {
@@ -503,13 +503,60 @@ func CreateRegion(name, providerUri, locLatitude, locLongitude string) string {
 
 func GetRegion(regionID, view string, discover bool) string {
     fullUrl := HostUrl + "/rest/regions/" + regionID
-    values := map[string]interface{}{"view": view, "discover": discover}
-    return callHttpRequest("GET", fullUrl, nil, values)
+    params := map[string]string{"view": view, "discover": strconv.FormatBool(discover)}
+    return callHttpRequest("GET", fullUrl, params, nil)
 }
 
-func UpdateRegion(regionID, info string) string {
+func DeleteRegion(regionID string, force bool) string {
     fullUrl := HostUrl + "/rest/regions/" + regionID
-    return callHttpRequest("PUT", fullUrl, nil, info)
+    params := map[string]string{"force": strconv.FormatBool(force)}
+    return callHttpRequest("DELETE", fullUrl, params, nil)
+}
+
+// infoArray: [{op, path, value}]
+// op: "add|replace"
+// path: "/name|/location"
+func PatchRegion(regionID string, infoArray []string) string {
+    fullUrl := HostUrl + "/rest/regions/" + regionID
+    return callHttpRequest("PUT", fullUrl, nil, infoArray)
+}
+
+func UpdateRegion(regionID, region string) string {
+    fullUrl := HostUrl + "/rest/regions/" + regionID
+    return callHttpRequest("PUT", fullUrl, nil, region)
+}
+
+func GetRegionConnection(regionID string) string {
+    fullUrl := HostUrl + "/rest/regions/" + regionID + "/connection"
+    return callHttpRequest("GET", fullUrl, nil, nil)
+}
+
+// state: "Enabling|Enabled|Disabling|Disabled"
+func CreateRegionConnection(regionID, endpointUuid, name, ipAddress, username, password string,
+                            port int,
+                            state, uri string) string {
+    fullUrl := HostUrl + "/rest/regions/" + regionID + "/connection"
+    values := map[string]interface{}{
+        "endpointUuid": endpointUuid,
+        "name": name,
+        "location": map[string]interface{}{
+            "ipAddress": ipAddress,
+            "username": username,
+            "password": password,
+            "port": strconv.Itoa(port)},
+        "state": state,
+        "uri": uri}
+    return callHttpRequest("POST", fullUrl, nil, values)
+}
+
+func DeleteRegionConnection(regionID string) string {
+    fullUrl := HostUrl + "/rest/regions/" + regionID + "/connection"
+    return callHttpRequest("DELETE", fullUrl, nil, nil)
+}
+
+func GetRegionConnectorImage(regionID string) string {
+    fullUrl := HostUrl + "/rest/regions/" + regionID + "/connector-image"
+    return callHttpRequest("GET", fullUrl, nil, nil)
 }
 
 // Roles APIs
