@@ -39,6 +39,8 @@ func main() {
     fmt.Println("Users:", osbinding.GetUsers())
     fmt.Println("TagKeys:", osbinding.GetTagKeys("full"))
     fmt.Println("Tags:", osbinding.GetTags("full"))
+
+    osbinding.Disconnect()
 }
 ```
 
