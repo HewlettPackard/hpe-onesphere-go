@@ -622,10 +622,11 @@ func GetStatus() string {
 
 // Tag Keys APIs
 
+// view: "full"
 func GetTagKeys(view string) string {
     fullUrl := HostUrl + "/rest/tag-keys"
-    values := map[string]string{"view": view}
-    return callHttpRequest("GET", fullUrl, nil, values)
+    params := map[string]string{"view": view}
+    return callHttpRequest("GET", fullUrl, params, nil)
 }
 
 func CreateTagKey(name string) string {
@@ -634,10 +635,11 @@ func CreateTagKey(name string) string {
     return callHttpRequest("POST", fullUrl, nil, values)
 }
 
+// view: "full"
 func GetTagKey(tagKeyID, view string) string {
     fullUrl := HostUrl + "/rest/tag-keys/" + tagKeyID
-    values := map[string]string{"view": view}
-    return callHttpRequest("GET", fullUrl, nil, values)
+    params := map[string]string{"view": view}
+    return callHttpRequest("GET", fullUrl, params, nil)
 }
 
 func DeleteTagKey(tagKeyID string) string {
@@ -647,10 +649,11 @@ func DeleteTagKey(tagKeyID string) string {
 
 // Tags APIs
 
+// view: "full"
 func GetTags(view string) string {
     fullUrl := HostUrl + "/rest/tags"
-    values := map[string]string{"view": view}
-    return callHttpRequest("GET", fullUrl, nil, values)
+    params := map[string]string{"view": view}
+    return callHttpRequest("GET", fullUrl, params, nil)
 }
 
 func CreateTag(name, tagKeyUri string) string {
@@ -659,10 +662,11 @@ func CreateTag(name, tagKeyUri string) string {
     return callHttpRequest("POST", fullUrl, nil, values)
 }
 
+// view: "full"
 func GetTag(tagID, view string) string {
     fullUrl := HostUrl + "/rest/tags/" + tagID
-    values := map[string]string{"view": view}
-    return callHttpRequest("GET", fullUrl, nil, values)
+    params := map[string]string{"view": view}
+    return callHttpRequest("GET", fullUrl, params, nil)
 }
 
 func DeleteTag(tagID string) string {
