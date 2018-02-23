@@ -105,6 +105,11 @@ func Connect(hostUrl, user, password string) {
     Token = dat["token"]
 }
 
+func Disconnect() {
+    fullUrl := HostUrl + "/rest/session"
+    callHttpRequest("DELETE", fullUrl, nil, nil)
+}
+
 // Account APIs
 
 // view="full"
@@ -595,17 +600,17 @@ func GetService(serviceID, view string) string {
 
 // Session APIs
 
-// view="full"
+// view: "full"
 func GetSession(view string) string {
     fullUrl := HostUrl + "/rest/session"
     params := map[string]string{"view": view}
     return callHttpRequest("GET", fullUrl, params, nil)
 }
 
-func GetSessionIdp(username string) string {
+func GetSessionIdp(userName string) string {
     fullUrl := HostUrl + "/rest/session/idp"
-    values := map[string]string{"userName": username}
-    return callHttpRequest("GET", fullUrl, nil, values)
+    params := map[string]string{"userName": userName}
+    return callHttpRequest("GET", fullUrl, params, nil)
 }
 
 // Status APIs
