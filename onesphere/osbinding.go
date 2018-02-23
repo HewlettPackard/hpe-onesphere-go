@@ -708,10 +708,10 @@ func DeleteUser(userID string) string {
 
 // Virtual Machine Profiles APIs
 
-func GetVirtualMachineProfiles(query, zoneUri, serviceUri string) string {
+func GetVirtualMachineProfiles(zoneUri, serviceUri string) string {
     fullUrl := HostUrl + "/rest/virtual-machine-profiles"
-    values := map[string]string{"q": query, "zoneUri": zoneUri, "serviceUri": serviceUri}
-    return callHttpRequest("GET", fullUrl, nil, values)
+    params := map[string]string{"zoneUri": zoneUri, "serviceUri": serviceUri}
+    return callHttpRequest("GET", fullUrl, params, nil)
 }
 
 func GetVirtualMachineProfile(vmProfileID string) string {
