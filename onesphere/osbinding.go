@@ -770,44 +770,90 @@ func GetZoneTypeResourceProfiles(zoneTypeID string) string {
 
 // Zones APIs
 
-func GetZones(regionUri, query string) string {
+func GetZones(query, regionUri, applianceUri string) string {
     fullUrl := HostUrl + "/rest/zones"
-    values := map[string]string{"regionUri": regionUri, "query": query}
-    return callHttpRequest("GET", fullUrl, nil, values)
+    params := map[string]string{"query": query, "regionUri": regionUri, "applianceUri": applianceUri}
+    return callHttpRequest("GET", fullUrl, params, nil)
 }
 
-func CreateZone(name, providerUri, regionUri, zoneTypeUri string) string {
+func CreateZone(zoneData string) string {
     fullUrl := HostUrl + "/rest/zones"
-    values := map[string]string{"name": name, "providerUri": providerUri, 
-                                "regionUri": regionUri, "zoneTypeUri": zoneTypeUri}
-    return callHttpRequest("POST", fullUrl, nil, values)
+    return callHttpRequest("POST", fullUrl, nil, zoneData)
 }
 
+// view: "full"
 func GetZone(zoneID, view string) string {
     fullUrl := HostUrl + "/rest/zones/" + zoneID
-    values := map[string]string{"view": view}
-    return callHttpRequest("GET", fullUrl, nil, values)
+    params := map[string]string{"view": view}
+    return callHttpRequest("GET", fullUrl, params, nil)
 }
 
-func UpdateZone(zoneID, infoArray string) string {
+// op: "add|replace|remove"
+func UpdateZone(zoneID, op, path string, value interface{}) string {
     fullUrl := HostUrl + "/rest/zones/" + zoneID
-    return callHttpRequest("PUT", fullUrl, nil, infoArray)
+    values := map[string]interface{}{"op": op, "path": path, "value": value}
+    return callHttpRequest("PUT", fullUrl, nil, values)
 }
 
 func DeleteZone(zoneID string, force bool) string {
     fullUrl := HostUrl + "/rest/zones/" + zoneID
-    values := map[string]bool{"force": force}
-    return callHttpRequest("DELETE", fullUrl, nil, values)
+    params := map[string]string{"force": strconv.FormatBool(force)}
+    return callHttpRequest("DELETE", fullUrl, params, nil)
 }
 
-func ActionOnZone(zoneID, action string) string {
+// actionType: "reset|add-capacity|reduce-capacity"
+// resourceType: "compute|storage"
+func ActionOnZone(zoneID, actionType, resourceType string, resourceCapacity int) string {
     fullUrl := HostUrl + "/rest/zones/" + zoneID + "/actions"
-    values := map[string]string{"type": action}
+    values := map[string]interface{}{
+        "type": actionType,
+        "resourceOp": map[string]interface{}{
+            "resourceType": resourceType, 
+            "resourceCapacity": resourceCapacity}}
     return callHttpRequest("POST", fullUrl, nil, values)
 }
 
 func GetZoneApplianceImage(zoneID string) string {
     fullUrl := HostUrl + "/rest/zones/" + zoneID + "/appliance-image"
     return callHttpRequest("GET", fullUrl, nil, nil)
+}
+
+func GetZoneTaskStatus(zoneID string) string {
+    fullUrl := HostUrl + "/rest/zones/" + zoneID + "/task-status"
+    return callHttpRequest("GET", fullUrl, nil, nil)
+}
+
+func GetZoneConnections(zoneID, uuid string) string {
+    fullUrl := HostUrl + "/rest/zones/" + zoneID + "/connections"
+    params := map[string]string{"uuid": uuid}
+    return callHttpRequest("GET", fullUrl, params, nil)
+}
+
+// state: "Enabling|Enabled|Disabling|Disabled"
+func CreateZoneConnection(zoneID, uuid, name, ipAddress, username, password string, 
+                          port int, state string) string {
+    fullUrl := HostUrl + "/rest/zones/" + zoneID + "/connections"
+    values := map[string]interface{}{
+        "uuid": uuid,
+        "name": name,
+        "location": map[string]interface{}{
+            "ipAddress": ipAddress,
+            "username": username,
+            "password": password,
+            "port": port},
+        "state": state}
+    return callHttpRequest("POST", fullUrl, nil, values)
+}
+
+func DeleteZoneConnection(zoneID, uuid string) string {
+    fullUrl := HostUrl + "/rest/zones/" + zoneID + "/connections/" + uuid
+    return callHttpRequest("DELETE", fullUrl, nil, nil)
+}
+
+// op: "add|replace|remove"
+func UpdateZoneConnection(zoneID, uuid, op, path string, value interface{}) string {
+    fullUrl := HostUrl + "/rest/zones/" + zoneID + "/connections"
+    values := map[string]interface{}{"op": op, "path": path, "value": value}
+    return callHttpRequest("PUT", fullUrl, nil, values)
 }
 
