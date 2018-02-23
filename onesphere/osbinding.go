@@ -676,14 +676,16 @@ func DeleteTag(tagID string) string {
 
 // Users APIs
 
-func GetUsers() string {
+func GetUsers(userQuery string) string {
     fullUrl := HostUrl + "/rest/users"
-    return callHttpRequest("GET", fullUrl, nil, nil)
+    params := map[string]string{"userQuery": userQuery}
+    return callHttpRequest("GET", fullUrl, params, nil)
 }
 
-func CreateUser(name, password, email, role string) string {
+// role: "administrator|analyst|consumer|project-creator"
+func CreateUser(email, name, password, role string) string {
     fullUrl := HostUrl + "/rest/users"
-    values := map[string]string{"name": name, "email": email, "password": password, "role": role}
+    values := map[string]string{"email": email, "name": name, "password": password, "role": role}
     return callHttpRequest("POST", fullUrl, nil, values)
 }
 
@@ -692,9 +694,10 @@ func GetUser(userID string) string {
     return callHttpRequest("GET", fullUrl, nil, nil)
 }
 
-func UpdateUser(userID, name, password, email, role string) string {
+// role: "administrator|analyst|consumer|project-creator"
+func UpdateUser(userID, email, name, password, role string) string {
     fullUrl := HostUrl + "/rest/users/" + userID
-    values := map[string]string{"name": name, "email": email, "password": password, "role": role}
+    values := map[string]string{"email": email, "name": name, "password": password, "role": role}
     return callHttpRequest("PUT", fullUrl, nil, values)
 }
 
