@@ -763,6 +763,11 @@ func GetZoneTypes() string {
     return callHttpRequest("GET", fullUrl, nil, nil)
 }
 
+func GetZoneTypeResourceProfiles(zoneTypeID string) string {
+    fullUrl := HostUrl + "/rest/zone-types/" + zoneTypeID + "/resource-profiles"
+    return callHttpRequest("GET", fullUrl, nil, nil)
+}
+
 // Zones APIs
 
 func GetZones(regionUri, query string) string {
