@@ -721,15 +721,39 @@ func GetVirtualMachineProfile(vmProfileID string) string {
 
 // Volumes APIs
 
-func GetVolumes(query string) string {
+// view: "full"
+func GetVolumes(query, view string) string {
     fullUrl := HostUrl + "/rest/volumes"
-    values := map[string]string{"query": query}
-    return callHttpRequest("GET", fullUrl, nil, values)
+    params := map[string]string{"query": query, "view": view}
+    return callHttpRequest("GET", fullUrl, params, nil)
+}
+
+func CreateVolume(name string, sizeGiB int, zoneUri, projectUri string) string {
+    fullUrl := HostUrl + "/rest/volumes"
+    values := map[string]interface{}{
+            "name": name,
+            "sizeGiB": strconv.Itoa(sizeGiB),
+            "zoneUri": zoneUri,
+            "projectUri": projectUri}
+    return callHttpRequest("POST", fullUrl, nil, values)
 }
 
 func GetVolume(volumeID string) string {
     fullUrl := HostUrl + "/rest/volumes/" + volumeID
     return callHttpRequest("GET", fullUrl, nil, nil)
+}
+
+func UpdateVolume(volumeID, name string, sizeGiB int) string {
+    fullUrl := HostUrl + "/rest/volumes/" + volumeID
+    values := map[string]interface{}{
+            "name": name,
+            "sizeGiB": strconv.Itoa(sizeGiB)}
+    return callHttpRequest("PUT", fullUrl, nil, values)
+}
+
+func DeleteVolume(volumeID string) string {
+    fullUrl := HostUrl + "/rest/volumes/" + volumeID
+    return callHttpRequest("DELETE", fullUrl, nil, nil)
 }
 
 // Zone Types APIs
