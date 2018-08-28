@@ -1,47 +1,85 @@
-# GO Language Binding for HPE OneSphere APIs
-
-The GO language binding package for GO developers to call HPE OneSphere APIs
+# Go bindings for HPE OneSphere APIs
 
 ## Prerequisites
 
-go1.9.2 and above. 
+go1.9.2 and above.
 You can install the latest version from:
 
-```
-https://golang.org/dl/
-```
+[https://golang.org/dl](https://golang.org/dl)
 
 ## Usage
 
-Copy the onesphere folder into your GO project folder.
+#### Install the OneSphere package
 
-Example:
-
+```sh
+go get github.com/HewlettPackard/hpe-onesphere-go
 ```
-package main
 
+#### Import the package
+
+```go
 import (
-    osbinding "./onesphere"
-    "fmt"
+  "fmt"
+  "github.com/HewlettPackard/hpe-onesphere-go"
 )
+```
 
-func main() {
-    osbinding.Connect("https://onesphere-host-url", "username", "password")
-    fmt.Println("Token:", osbinding.Token)
+#### Connect to the OneSphere server
 
-    fmt.Println("Status:", osbinding.GetStatus())
-    fmt.Println("Session:", osbinding.GetSession("full"))
-    fmt.Println("Account:", osbinding.GetAccount("full"))
-    fmt.Println("ProviderTypes:", osbinding.GetProviderTypes())
-    fmt.Println("ZoneTypes:", osbinding.GetZoneTypes())
-    fmt.Println("ServiceTypes:", osbinding.GetServiceTypes())
-    fmt.Println("Roles:", osbinding.GetRoles())
-    fmt.Println("Users:", osbinding.GetUsers())
-    fmt.Println("TagKeys:", osbinding.GetTagKeys("full"))
-    fmt.Println("Tags:", osbinding.GetTags("full"))
+```go
+osbinding.Connect("https://onesphere-host-url", "username", "password")
+```
 
-    osbinding.Disconnect()
-}
+#### Make calls to the OneSphere API
+
+```go
+fmt.Println("Status:", onesphere.GetStatus())
+```
+
+example output
+
+```json
+{"service":"OK","database":""}
+```
+
+#### Disconnect from the OneSphere server
+
+```go
+osbinding.Disconnect()
+```
+
+## Full Example
+
+see [sample/main.go](./sample/main.go)
+
+## Run the sample project
+
+`go get` the OneSphere project
+
+```sh
+go get github.com/HewlettPackard/hpe-onesphere-go
+```
+
+You must set the OneSphere `host` url, `user`, and `password` flags.
+
+Replace these values:
+
+- `ONESPHERE_HOST_URL`
+- `YOUR_ONESPHERE_USERNAME`
+- `YOUR_ONESPHERE_PASSWORD`
+```sh
+go run $GOPATH/src/github.com/HewlettPackard/hpe-onesphere-go/sample/main.go \
+  -host=https://ONESPHERE_HOST_URL \
+  -user=YOUR_ONESPHERE_USERNAME \
+  -password=YOUR_ONESPHERE_PASSWORD
+```
+
+_alternatively_ use environment variables
+```sh
+host=https://ONESPHERE_HOST_URL \
+  user=YOUR_ONESPHERE_USERNAME \
+  password=YOUR_ONESPHERE_PASSWORD \
+  go run $GOPATH/src/github.com/HewlettPackard/hpe-onesphere-go/sample/main.go
 ```
 
 ## APIs
