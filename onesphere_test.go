@@ -183,3 +183,7 @@ func TestGetSessionFull(t *testing.T) {
 	}
 
 }
+
+func TestGetAccountFull(t *testing.T) {
+	t.Skipf("@TODO Implement onesphere.API.GetAccount()")
+}

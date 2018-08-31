@@ -73,5 +73,11 @@ func main() {
 		fmt.Printf("Session: %s\n", session)
 	}
 
+	if account, err := oneSphere.GetAccount("full"); err != nil {
+		fmt.Printf("Error: %s\n", err)
+	} else {
+		fmt.Printf("Account: %s\n", account)
+	}
+
 	oneSphere.Disconnect()
 }

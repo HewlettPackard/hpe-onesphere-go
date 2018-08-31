@@ -23,6 +23,7 @@ package onesphere
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -123,6 +124,10 @@ func (api *API) buildURL(path string) string {
 	return api.Auth.HostURL + path
 }
 
+func (api *API) notImplementedError(method, endpoint, path string) error {
+	return fmt.Errorf("%s %s is not yet implemented.\nSee: %s/docs/api/endpoint?&path=%%2F%s", method, endpoint, path, api.Auth.HostURL)
+}
+
 func (api *API) Disconnect() {
 	api.callHTTPRequest("DELETE", "/rest/session", nil, nil)
 }
@@ -131,8 +136,9 @@ func (api *API) Disconnect() {
 
 // view="full"
 func (api *API) GetAccount(view string) (string, error) {
-	params := map[string]string{"view": view}
-	return api.callHTTPRequest("GET", "/rest/account", params, nil)
+	// params := map[string]string{"view": view}
+	// return api.callHTTPRequest("GET", "/rest/account", params, nil)
+	return "", api.notImplementedError("GET", "/rest/account", "account")
 }
 
 // Appliances APIs
