@@ -61,18 +61,6 @@ func main() {
 
 	fmt.Println("Token:", oneSphere.Auth.Token)
 
-	if status, err := oneSphere.GetStatus(); err != nil {
-		fmt.Printf("Error: %s\n", err)
-	} else {
-		fmt.Printf("Status: %s\n", status)
-	}
-
-	if session, err := oneSphere.GetSession("full"); err != nil {
-		fmt.Printf("Error: %s\n", err)
-	} else {
-		fmt.Printf("Session: %s\n", session)
-	}
-
 	if account, err := oneSphere.GetAccount("full"); err != nil {
 		fmt.Printf("Error: %s\n", err)
 	} else {
@@ -83,6 +71,18 @@ func main() {
 		fmt.Printf("Error: %s\n", err)
 	} else {
 		fmt.Printf("ProviderTypes: %s\n", providerTypes)
+	}
+
+	if session, err := oneSphere.GetSession("full"); err != nil {
+		fmt.Printf("Error: %s\n", err)
+	} else {
+		fmt.Printf("Session: %s\n", session)
+	}
+
+	if status, err := oneSphere.GetStatus(); err != nil {
+		fmt.Printf("Error: %s\n", err)
+	} else {
+		fmt.Printf("Status: %s\n", status)
 	}
 
 	if zoneTypes, err := oneSphere.GetZoneTypes(); err != nil {

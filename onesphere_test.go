@@ -146,15 +146,33 @@ func TestToken(t *testing.T) {
 	}
 }
 
-func TestGetStatus(t *testing.T) {
-	actual, err := oneSphere.GetStatus()
+func TestGetAccountFull(t *testing.T) {
+	t.Skipf("@TODO Implement onesphere.API.GetAccount()")
+}
+
+func TestGetProviderTypes(t *testing.T) {
+	actual, err := oneSphere.GetProviderTypes()
 	if err != nil {
-		t.Errorf("TestGetStatus Error: %v\n", err)
+		t.Errorf("TestGetProviderTypes Error: %v\n", err)
 	}
 
-	compareErr := comparePayload(t, "onesphere.API.GetStatus()", `{"service":"OK","database":""}`, actual)
+	expected := `{
+    "total": 0,
+    "start": 0,
+    "count": 0,
+    "members": [
+        {
+            "id": "abc",
+            "logo": "https://",
+            "logoType": "https://",
+            "name": "",
+            "uri": "/rest/provider-types/abc"
+        }
+    ]
+	}`
+	compareErr := compareFields(t, "onesphere.API.GetProviderTypes", expected, actual)
 	if compareErr != nil {
-		t.Errorf("TestGetStatus Error: %s\n", compareErr)
+		t.Errorf("TestGetProviderTypes Error: %s\n", compareErr)
 	}
 
 }
@@ -184,33 +202,15 @@ func TestGetSessionFull(t *testing.T) {
 
 }
 
-func TestGetAccountFull(t *testing.T) {
-	t.Skipf("@TODO Implement onesphere.API.GetAccount()")
-}
-
-func TestGetProviderTypes(t *testing.T) {
-	actual, err := oneSphere.GetProviderTypes()
+func TestGetStatus(t *testing.T) {
+	actual, err := oneSphere.GetStatus()
 	if err != nil {
-		t.Errorf("TestGetProviderTypes Error: %v\n", err)
+		t.Errorf("TestGetStatus Error: %v\n", err)
 	}
 
-	expected := `{
-    "total": 0,
-    "start": 0,
-    "count": 0,
-    "members": [
-        {
-            "id": "abc",
-            "logo": "https://",
-            "logoType": "https://",
-            "name": "",
-            "uri": "/rest/provider-types/abc"
-        }
-    ]
-	}`
-	compareErr := compareFields(t, "onesphere.API.GetProviderTypes", expected, actual)
+	compareErr := comparePayload(t, "onesphere.API.GetStatus()", `{"service":"OK","database":""}`, actual)
 	if compareErr != nil {
-		t.Errorf("TestGetProviderTypes Error: %s\n", compareErr)
+		t.Errorf("TestGetStatus Error: %s\n", compareErr)
 	}
 
 }
