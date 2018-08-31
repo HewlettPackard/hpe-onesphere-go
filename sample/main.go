@@ -97,6 +97,12 @@ func main() {
 		fmt.Printf("Status: %s\n\n", status)
 	}
 
+	if tagKeys, err := oneSphere.GetTagKeys("full"); err != nil {
+		fmt.Printf("Error: %s\n\n", err)
+	} else {
+		fmt.Printf("TagKeys: %s\n\n", tagKeys)
+	}
+
 	if users, err := oneSphere.GetUsers("full"); err != nil {
 		fmt.Printf("Error: %s\n\n", err)
 	} else {
