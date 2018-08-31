@@ -67,6 +67,12 @@ func main() {
 		fmt.Printf("Account: %s\n\n", account)
 	}
 
+	if appliances, err := oneSphere.GetAppliances("", ""); err != nil {
+		fmt.Printf("Error: %s\n\n", err)
+	} else {
+		fmt.Printf("Appliances: %s\n\n", appliances)
+	}
+
 	if providerTypes, err := oneSphere.GetProviderTypes(); err != nil {
 		fmt.Printf("Error: %s\n\n", err)
 	} else {

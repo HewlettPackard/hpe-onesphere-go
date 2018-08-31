@@ -150,6 +150,50 @@ func TestGetAccountFull(t *testing.T) {
 	t.Skipf("@TODO Implement onesphere.API.GetAccount()")
 }
 
+func TestGetAppliances(t *testing.T) {
+	actual, err := oneSphere.GetAppliances("", "")
+	if err != nil {
+		t.Errorf("TestAppliances Error: %v\n", err)
+	}
+
+	expected := `{
+    "total": 0,
+    "start": 0,
+    "count": 0,
+    "members": [
+        {
+            "created": "",
+            "endpoint": {
+                "address": "",
+                "password": "",
+                "username": ""
+            },
+            "l2networks": [
+                {
+                    "ethernetNetworkType": "",
+                    "name": "",
+                    "purpose": "",
+                    "uri": "",
+                    "vlanId": 123
+                }
+            ],
+            "modified": "",
+            "name": "",
+            "regionUri": "",
+            "state": "",
+            "status": "",
+            "type": "",
+            "uri": ""
+        }
+    ]
+	}`
+	compareErr := compareFields(t, "onesphere.API.GetAppliances", expected, actual)
+	if compareErr != nil {
+		t.Errorf("TestGetAppliances Error: %s\n", compareErr)
+	}
+
+}
+
 func TestGetProviderTypes(t *testing.T) {
 	actual, err := oneSphere.GetProviderTypes()
 	if err != nil {
