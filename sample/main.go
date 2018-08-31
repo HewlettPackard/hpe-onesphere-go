@@ -61,12 +61,17 @@ func main() {
 
 	fmt.Println("Token:", oneSphere.Auth.Token)
 
-	if status, statusErr := oneSphere.GetStatus(); statusErr != nil {
-		fmt.Printf("Error: %s\n", statusErr)
+	if status, err := oneSphere.GetStatus(); err != nil {
+		fmt.Printf("Error: %s\n", err)
 	} else {
 		fmt.Printf("Status: %s\n", status)
 	}
 
+	if session, err := oneSphere.GetSession("full"); err != nil {
+		fmt.Printf("Error: %s\n", err)
+	} else {
+		fmt.Printf("Session: %s\n", session)
+	}
 
 	oneSphere.Disconnect()
 }

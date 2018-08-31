@@ -65,6 +65,53 @@ func comparePayload(t *testing.T, testName string, expectedStr string, actualStr
 	return nil
 }
 
+// @TODO check value types
+// @TODO check kv recursively
+func compareFields(t *testing.T, testName string, expectedStr string, actualStr string) error {
+	var expected map[string]interface{}
+	var actual map[string]interface{}
+
+	var err error
+	err = json.Unmarshal([]byte(expectedStr), &expected)
+	if err != nil {
+		return fmt.Errorf("Error marshalling 'expectedStr' :: %s\nError message: %v", expectedStr, err.Error())
+	}
+	err = json.Unmarshal([]byte(actualStr), &actual)
+	if err != nil {
+		return fmt.Errorf("Error marshalling 'actualStr' :: %s\nError message: %v", actualStr, err.Error())
+	}
+
+	matches := len(actual) == len(expected)
+
+	if matches {
+		for k := range actual {
+			if _, ok := expected[k]; !ok {
+				matches = false
+				break
+			}
+		}
+	}
+
+	if !matches {
+		actualKeys := make([]string, 0, len(actual))
+		expectedKeys := make([]string, 0, len(expected))
+
+		for k := range actual {
+			actualKeys = append(actualKeys, k)
+		}
+		for k := range expected {
+			expectedKeys = append(expectedKeys, k)
+		}
+
+		t.Errorf("%s actual payload shape does not match expected payload shape\n", testName)
+		t.Logf("%s actual keys: %+v\n", testName, actualKeys)
+		t.Logf("%s expected keys: %+v\n", testName, expectedKeys)
+
+	}
+
+	return nil
+}
+
 func TestMain(m *testing.M) {
 	setup()
 	retCode := m.Run()
@@ -108,6 +155,31 @@ func TestGetStatus(t *testing.T) {
 	compareErr := comparePayload(t, "onesphere.API.GetStatus()", `{"service":"OK","database":""}`, actual)
 	if compareErr != nil {
 		t.Errorf("TestGetStatus Error: %s\n", compareErr)
+	}
+
+}
+
+func TestGetSessionFull(t *testing.T) {
+	actual, err := oneSphere.GetSession("full")
+	if err != nil {
+		t.Errorf("TestGetSessionFull Error: %v\n", err)
+	}
+
+	expected := `{
+		"token":"",
+		"userUri":"/rest/users/1234",
+		"user":
+		  { "id":"1234",
+				"email":"",
+				"name":"",
+				"uri":"/rest/users/1234",
+				"role":"",
+				"isLocal":true
+			}
+		}`
+	compareErr := compareFields(t, "onesphere.API.TestGetSessionFull(\"full\")", expected, actual)
+	if compareErr != nil {
+		t.Errorf("TestGetSessionFull Error: %s\n", compareErr)
 	}
 
 }
