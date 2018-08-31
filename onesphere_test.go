@@ -177,7 +177,7 @@ func TestGetSessionFull(t *testing.T) {
 				"isLocal":true
 			}
 		}`
-	compareErr := compareFields(t, "onesphere.API.TestGetSessionFull(\"full\")", expected, actual)
+	compareErr := compareFields(t, "onesphere.API.GetSessionFull(\"full\")", expected, actual)
 	if compareErr != nil {
 		t.Errorf("TestGetSessionFull Error: %s\n", compareErr)
 	}
@@ -186,4 +186,31 @@ func TestGetSessionFull(t *testing.T) {
 
 func TestGetAccountFull(t *testing.T) {
 	t.Skipf("@TODO Implement onesphere.API.GetAccount()")
+}
+
+func TestGetProviderTypes(t *testing.T) {
+	actual, err := oneSphere.GetProviderTypes()
+	if err != nil {
+		t.Errorf("TestGetProviderTypes Error: %v\n", err)
+	}
+
+	expected := `{
+    "total": 0,
+    "start": 0,
+    "count": 0,
+    "members": [
+        {
+            "id": "abc",
+            "logo": "https://",
+            "logoType": "https://",
+            "name": "",
+            "uri": "/rest/provider-types/abc"
+        }
+    ]
+	}`
+	compareErr := compareFields(t, "onesphere.API.GetProviderTypes", expected, actual)
+	if compareErr != nil {
+		t.Errorf("TestGetProviderTypes Error: %s\n", compareErr)
+	}
+
 }

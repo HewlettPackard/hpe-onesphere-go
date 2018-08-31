@@ -79,5 +79,10 @@ func main() {
 		fmt.Printf("Account: %s\n", account)
 	}
 
+	if providerTypes, err := oneSphere.GetProviderTypes(); err != nil {
+		fmt.Printf("Error: %s\n", err)
+	} else {
+		fmt.Printf("ProviderTypes: %s\n", providerTypes)
+	}
 	oneSphere.Disconnect()
 }
