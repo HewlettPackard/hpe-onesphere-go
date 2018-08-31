@@ -73,6 +73,12 @@ func main() {
 		fmt.Printf("ProviderTypes: %s\n", providerTypes)
 	}
 
+	if session, err := oneSphere.GetServiceTypes(); err != nil {
+		fmt.Printf("Error: %s\n", err)
+	} else {
+		fmt.Printf("ServiceTypes: %s\n", session)
+	}
+
 	if session, err := oneSphere.GetSession("full"); err != nil {
 		fmt.Printf("Error: %s\n", err)
 	} else {

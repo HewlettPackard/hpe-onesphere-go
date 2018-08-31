@@ -541,11 +541,11 @@ func (api *API) GetRoles() (string, error) {
 // Service Types APIs
 
 func (api *API) GetServiceTypes() (string, error) {
-	return api.callHTTPRequest("GET", "/service-types", nil, nil)
+	return api.callHTTPRequest("GET", "/rest/service-types", nil, nil)
 }
 
 func (api *API) GetServiceType(serviceTypeID string) (string, error) {
-	return api.callHTTPRequest("GET", "/service-types/"+serviceTypeID, nil, nil)
+	return api.callHTTPRequest("GET", "/rest/service-types/"+serviceTypeID, nil, nil)
 }
 
 // Services APIs
