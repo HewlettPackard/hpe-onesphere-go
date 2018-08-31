@@ -62,39 +62,39 @@ func main() {
 	fmt.Println("Token:", oneSphere.Auth.Token)
 
 	if account, err := oneSphere.GetAccount("full"); err != nil {
-		fmt.Printf("Error: %s\n", err)
+		fmt.Printf("Error: %s\n\n", err)
 	} else {
-		fmt.Printf("Account: %s\n", account)
+		fmt.Printf("Account: %s\n\n", account)
 	}
 
 	if providerTypes, err := oneSphere.GetProviderTypes(); err != nil {
-		fmt.Printf("Error: %s\n", err)
+		fmt.Printf("Error: %s\n\n", err)
 	} else {
-		fmt.Printf("ProviderTypes: %s\n", providerTypes)
+		fmt.Printf("ProviderTypes: %s\n\n", providerTypes)
 	}
 
 	if session, err := oneSphere.GetServiceTypes(); err != nil {
-		fmt.Printf("Error: %s\n", err)
+		fmt.Printf("Error: %s\n\n", err)
 	} else {
-		fmt.Printf("ServiceTypes: %s\n", session)
+		fmt.Printf("ServiceTypes: %s\n\n", session)
 	}
 
 	if session, err := oneSphere.GetSession("full"); err != nil {
-		fmt.Printf("Error: %s\n", err)
+		fmt.Printf("Error: %s\n\n", err)
 	} else {
-		fmt.Printf("Session: %s\n", session)
+		fmt.Printf("Session: %s\n\n", session)
 	}
 
 	if status, err := oneSphere.GetStatus(); err != nil {
-		fmt.Printf("Error: %s\n", err)
+		fmt.Printf("Error: %s\n\n", err)
 	} else {
-		fmt.Printf("Status: %s\n", status)
+		fmt.Printf("Status: %s\n\n", status)
 	}
 
 	if zoneTypes, err := oneSphere.GetZoneTypes(); err != nil {
-		fmt.Printf("Error: %s\n", err)
+		fmt.Printf("Error: %s\n\n", err)
 	} else {
-		fmt.Printf("ZoneTypes: %s\n", zoneTypes)
+		fmt.Printf("ZoneTypes: %s\n\n", zoneTypes)
 	}
 	oneSphere.Disconnect()
 }
