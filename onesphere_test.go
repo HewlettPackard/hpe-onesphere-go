@@ -177,6 +177,32 @@ func TestGetProviderTypes(t *testing.T) {
 
 }
 
+func TestGetRoles(t *testing.T) {
+	actual, err := oneSphere.GetRoles()
+	if err != nil {
+		t.Errorf("TestGetRoles Error: %v\n", err)
+	}
+
+	expected := `{
+    "total": 0,
+    "start": 0,
+    "count": 0,
+    "members": [
+        {
+            "id": "123",
+            "name": "",
+            "displayName": "",
+            "uri": "/rest/roles/123"
+        }
+    ]
+	}`
+	compareErr := compareFields(t, "onesphere.API.GetRoles", expected, actual)
+	if compareErr != nil {
+		t.Errorf("TestGetRoles Error: %s\n", compareErr)
+	}
+
+}
+
 func TestServiceTypes(t *testing.T) {
 	actual, err := oneSphere.GetServiceTypes()
 	if err != nil {
