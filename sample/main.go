@@ -97,6 +97,12 @@ func main() {
 		fmt.Printf("Status: %s\n\n", status)
 	}
 
+	if users, err := oneSphere.GetUsers("full"); err != nil {
+		fmt.Printf("Error: %s\n\n", err)
+	} else {
+		fmt.Printf("Users: %s\n\n", users)
+	}
+
 	if zoneTypes, err := oneSphere.GetZoneTypes(); err != nil {
 		fmt.Printf("Error: %s\n\n", err)
 	} else {
