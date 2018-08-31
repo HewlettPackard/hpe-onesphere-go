@@ -27,7 +27,7 @@ import (
 #### Connect to the OneSphere server
 
 ```go
-err := osbinding.Connect("https://onesphere-host-url", "username", "password")
+err, auth := osbinding.Connect("https://onesphere-host-url", "username", "password")
 ```
 
 #### Make calls to the OneSphere API

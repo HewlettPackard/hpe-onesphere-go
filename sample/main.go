@@ -49,14 +49,15 @@ func main() {
 	setConfig(&config.Password, "password", "password", "Specify the OneSphere password to authenticate with.")
 	flag.Parse()
 
-	if err := onesphere.Connect(config.HostURL, config.User, config.Password); err != nil {
+	err, auth := onesphere.Connect(config.HostURL, config.User, config.Password)
+	if err != nil {
 		fmt.Println("onesphere.Connect failed.")
 		fmt.Printf("onesphere.Connect config: %+v\n", config)
 		fmt.Printf("onesphere.Connect error: %v\n", err)
 		return
 	}
 
-	fmt.Println("Token:", onesphere.Token)
+	fmt.Println("Token:", auth.Token)
 
 	fmt.Println("Status:", onesphere.GetStatus())
 	fmt.Println("Session:", onesphere.GetSession("full"))
