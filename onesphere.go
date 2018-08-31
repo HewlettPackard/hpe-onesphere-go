@@ -182,6 +182,19 @@ func (api *API) UpdateAppliance(applianceID string, infoArray []string) (string,
 	return api.callHTTPRequest("PUT", "/rest/appliances/"+applianceID, nil, values)
 }
 
+// Billing Accounts APIs
+
+func (api *API) GetBillingAccounts(query, view string) (string, error) {
+	params := map[string]string{}
+	if strings.TrimSpace(query) != "" {
+		params["query"] = query
+	}
+	if strings.TrimSpace(view) != "" {
+		params["view"] = view
+	}
+	return api.callHTTPRequest("GET", "/rest/billing-accounts", params, nil)
+}
+
 // Catalog Types APIs
 
 func (api *API) GetCatalogTypes() (string, error) {

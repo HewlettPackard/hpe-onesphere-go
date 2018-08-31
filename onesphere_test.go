@@ -194,6 +194,60 @@ func TestGetAppliances(t *testing.T) {
 
 }
 
+func TestGetBillingAccounts(t *testing.T) {
+	actual, err := oneSphere.GetBillingAccounts("", "full")
+	if err != nil {
+		t.Errorf("TestGetBillingAccounts Error: %v\n", err)
+	}
+
+	expected := `{
+    "total": 0,
+    "start": 0,
+    "count": 0,
+    "members": [
+        {
+            "id": "abc",
+            "name": "",
+            "uri": "/rest/billing-accounts/abc",
+            "status": "",
+            "state": "",
+            "providerTypeUri": "/rest/provider-types/a",
+            "enrollmentNumber": "",
+            "directoryUri": "",
+            "created": "",
+            "modified": "",
+            "providers": [
+                {
+                    "id": "bcd",
+                    "name": "",
+                    "uri": "/rest/providers/bcd",
+                    "providerTypeUri": "/rest/provider-types/a",
+                    "status": "",
+                    "state": "",
+                    "projectUris": [
+                        "/rest/projects/cde"
+                    ],
+                    "billingAccountUri": "/rest/billing-accounts/bcd",
+                    "subscriptionId": "",
+                    "directoryUri": "",
+                    "tenantId": "",
+                    "uniqueName": "",
+                    "familyName": "",
+                    "givenName": "",
+                    "created": "",
+                    "modified": ""
+                }
+            ]
+        }
+    ]
+	}`
+	compareErr := compareFields(t, "onesphere.API.GetBillingAccounts", expected, actual)
+	if compareErr != nil {
+		t.Errorf("TestGetBillingAccounts Error: %s\n", compareErr)
+	}
+
+}
+
 func TestGetProviderTypes(t *testing.T) {
 	actual, err := oneSphere.GetProviderTypes()
 	if err != nil {

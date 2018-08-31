@@ -73,6 +73,12 @@ func main() {
 		fmt.Printf("Appliances: %s\n\n", appliances)
 	}
 
+	if billingAccounts, err := oneSphere.GetBillingAccounts("", "full"); err != nil {
+		fmt.Printf("Error: %s\n\n", err)
+	} else {
+		fmt.Printf("Billing Accounts: %s\n\n", billingAccounts)
+	}
+
 	if providerTypes, err := oneSphere.GetProviderTypes(); err != nil {
 		fmt.Printf("Error: %s\n\n", err)
 	} else {
