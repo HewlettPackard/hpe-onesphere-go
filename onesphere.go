@@ -125,7 +125,7 @@ func (api *API) buildURL(path string) string {
 }
 
 func (api *API) notImplementedError(method, endpoint, path string) error {
-	return fmt.Errorf("%s %s is not yet implemented.\nSee: %s/docs/api/endpoint?&path=%%2F%s", method, endpoint, path, api.Auth.HostURL)
+	return fmt.Errorf("%s %s is not yet implemented.\nSee: %s/docs/api/endpoint?&path=%%2F%s", method, endpoint, api.Auth.HostURL, path)
 }
 
 func (api *API) Disconnect() {
