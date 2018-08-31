@@ -27,6 +27,8 @@ import (
 	"os"
 )
 
+var oneSphere *onesphere.API
+
 type onesphereConfig struct {
 	HostURL  string
 	User     string
@@ -49,7 +51,7 @@ func main() {
 	setConfig(&config.Password, "password", "password", "Specify the OneSphere password to authenticate with.")
 	flag.Parse()
 
-	err, auth := onesphere.Connect(config.HostURL, config.User, config.Password)
+	oneSphere, err := onesphere.Connect(config.HostURL, config.User, config.Password)
 	if err != nil {
 		fmt.Println("onesphere.Connect failed.")
 		fmt.Printf("onesphere.Connect config: %+v\n", config)
@@ -57,18 +59,14 @@ func main() {
 		return
 	}
 
-	fmt.Println("Token:", auth.Token)
+	fmt.Println("Token:", oneSphere.Auth.Token)
 
-	fmt.Println("Status:", onesphere.GetStatus())
-	fmt.Println("Session:", onesphere.GetSession("full"))
-	fmt.Println("Account:", onesphere.GetAccount("full"))
-	fmt.Println("ProviderTypes:", onesphere.GetProviderTypes())
-	fmt.Println("ZoneTypes:", onesphere.GetZoneTypes())
-	fmt.Println("ServiceTypes:", onesphere.GetServiceTypes())
-	fmt.Println("Roles:", onesphere.GetRoles())
-	fmt.Println("Users:", onesphere.GetUsers("full"))
-	fmt.Println("TagKeys:", onesphere.GetTagKeys("full"))
-	fmt.Println("Tags:", onesphere.GetTags("full"))
+	if status, statusErr := oneSphere.GetStatus(); statusErr != nil {
+		fmt.Printf("Error: %s\n", statusErr)
+	} else {
+		fmt.Printf("Status: %s\n", status)
+	}
 
-	onesphere.Disconnect()
+
+	oneSphere.Disconnect()
 }

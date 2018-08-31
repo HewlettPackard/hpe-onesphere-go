@@ -1,14 +1,16 @@
 package onesphere
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"os"
+	"reflect"
 	"testing"
 )
 
 var config *onesphereConfig
-var testAuth *Auth
+var oneSphere *API
 
 type onesphereConfig struct {
 	HostURL  string
@@ -38,7 +40,29 @@ func setup() {
 }
 
 func tearDown() {
-	Disconnect()
+	oneSphere.Disconnect()
+}
+
+func comparePayload(t *testing.T, testName string, expectedStr string, actualStr string) error {
+	var expected interface{}
+	var actual interface{}
+
+	var err error
+	err = json.Unmarshal([]byte(expectedStr), &expected)
+	if err != nil {
+		return fmt.Errorf("Error marshalling 'expectedStr' :: %s\nError message: %v", expectedStr, err.Error())
+	}
+	err = json.Unmarshal([]byte(actualStr), &actual)
+	if err != nil {
+		return fmt.Errorf("Error marshalling 'actualStr' :: %s\nError message: %v", actualStr, err.Error())
+	}
+
+	if !reflect.DeepEqual(expected, actual) {
+		t.Errorf("%s actual payload does not match expected payload\n", testName)
+		t.Logf("%s actual payload: %s\n", testName, actualStr)
+		t.Logf("%s expected payload: %s\n", testName, expectedStr)
+	}
+	return nil
 }
 
 func TestMain(m *testing.M) {
@@ -49,17 +73,15 @@ func TestMain(m *testing.M) {
 }
 
 func TestInvalidConnect(t *testing.T) {
-	err, _ := Connect("https://onesphere-host-url", "username", "password")
-
-	if err == nil {
+	if _, err := Connect("https://onesphere-host-url", "username", "password"); err == nil {
 		t.Errorf("Connect should return an error when invalid host and credentials are used.")
-	}
 
+	}
 }
 
 func TestValidConnect(t *testing.T) {
 	var err error
-	err, testAuth = Connect(config.HostURL, config.User, config.Password)
+	oneSphere, err = Connect(config.HostURL, config.User, config.Password)
 
 	if err != nil {
 		t.Logf("onesphere.Connect failed.\n")
@@ -71,8 +93,21 @@ func TestValidConnect(t *testing.T) {
 }
 
 func TestToken(t *testing.T) {
-	if testAuth.Token == "" {
-		t.Errorf("onesphere.Auth should have a Token set\n")
-		t.Errorf("onesphere.Auth : %+v\n", testAuth)
+	if oneSphere.Auth.Token == "" {
+		t.Errorf("onesphere.API.Auth should have a Token set\n")
+		t.Errorf("onesphere.API.Auth : %+v\n", oneSphere.Auth)
 	}
+}
+
+func TestGetStatus(t *testing.T) {
+	actual, err := oneSphere.GetStatus()
+	if err != nil {
+		t.Errorf("TestGetStatus Error: %v\n", err)
+	}
+
+	compareErr := comparePayload(t, "onesphere.API.GetStatus()", `{"service":"OK","database":""}`, actual)
+	if compareErr != nil {
+		t.Errorf("TestGetStatus Error: %s\n", compareErr)
+	}
+
 }

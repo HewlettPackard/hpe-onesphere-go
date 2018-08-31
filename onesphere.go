@@ -29,25 +29,72 @@ import (
 	"strings"
 )
 
+// API contains all the methods needed to interact with the OneSphere API
+// use Connect() to return an *API
+type API struct {
+	Auth *Auth
+}
+
+// Auth contains the Token and HostURL of the OneSphere API connection
 type Auth struct {
 	Token   string
-	HostUrl string
+	HostURL string
 }
 
 var auth *Auth
 
-func callHttpRequest(method, url string, params map[string]string, values interface{}) string {
+// Connect provides an interface to make calls to the OneSphere API
+func Connect(hostURL, user, password string) (*API, error) {
+	fullUrl := hostURL + "/rest/session"
+	values := map[string]string{"userName": user, "password": password}
 	jsonValue, err := json.Marshal(values)
+	req, err := http.NewRequest("POST", fullUrl, bytes.NewBuffer(jsonValue))
 	if err != nil {
-		panic(err)
-	}
-	req, err := http.NewRequest(method, url, bytes.NewBuffer(jsonValue))
-	if err != nil {
-		panic(err)
+		return nil, err
 	}
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", auth.Token)
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	//bodyStr := string(body)
+	var dat map[string]string
+	err = json.Unmarshal(body, &dat)
+	if err != nil {
+		return nil, err
+	}
+
+	return &API{
+		Auth: &Auth{
+			HostURL: hostURL,
+			Token:   dat["token"],
+		},
+	}, nil
+
+}
+
+func (api *API) callHTTPRequest(method, path string, params map[string]string, values interface{}) (string, error) {
+	jsonValue, err := json.Marshal(values)
+	if err != nil {
+		return "", err
+	}
+	req, err := http.NewRequest(method, api.buildURL(path), bytes.NewBuffer(jsonValue))
+	if err != nil {
+		return "", err
+	}
+	req.Header.Set("Accept", "application/json")
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", api.Auth.Token)
 
 	if params != nil && len(params) > 0 {
 		q := req.URL.Query()
@@ -60,74 +107,37 @@ func callHttpRequest(method, url string, params map[string]string, values interf
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		panic(err)
+		return "", err
 	}
 	defer resp.Body.Close()
 
 	bodyBytes, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		panic(err)
+		return "", err
 	}
 	bodyStr := string(bodyBytes)
-	return bodyStr
+	return bodyStr, nil
 }
 
-func Connect(hostURL, user, password string) (error, *Auth) {
-	fullUrl := hostURL + "/rest/session"
-	values := map[string]string{"userName": user, "password": password}
-	jsonValue, err := json.Marshal(values)
-	req, err := http.NewRequest("POST", fullUrl, bytes.NewBuffer(jsonValue))
-	if err != nil {
-		return err, auth
-	}
-	req.Header.Set("Accept", "application/json")
-	req.Header.Set("Content-Type", "application/json")
-
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return err, auth
-	}
-	defer resp.Body.Close()
-
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return err, auth
-	}
-
-	//bodyStr := string(body)
-	var dat map[string]string
-	err = json.Unmarshal(body, &dat)
-	if err != nil {
-		return err, auth
-	}
-
-	auth = &Auth{
-		HostUrl: hostURL,
-		Token:   dat["token"],
-	}
-
-	return nil, auth
+func (api *API) buildURL(path string) string {
+	return api.Auth.HostURL + path
 }
 
-func Disconnect() {
-	fullUrl := auth.HostUrl + "/rest/session"
-	callHttpRequest("DELETE", fullUrl, nil, nil)
+func (api *API) Disconnect() {
+	api.callHTTPRequest("DELETE", "/rest/session", nil, nil)
 }
 
 // Account APIs
 
 // view="full"
-func GetAccount(view string) string {
-	fullUrl := auth.HostUrl + "/rest/account"
+func (api *API) GetAccount(view string) (string, error) {
 	params := map[string]string{"view": view}
-	return callHttpRequest("GET", fullUrl, params, nil)
+	return api.callHTTPRequest("GET", "/rest/account", params, nil)
 }
 
 // Appliances APIs
 
-func GetAppliances(name, regionUri string) string {
-	fullUrl := auth.HostUrl + "/rest/appliances"
+func (api *API) GetAppliances(name, regionUri string) (string, error) {
 	params := map[string]string{}
 	if strings.TrimSpace(name) != "" {
 		params["name"] = name
@@ -135,12 +145,11 @@ func GetAppliances(name, regionUri string) string {
 	if strings.TrimSpace(regionUri) != "" {
 		params["regionUri"] = regionUri
 	}
-	return callHttpRequest("GET", fullUrl, params, nil)
+	return api.callHTTPRequest("GET", "/rest/appliances", params, nil)
 }
 
-func CreateAppliance(epAddress, epUsername, epPassword,
-	name, regionUri, applianceType string) string {
-	fullUrl := auth.HostUrl + "/rest/appliances"
+func (api *API) CreateAppliance(epAddress, epUsername, epPassword,
+	name, regionUri, applianceType string) (string, error) {
 	values := map[string]interface{}{
 		"endpoint": map[string]interface{}{
 			"address":  epAddress,
@@ -149,38 +158,33 @@ func CreateAppliance(epAddress, epUsername, epPassword,
 		"name":      name,
 		"regionUri": regionUri,
 		"type":      applianceType}
-	return callHttpRequest("POST", fullUrl, nil, values)
+	return api.callHTTPRequest("POST", "/rest/appliances", nil, values)
 }
 
-func GetAppliance(applianceID string) string {
-	fullUrl := auth.HostUrl + "/rest/appliances/" + applianceID
-	return callHttpRequest("GET", fullUrl, nil, nil)
+func (api *API) GetAppliance(applianceID string) (string, error) {
+	return api.callHTTPRequest("GET", "/rest/appliances/"+applianceID, nil, nil)
 }
 
-func DeleteAppliance(applianceID string) string {
-	fullUrl := auth.HostUrl + "/rest/appliances/" + applianceID
-	return callHttpRequest("DELETE", fullUrl, nil, nil)
+func (api *API) DeleteAppliance(applianceID string) (string, error) {
+	return api.callHTTPRequest("DELETE", "/rest/appliances/"+applianceID, nil, nil)
 }
 
 // infoArray: [{op, path, value}]
 // op: "replace|remove"
-func UpdateAppliance(applianceID string, infoArray []string) string {
-	fullUrl := auth.HostUrl + "/rest/appliances/" + applianceID
+func (api *API) UpdateAppliance(applianceID string, infoArray []string) (string, error) {
 	values := infoArray
-	return callHttpRequest("PUT", fullUrl, nil, values)
+	return api.callHTTPRequest("PUT", "/rest/appliances/"+applianceID, nil, values)
 }
 
 // Catalog Types APIs
 
-func GetCatalogTypes() string {
-	fullUrl := auth.HostUrl + "/rest/catalog-types"
-	return callHttpRequest("GET", fullUrl, nil, nil)
+func (api *API) GetCatalogTypes() (string, error) {
+	return api.callHTTPRequest("GET", "/rest/catalog-types", nil, nil)
 }
 
 // Catalogs APIs
 
-func GetCatalogs(userQuery, view string) string {
-	fullUrl := auth.HostUrl + "/rest/catalogs"
+func (api *API) GetCatalogs(userQuery, view string) (string, error) {
 	params := map[string]string{}
 	if strings.TrimSpace(userQuery) != "" {
 		params["userQuery"] = userQuery
@@ -188,11 +192,10 @@ func GetCatalogs(userQuery, view string) string {
 	if strings.TrimSpace(view) != "" {
 		params["view"] = view
 	}
-	return callHttpRequest("GET", fullUrl, params, nil)
+	return api.callHTTPRequest("GET", "/rest/catalogs", params, nil)
 }
 
-func CreateCatalog(accessKey, catalogTypeUri, name, password, regionName, secretKey, url, username string) string {
-	fullUrl := auth.HostUrl + "/rest/catalogs"
+func (api *API) CreateCatalog(accessKey, catalogTypeUri, name, password, regionName, secretKey, url, username string) (string, error) {
 	values := map[string]string{
 		"accessKey":      accessKey,
 		"catalogTypeUri": catalogTypeUri,
@@ -202,129 +205,111 @@ func CreateCatalog(accessKey, catalogTypeUri, name, password, regionName, secret
 		"secretKey":      secretKey,
 		"url":            url,
 		"username":       username}
-	return callHttpRequest("POST", fullUrl, nil, values)
+	return api.callHTTPRequest("POST", "/rest/catalogs", nil, values)
 }
 
-func GetCatalog(catalogID, view string) string {
-	fullUrl := auth.HostUrl + "/rest/catalogs/" + catalogID
+func (api *API) GetCatalog(catalogID, view string) (string, error) {
 	params := map[string]string{"view": view}
-	return callHttpRequest("GET", fullUrl, params, nil)
+	return api.callHTTPRequest("GET", "/rest/catalogs/"+catalogID, params, nil)
 }
 
-func DeleteCatalog(catalogID string) string {
-	fullUrl := auth.HostUrl + "/rest/catalogs/" + catalogID
-	return callHttpRequest("DELETE", fullUrl, nil, nil)
+func (api *API) DeleteCatalog(catalogID string) (string, error) {
+	return api.callHTTPRequest("DELETE", "/rest/catalogs/"+catalogID, nil, nil)
 }
 
-func UpdateCatalog(catalogID, name, password, accessKey, secretKey, regionName, state string) string {
-	fullUrl := auth.HostUrl + "/rest/catalogs/" + catalogID
+func (api *API) UpdateCatalog(catalogID, name, password, accessKey, secretKey, regionName, state string) (string, error) {
 	values := map[string]interface{}{
 		"name": name, "password": password, "accessKey": accessKey,
 		"secretKey": secretKey, "regionName": regionName, "state": state}
-	return callHttpRequest("PUT", fullUrl, nil, values)
+	return api.callHTTPRequest("PUT", "/rest/catalogs/"+catalogID, nil, values)
 }
 
 // Connect App APIs
 
 // os="windows" or os="mac"
-func GetConnectApp(os string) string {
-	fullUrl := auth.HostUrl + "/rest/connect-app"
+func (api *API) GetConnectApp(os string) (string, error) {
 	params := map[string]string{"os": os}
-	return callHttpRequest("GET", fullUrl, params, nil)
+	return api.callHTTPRequest("GET", "/rest/connect-app", params, nil)
 }
 
 // Deployments APIs
 
-func GetDeployments(query, userQuery, view string) string {
-	fullUrl := auth.HostUrl + "/rest/deployments"
+func (api *API) GetDeployments(query, userQuery, view string) (string, error) {
 	params := map[string]string{"query": query, "userQuery": userQuery, "view": view}
-	return callHttpRequest("GET", fullUrl, params, nil)
+	return api.callHTTPRequest("GET", "/rest/deployments", params, nil)
 }
 
-func CreateDeployment(info string) string {
-	fullUrl := auth.HostUrl + "/rest/deployments"
-	return callHttpRequest("POST", fullUrl, nil, info)
+func (api *API) CreateDeployment(info string) (string, error) {
+	return api.callHTTPRequest("POST", "/rest/deployments", nil, info)
 }
 
-func GetDeployment(deploymentID, view string) string {
-	fullUrl := auth.HostUrl + "/rest/deployments/" + deploymentID
+func (api *API) GetDeployment(deploymentID, view string) (string, error) {
 	values := map[string]string{"view": view}
-	return callHttpRequest("GET", fullUrl, nil, values)
+	return api.callHTTPRequest("GET", "/rest/deployments/"+deploymentID, nil, values)
 }
 
-func UpdateDeployment(deploymentID, info string) string {
-	fullUrl := auth.HostUrl + "/rest/deployments/" + deploymentID
-	return callHttpRequest("PUT", fullUrl, nil, info)
+func (api *API) UpdateDeployment(deploymentID, info string) (string, error) {
+	return api.callHTTPRequest("PUT", "/rest/deployments/"+deploymentID, nil, info)
 }
 
-func DeleteDeployment(deploymentID string) string {
-	fullUrl := auth.HostUrl + "/rest/deployments/" + deploymentID
-	return callHttpRequest("DELETE", fullUrl, nil, nil)
+func (api *API) DeleteDeployment(deploymentID string) (string, error) {
+	return api.callHTTPRequest("DELETE", "/rest/deployments/"+deploymentID, nil, nil)
 }
 
-func ActionOnDeployment(deploymentID, actionType string, force bool) string {
-	fullUrl := auth.HostUrl + "/rest/deployments/" + deploymentID + "/actions"
+func (api *API) ActionOnDeployment(deploymentID, actionType string, force bool) (string, error) {
 	values := map[string]interface{}{"force": force, "type": actionType}
-	return callHttpRequest("POST", fullUrl, nil, values)
+	return api.callHTTPRequest("POST", "/rest/deployments/"+deploymentID+"/actions", nil, values)
 }
 
-func GetDeploymentConsole(deploymentID string) string {
-	fullUrl := auth.HostUrl + "/rest/deployments/" + deploymentID + "/console"
-	return callHttpRequest("GET", fullUrl, nil, nil)
+func (api *API) GetDeploymentConsole(deploymentID string) (string, error) {
+	return api.callHTTPRequest("GET", "/rest/deployments/"+deploymentID+"/console", nil, nil)
 }
 
 // Events APIs
 
-func GetEvents(resourceUri string) string {
-	fullUrl := auth.HostUrl + "/rest/events"
+func (api *API) GetEvents(resourceUri string) (string, error) {
 	params := map[string]string{"resourceUri": resourceUri}
-	return callHttpRequest("GET", fullUrl, params, nil)
+	return api.callHTTPRequest("GET", "/rest/events", params, nil)
 }
 
 // Keypairs APIs
 
-func GetKeyPair(regionUri, projectUri string) string {
-	fullUrl := auth.HostUrl + "/rest/keypairs"
+func (api *API) GetKeyPair(regionUri, projectUri string) (string, error) {
 	params := map[string]string{"regionUri": regionUri, "projectUri": projectUri}
-	return callHttpRequest("GET", fullUrl, params, nil)
+	return api.callHTTPRequest("GET", "/rest/keypairs", params, nil)
 }
 
 // Membership Roles APIs
 
-func GetMembershipRoles() string {
-	fullUrl := auth.HostUrl + "/rest/membership-roles"
-	return callHttpRequest("GET", fullUrl, nil, nil)
+func (api *API) GetMembershipRoles() (string, error) {
+	return api.callHTTPRequest("GET", "/rest/membership-roles", nil, nil)
 }
 
 // Memberships APIs
 
-func GetMemberships(query string) string {
-	fullUrl := auth.HostUrl + "/rest/memberships"
+func (api *API) GetMemberships(query string) (string, error) {
 	params := map[string]string{"query": query}
-	return callHttpRequest("GET", fullUrl, params, nil)
+	return api.callHTTPRequest("GET", "/rest/memberships", params, nil)
 }
 
-func CreateMembership(userUri, roleUri, projectUri string) string {
-	fullUrl := auth.HostUrl + "/rest/memberships"
+func (api *API) CreateMembership(userUri, roleUri, projectUri string) (string, error) {
 	values := map[string]string{"userUri": userUri, "membershipRoleUri": roleUri, "projectUri": projectUri}
-	return callHttpRequest("POST", fullUrl, nil, values)
+	return api.callHTTPRequest("POST", "/rest/memberships", nil, values)
 }
 
-func DeleteMembership(userUri, roleUri, projectUri string) string {
-	fullUrl := auth.HostUrl + "/rest/memberships"
+func (api *API) DeleteMembership(userUri, roleUri, projectUri string) (string, error) {
 	values := map[string]string{"userUri": userUri, "membershipRoleUri": roleUri, "projectUri": projectUri}
-	return callHttpRequest("DELETE", fullUrl, nil, values)
+	return api.callHTTPRequest("DELETE", "/rest/memberships", nil, values)
 }
 
 // Metrics APIs
 
-func GetMetrics(
+func (api *API) GetMetrics(
 	resourceUri, category, groupBy, query, name string,
 	periodStart, period string,
 	periodCount int,
 	view string,
-	start, count int) string {
-	fullUrl := auth.HostUrl + "/rest/metrics"
+	start, count int) (string, error) {
 	params := map[string]string{
 		"resourceUri": resourceUri,
 		"category":    category,
@@ -337,47 +322,41 @@ func GetMetrics(
 		"view":        view,
 		"start":       strconv.Itoa(start),
 		"count":       strconv.Itoa(count)}
-	return callHttpRequest("GET", fullUrl, params, nil)
+	return api.callHTTPRequest("GET", "/rest/metrics", params, nil)
 }
 
 // Networks APIs
 
-func GetNetworks(query string) string {
-	fullUrl := auth.HostUrl + "/rest/networks"
+func (api *API) GetNetworks(query string) (string, error) {
 	params := map[string]string{"query": query}
-	return callHttpRequest("GET", fullUrl, params, nil)
+	return api.callHTTPRequest("GET", "/rest/networks", params, nil)
 }
 
-func GetNetwork(networkID string) string {
-	fullUrl := auth.HostUrl + "/rest/networks/" + networkID
-	return callHttpRequest("GET", fullUrl, nil, nil)
+func (api *API) GetNetwork(networkID string) (string, error) {
+	return api.callHTTPRequest("GET", "/rest/networks/"+networkID, nil, nil)
 }
 
 // infoArray: [{op, path, value}]
-func UpdateNetwork(networkID string, infoArray []string) string {
-	fullUrl := auth.HostUrl + "/rest/networks/" + networkID
+func (api *API) UpdateNetwork(networkID string, infoArray []string) (string, error) {
 	values := infoArray
-	return callHttpRequest("PUT", fullUrl, nil, values)
+	return api.callHTTPRequest("PUT", "/rest/networks/"+networkID, nil, values)
 }
 
 // Password Reset APIs
 
-func ResetSingleUsePassword(email string) string {
-	fullUrl := auth.HostUrl + "/rest/password-reset"
+func (api *API) ResetSingleUsePassword(email string) (string, error) {
 	values := map[string]string{"email": email}
-	return callHttpRequest("POST", fullUrl, nil, values)
+	return api.callHTTPRequest("POST", "/rest/password-reset", nil, values)
 }
 
-func ChangePassword(password, token string) string {
-	fullUrl := auth.HostUrl + "/rest/password-reset/change"
+func (api *API) ChangePassword(password, token string) (string, error) {
 	values := map[string]string{"password": password, "token": token}
-	return callHttpRequest("POST", fullUrl, nil, values)
+	return api.callHTTPRequest("POST", "/rest/password-reset/change", nil, values)
 }
 
 // Projects APIs
 
-func GetProjects(userQuery, view string) string {
-	fullUrl := auth.HostUrl + "/rest/projects"
+func (api *API) GetProjects(userQuery, view string) (string, error) {
 	params := map[string]string{}
 	if strings.TrimSpace(userQuery) != "" {
 		params["userQuery"] = userQuery
@@ -385,58 +364,51 @@ func GetProjects(userQuery, view string) string {
 	if strings.TrimSpace(view) != "" {
 		params["view"] = view
 	}
-	return callHttpRequest("GET", fullUrl, params, nil)
+	return api.callHTTPRequest("GET", "/rest/projects", params, nil)
 }
 
-func CreateProject(name, description string, tagUris []string) string {
-	fullUrl := auth.HostUrl + "/rest/projects"
+func (api *API) CreateProject(name, description string, tagUris []string) (string, error) {
 	values := map[string]interface{}{
 		"name":        name,
 		"description": description,
 		"tagUris":     tagUris}
-	return callHttpRequest("POST", fullUrl, nil, values)
+	return api.callHTTPRequest("POST", "/rest/projects", nil, values)
 }
 
-func GetProject(projectID, view string) string {
-	fullUrl := auth.HostUrl + "/rest/projects/" + projectID
+func (api *API) GetProject(projectID, view string) (string, error) {
 	params := map[string]string{"view": view}
-	return callHttpRequest("GET", fullUrl, params, nil)
+	return api.callHTTPRequest("GET", "/rest/projects/"+projectID, params, nil)
 }
 
-func DeleteProject(projectID string) string {
-	fullUrl := auth.HostUrl + "/rest/projects/" + projectID
-	return callHttpRequest("DELETE", fullUrl, nil, nil)
+func (api *API) DeleteProject(projectID string) (string, error) {
+	return api.callHTTPRequest("DELETE", "/rest/projects/"+projectID, nil, nil)
 }
 
-func UpdateProject(projectID, name, description string, tagUris []string) string {
-	fullUrl := auth.HostUrl + "/rest/projects/" + projectID
+func (api *API) UpdateProject(projectID, name, description string, tagUris []string) (string, error) {
 	values := map[string]interface{}{
 		"name":        name,
 		"description": description,
 		"tagUris":     tagUris}
-	return callHttpRequest("PUT", fullUrl, nil, values)
+	return api.callHTTPRequest("PUT", "/rest/projects/"+projectID, nil, values)
 }
 
 // Provider Types APIs
 
-func GetProviderTypes() string {
-	fullUrl := auth.HostUrl + "/rest/provider-types"
-	return callHttpRequest("GET", fullUrl, nil, nil)
+func (api *API) GetProviderTypes() (string, error) {
+	return api.callHTTPRequest("GET", "/rest/provider-types", nil, nil)
 }
 
 // Providers APIs
 
-func GetProviders(query string) string {
-	fullUrl := auth.HostUrl + "/rest/providers"
+func (api *API) GetProviders(query string) (string, error) {
 	params := map[string]string{"query": query}
-	return callHttpRequest("GET", fullUrl, params, nil)
+	return api.callHTTPRequest("GET", "/rest/providers", params, nil)
 }
 
 // state: "Enabled|Disabled"
-func CreateProvider(providerID, providerTypeUri, accessKey, secretKey string,
+func (api *API) CreateProvider(providerID, providerTypeUri, accessKey, secretKey string,
 	paymentProvider bool,
-	s3CostBucket, masterUri, state string) string {
-	fullUrl := auth.HostUrl + "/rest/providers"
+	s3CostBucket, masterUri, state string) (string, error) {
 	values := map[string]interface{}{
 		"id":              providerID,
 		"providerTypeUri": providerTypeUri,
@@ -446,36 +418,32 @@ func CreateProvider(providerID, providerTypeUri, accessKey, secretKey string,
 		"s3CostBucket":    s3CostBucket,
 		"masterUri":       masterUri,
 		"state":           state}
-	return callHttpRequest("POST", fullUrl, nil, values)
+	return api.callHTTPRequest("POST", "/rest/providers", nil, values)
 }
 
 // view="full"
 // discover: boolean
-func GetProvider(providerID, view string, discover bool) string {
-	fullUrl := auth.HostUrl + "/rest/providers/" + providerID
+func (api *API) GetProvider(providerID, view string, discover bool) (string, error) {
 	params := map[string]string{
 		"view":     view,
 		"discover": strconv.FormatBool(discover)}
-	return callHttpRequest("GET", fullUrl, params, nil)
+	return api.callHTTPRequest("GET", "/rest/providers/"+providerID, params, nil)
 }
 
-func DeleteProvider(providerID string) string {
-	fullUrl := auth.HostUrl + "/rest/providers/" + providerID
-	return callHttpRequest("DELETE", fullUrl, nil, nil)
+func (api *API) DeleteProvider(providerID string) (string, error) {
+	return api.callHTTPRequest("DELETE", "/rest/providers/"+providerID, nil, nil)
 }
 
 // infoArray: [{op, path, value}]
 // op: "add|replace|remove"
-func UpdateProvider(providerID, infoArray string) string {
-	fullUrl := auth.HostUrl + "/rest/providers/" + providerID
-	return callHttpRequest("PUT", fullUrl, nil, infoArray)
+func (api *API) UpdateProvider(providerID, infoArray string) (string, error) {
+	return api.callHTTPRequest("PUT", "/rest/providers/"+providerID, nil, infoArray)
 }
 
 // Rates APIs
 
-func GetRates(resourceUri, effectiveForDate, effectiveDate, metricName string,
-	active bool, start, count int) string {
-	fullUrl := auth.HostUrl + "/rest/rates"
+func (api *API) GetRates(resourceUri, effectiveForDate, effectiveDate, metricName string,
+	active bool, start, count int) (string, error) {
 	params := map[string]string{
 		"resourceUri":      resourceUri,
 		"effectiveForDate": effectiveForDate,
@@ -484,68 +452,59 @@ func GetRates(resourceUri, effectiveForDate, effectiveDate, metricName string,
 		"active":           strconv.FormatBool(active),
 		"start":            strconv.Itoa(start),
 		"count":            strconv.Itoa(count)}
-	return callHttpRequest("GET", fullUrl, params, nil)
+	return api.callHTTPRequest("GET", "/rest/rates", params, nil)
 }
 
-func GetRate(rateID string) string {
-	fullUrl := auth.HostUrl + "/rest/rates/" + rateID
-	return callHttpRequest("GET", fullUrl, nil, nil)
+func (api *API) GetRate(rateID string) (string, error) {
+	return api.callHTTPRequest("GET", "/rest/rates/"+rateID, nil, nil)
 }
 
 // Regions APIs
 
-func GetRegions(query, view string) string {
-	fullUrl := auth.HostUrl + "/rest/regions"
+func (api *API) GetRegions(query, view string) (string, error) {
 	params := map[string]string{"query": query, "view": view}
-	return callHttpRequest("GET", fullUrl, params, nil)
+	return api.callHTTPRequest("GET", "/rest/regions", params, nil)
 }
 
-func CreateRegion(name, providerUri, locLatitude, locLongitude string) string {
-	fullUrl := auth.HostUrl + "/rest/regions"
+func (api *API) CreateRegion(name, providerUri, locLatitude, locLongitude string) (string, error) {
 	values := map[string]interface{}{
 		"location": map[string]interface{}{
 			"latitude":  locLatitude,
 			"longitude": locLongitude},
 		"name":        name,
 		"providerUri": providerUri}
-	return callHttpRequest("POST", fullUrl, nil, values)
+	return api.callHTTPRequest("POST", "/rest/regions", nil, values)
 }
 
-func GetRegion(regionID, view string, discover bool) string {
-	fullUrl := auth.HostUrl + "/rest/regions/" + regionID
+func (api *API) GetRegion(regionID, view string, discover bool) (string, error) {
 	params := map[string]string{"view": view, "discover": strconv.FormatBool(discover)}
-	return callHttpRequest("GET", fullUrl, params, nil)
+	return api.callHTTPRequest("GET", "/rest/regions/"+regionID, params, nil)
 }
 
-func DeleteRegion(regionID string, force bool) string {
-	fullUrl := auth.HostUrl + "/rest/regions/" + regionID
+func (api *API) DeleteRegion(regionID string, force bool) (string, error) {
 	params := map[string]string{"force": strconv.FormatBool(force)}
-	return callHttpRequest("DELETE", fullUrl, params, nil)
+	return api.callHTTPRequest("DELETE", "/rest/regions/"+regionID, params, nil)
 }
 
 // infoArray: [{op, path, value}]
 // op: "add|replace"
 // path: "/name|/location"
-func PatchRegion(regionID string, infoArray []string) string {
-	fullUrl := auth.HostUrl + "/rest/regions/" + regionID
-	return callHttpRequest("PUT", fullUrl, nil, infoArray)
+func (api *API) PatchRegion(regionID string, infoArray []string) (string, error) {
+	return api.callHTTPRequest("PUT", "/rest/regions/"+regionID, nil, infoArray)
 }
 
-func UpdateRegion(regionID, region string) string {
-	fullUrl := auth.HostUrl + "/rest/regions/" + regionID
-	return callHttpRequest("PUT", fullUrl, nil, region)
+func (api *API) UpdateRegion(regionID, region string) (string, error) {
+	return api.callHTTPRequest("PUT", "/rest/regions/"+regionID, nil, region)
 }
 
-func GetRegionConnection(regionID string) string {
-	fullUrl := auth.HostUrl + "/rest/regions/" + regionID + "/connection"
-	return callHttpRequest("GET", fullUrl, nil, nil)
+func (api *API) GetRegionConnection(regionID string) (string, error) {
+	return api.callHTTPRequest("GET", "/rest/regions/"+regionID+"/connection", nil, nil)
 }
 
 // state: "Enabling|Enabled|Disabling|Disabled"
-func CreateRegionConnection(regionID, endpointUuid, name, ipAddress, username, password string,
+func (api *API) CreateRegionConnection(regionID, endpointUuid, name, ipAddress, username, password string,
 	port int,
-	state, uri string) string {
-	fullUrl := auth.HostUrl + "/rest/regions/" + regionID + "/connection"
+	state, uri string) (string, error) {
 	values := map[string]interface{}{
 		"endpointUuid": endpointUuid,
 		"name":         name,
@@ -556,288 +515,245 @@ func CreateRegionConnection(regionID, endpointUuid, name, ipAddress, username, p
 			"port":      strconv.Itoa(port)},
 		"state": state,
 		"uri":   uri}
-	return callHttpRequest("POST", fullUrl, nil, values)
+	return api.callHTTPRequest("POST", "/rest/regions/"+regionID+"/connection", nil, values)
 }
 
-func DeleteRegionConnection(regionID string) string {
-	fullUrl := auth.HostUrl + "/rest/regions/" + regionID + "/connection"
-	return callHttpRequest("DELETE", fullUrl, nil, nil)
+func (api *API) DeleteRegionConnection(regionID string) (string, error) {
+	return api.callHTTPRequest("DELETE", "/rest/regions/"+regionID+"/connection", nil, nil)
 }
 
-func GetRegionConnectorImage(regionID string) string {
-	fullUrl := auth.HostUrl + "/rest/regions/" + regionID + "/connector-image"
-	return callHttpRequest("GET", fullUrl, nil, nil)
+func (api *API) GetRegionConnectorImage(regionID string) (string, error) {
+	return api.callHTTPRequest("GET", "/rest/regions/"+regionID+"/connector-image", nil, nil)
 }
 
 // Roles APIs
 
-func GetRoles() string {
-	fullUrl := auth.HostUrl + "/rest/roles"
-	return callHttpRequest("GET", fullUrl, nil, nil)
+func (api *API) GetRoles() (string, error) {
+	return api.callHTTPRequest("GET", "/rest/roles", nil, nil)
 }
 
 // Service Types APIs
 
-func GetServiceTypes() string {
-	fullUrl := auth.HostUrl + "/service-types"
-	return callHttpRequest("GET", fullUrl, nil, nil)
+func (api *API) GetServiceTypes() (string, error) {
+	return api.callHTTPRequest("GET", "/service-types", nil, nil)
 }
 
-func GetServiceType(serviceTypeID string) string {
-	fullUrl := auth.HostUrl + "/service-types/" + serviceTypeID
-	return callHttpRequest("GET", fullUrl, nil, nil)
+func (api *API) GetServiceType(serviceTypeID string) (string, error) {
+	return api.callHTTPRequest("GET", "/service-types/"+serviceTypeID, nil, nil)
 }
 
 // Services APIs
 
-func GetServices(query, userQuery, view string) string {
-	fullUrl := auth.HostUrl + "/rest/services"
+func (api *API) GetServices(query, userQuery, view string) (string, error) {
 	params := map[string]string{"query": query, "userQuery": userQuery, "view": view}
-	return callHttpRequest("GET", fullUrl, params, nil)
+	return api.callHTTPRequest("GET", "/rest/services", params, nil)
 }
 
 // view: "full|deployment"
-func GetService(serviceID, view string) string {
-	fullUrl := auth.HostUrl + "/rest/services/" + serviceID
+func (api *API) GetService(serviceID, view string) (string, error) {
 	params := map[string]string{"view": view}
-	return callHttpRequest("GET", fullUrl, params, nil)
+	return api.callHTTPRequest("GET", "/rest/services/"+serviceID, params, nil)
 }
 
 // Session APIs
 
 // view: "full"
-func GetSession(view string) string {
-	fullUrl := auth.HostUrl + "/rest/session"
+func (api *API) GetSession(view string) (string, error) {
 	params := map[string]string{"view": view}
-	return callHttpRequest("GET", fullUrl, params, nil)
+	return api.callHTTPRequest("GET", "/rest/session", params, nil)
 }
 
-func GetSessionIdp(userName string) string {
-	fullUrl := auth.HostUrl + "/rest/session/idp"
+func (api *API) GetSessionIdp(userName string) (string, error) {
 	params := map[string]string{"userName": userName}
-	return callHttpRequest("GET", fullUrl, params, nil)
+	return api.callHTTPRequest("GET", "/rest/session/idp", params, nil)
 }
 
-// Status APIs
-
-func GetStatus() string {
-	fullUrl := auth.HostUrl + "/rest/status"
-	return callHttpRequest("GET", fullUrl, nil, nil)
+// GetStatus calls the /rest/status endpoint
+func (api *API) GetStatus() (string, error) {
+	return api.callHTTPRequest("GET", "/rest/status", nil, nil)
 }
 
 // Tag Keys APIs
 
 // view: "full"
-func GetTagKeys(view string) string {
-	fullUrl := auth.HostUrl + "/rest/tag-keys"
+func (api *API) GetTagKeys(view string) (string, error) {
 	params := map[string]string{"view": view}
-	return callHttpRequest("GET", fullUrl, params, nil)
+	return api.callHTTPRequest("GET", "/rest/tag-keys", params, nil)
 }
 
-func CreateTagKey(name string) string {
-	fullUrl := auth.HostUrl + "/rest/tag-keys"
+func (api *API) CreateTagKey(name string) (string, error) {
 	values := map[string]string{"name": name}
-	return callHttpRequest("POST", fullUrl, nil, values)
+	return api.callHTTPRequest("POST", "/rest/tag-keys", nil, values)
 }
 
 // view: "full"
-func GetTagKey(tagKeyID, view string) string {
-	fullUrl := auth.HostUrl + "/rest/tag-keys/" + tagKeyID
+func (api *API) GetTagKey(tagKeyID, view string) (string, error) {
 	params := map[string]string{"view": view}
-	return callHttpRequest("GET", fullUrl, params, nil)
+	return api.callHTTPRequest("GET", "/rest/tag-keys/"+tagKeyID, params, nil)
 }
 
-func DeleteTagKey(tagKeyID string) string {
-	fullUrl := auth.HostUrl + "/rest/tag-keys/" + tagKeyID
-	return callHttpRequest("DELETE", fullUrl, nil, nil)
+func (api *API) DeleteTagKey(tagKeyID string) (string, error) {
+	return api.callHTTPRequest("DELETE", "/rest/tag-keys/"+tagKeyID, nil, nil)
 }
 
 // Tags APIs
 
 // view: "full"
-func GetTags(view string) string {
-	fullUrl := auth.HostUrl + "/rest/tags"
+func (api *API) GetTags(view string) (string, error) {
 	params := map[string]string{"view": view}
-	return callHttpRequest("GET", fullUrl, params, nil)
+	return api.callHTTPRequest("GET", "/rest/tags", params, nil)
 }
 
-func CreateTag(name, tagKeyUri string) string {
-	fullUrl := auth.HostUrl + "/rest/tags"
+func (api *API) CreateTag(name, tagKeyUri string) (string, error) {
 	values := map[string]string{"name": name, "tagKeyUri": tagKeyUri}
-	return callHttpRequest("POST", fullUrl, nil, values)
+	return api.callHTTPRequest("POST", "/rest/tags", nil, values)
 }
 
 // view: "full"
-func GetTag(tagID, view string) string {
-	fullUrl := auth.HostUrl + "/rest/tags/" + tagID
+func (api *API) GetTag(tagID, view string) (string, error) {
 	params := map[string]string{"view": view}
-	return callHttpRequest("GET", fullUrl, params, nil)
+	return api.callHTTPRequest("GET", "/rest/tags/"+tagID, params, nil)
 }
 
-func DeleteTag(tagID string) string {
-	fullUrl := auth.HostUrl + "/rest/tags/" + tagID
-	return callHttpRequest("DELETE", fullUrl, nil, nil)
+func (api *API) DeleteTag(tagID string) (string, error) {
+	return api.callHTTPRequest("DELETE", "/rest/tags/"+tagID, nil, nil)
 }
 
 // Users APIs
 
-func GetUsers(userQuery string) string {
-	fullUrl := auth.HostUrl + "/rest/users"
+func (api *API) GetUsers(userQuery string) (string, error) {
 	params := map[string]string{"userQuery": userQuery}
-	return callHttpRequest("GET", fullUrl, params, nil)
+	return api.callHTTPRequest("GET", "/rest/users", params, nil)
 }
 
 // role: "administrator|analyst|consumer|project-creator"
-func CreateUser(email, name, password, role string) string {
-	fullUrl := auth.HostUrl + "/rest/users"
+func (api *API) CreateUser(email, name, password, role string) (string, error) {
 	values := map[string]string{"email": email, "name": name, "password": password, "role": role}
-	return callHttpRequest("POST", fullUrl, nil, values)
+	return api.callHTTPRequest("POST", "/rest/users", nil, values)
 }
 
-func GetUser(userID string) string {
-	fullUrl := auth.HostUrl + "/rest/users/" + userID
-	return callHttpRequest("GET", fullUrl, nil, nil)
+func (api *API) GetUser(userID string) (string, error) {
+	return api.callHTTPRequest("GET", "/rest/users/"+userID, nil, nil)
 }
 
 // role: "administrator|analyst|consumer|project-creator"
-func UpdateUser(userID, email, name, password, role string) string {
-	fullUrl := auth.HostUrl + "/rest/users/" + userID
+func (api *API) UpdateUser(userID, email, name, password, role string) (string, error) {
 	values := map[string]string{"email": email, "name": name, "password": password, "role": role}
-	return callHttpRequest("PUT", fullUrl, nil, values)
+	return api.callHTTPRequest("PUT", "/rest/users/"+userID, nil, values)
 }
 
-func DeleteUser(userID string) string {
-	fullUrl := auth.HostUrl + "/rest/users/" + userID
-	return callHttpRequest("DELETE", fullUrl, nil, nil)
+func (api *API) DeleteUser(userID string) (string, error) {
+	return api.callHTTPRequest("DELETE", "/rest/users/"+userID, nil, nil)
 }
 
 // Virtual Machine Profiles APIs
 
-func GetVirtualMachineProfiles(zoneUri, serviceUri string) string {
-	fullUrl := auth.HostUrl + "/rest/virtual-machine-profiles"
+func (api *API) GetVirtualMachineProfiles(zoneUri, serviceUri string) (string, error) {
 	params := map[string]string{"zoneUri": zoneUri, "serviceUri": serviceUri}
-	return callHttpRequest("GET", fullUrl, params, nil)
+	return api.callHTTPRequest("GET", "/rest/virtual-machine-profiles", params, nil)
 }
 
-func GetVirtualMachineProfile(vmProfileID string) string {
-	fullUrl := auth.HostUrl + "/rest/virtual-machine-profiles/" + vmProfileID
-	return callHttpRequest("GET", fullUrl, nil, nil)
+func (api *API) GetVirtualMachineProfile(vmProfileID string) (string, error) {
+	return api.callHTTPRequest("GET", "/rest/virtual-machine-profiles/"+vmProfileID, nil, nil)
 }
 
 // Volumes APIs
 
 // view: "full"
-func GetVolumes(query, view string) string {
-	fullUrl := auth.HostUrl + "/rest/volumes"
+func (api *API) GetVolumes(query, view string) (string, error) {
 	params := map[string]string{"query": query, "view": view}
-	return callHttpRequest("GET", fullUrl, params, nil)
+	return api.callHTTPRequest("GET", "/rest/volumes", params, nil)
 }
 
-func CreateVolume(name string, sizeGiB int, zoneUri, projectUri string) string {
-	fullUrl := auth.HostUrl + "/rest/volumes"
+func (api *API) CreateVolume(name string, sizeGiB int, zoneUri, projectUri string) (string, error) {
 	values := map[string]interface{}{
 		"name":       name,
 		"sizeGiB":    strconv.Itoa(sizeGiB),
 		"zoneUri":    zoneUri,
 		"projectUri": projectUri}
-	return callHttpRequest("POST", fullUrl, nil, values)
+	return api.callHTTPRequest("POST", "/rest/volumes", nil, values)
 }
 
-func GetVolume(volumeID string) string {
-	fullUrl := auth.HostUrl + "/rest/volumes/" + volumeID
-	return callHttpRequest("GET", fullUrl, nil, nil)
+func (api *API) GetVolume(volumeID string) (string, error) {
+	return api.callHTTPRequest("GET", "/rest/volumes/"+volumeID, nil, nil)
 }
 
-func UpdateVolume(volumeID, name string, sizeGiB int) string {
-	fullUrl := auth.HostUrl + "/rest/volumes/" + volumeID
+func (api *API) UpdateVolume(volumeID, name string, sizeGiB int) (string, error) {
 	values := map[string]interface{}{
 		"name":    name,
 		"sizeGiB": strconv.Itoa(sizeGiB)}
-	return callHttpRequest("PUT", fullUrl, nil, values)
+	return api.callHTTPRequest("PUT", "/rest/volumes/"+volumeID, nil, values)
 }
 
-func DeleteVolume(volumeID string) string {
-	fullUrl := auth.HostUrl + "/rest/volumes/" + volumeID
-	return callHttpRequest("DELETE", fullUrl, nil, nil)
+func (api *API) DeleteVolume(volumeID string) (string, error) {
+	return api.callHTTPRequest("DELETE", "/rest/volumes/"+volumeID, nil, nil)
 }
 
 // Zone Types APIs
 
-func GetZoneTypes() string {
-	fullUrl := auth.HostUrl + "/rest/zone-types"
-	return callHttpRequest("GET", fullUrl, nil, nil)
+func (api *API) GetZoneTypes() (string, error) {
+	return api.callHTTPRequest("GET", "/rest/zone-types", nil, nil)
 }
 
-func GetZoneTypeResourceProfiles(zoneTypeID string) string {
-	fullUrl := auth.HostUrl + "/rest/zone-types/" + zoneTypeID + "/resource-profiles"
-	return callHttpRequest("GET", fullUrl, nil, nil)
+func (api *API) GetZoneTypeResourceProfiles(zoneTypeID string) (string, error) {
+	return api.callHTTPRequest("GET", "/rest/zone-types/"+zoneTypeID+"/resource-profiles", nil, nil)
 }
 
 // Zones APIs
 
-func GetZones(query, regionUri, applianceUri string) string {
-	fullUrl := auth.HostUrl + "/rest/zones"
+func (api *API) GetZones(query, regionUri, applianceUri string) (string, error) {
 	params := map[string]string{"query": query, "regionUri": regionUri, "applianceUri": applianceUri}
-	return callHttpRequest("GET", fullUrl, params, nil)
+	return api.callHTTPRequest("GET", "/rest/zones", params, nil)
 }
 
-func CreateZone(zoneData string) string {
-	fullUrl := auth.HostUrl + "/rest/zones"
-	return callHttpRequest("POST", fullUrl, nil, zoneData)
+func (api *API) CreateZone(zoneData string) (string, error) {
+	return api.callHTTPRequest("POST", "/rest/zones", nil, zoneData)
 }
 
 // view: "full"
-func GetZone(zoneID, view string) string {
-	fullUrl := auth.HostUrl + "/rest/zones/" + zoneID
+func (api *API) GetZone(zoneID, view string) (string, error) {
 	params := map[string]string{"view": view}
-	return callHttpRequest("GET", fullUrl, params, nil)
+	return api.callHTTPRequest("GET", "/rest/zones/"+zoneID, params, nil)
 }
 
 // op: "add|replace|remove"
-func UpdateZone(zoneID, op, path string, value interface{}) string {
-	fullUrl := auth.HostUrl + "/rest/zones/" + zoneID
+func (api *API) UpdateZone(zoneID, op, path string, value interface{}) (string, error) {
 	values := map[string]interface{}{"op": op, "path": path, "value": value}
-	return callHttpRequest("PUT", fullUrl, nil, values)
+	return api.callHTTPRequest("PUT", "/rest/zones/"+zoneID, nil, values)
 }
 
-func DeleteZone(zoneID string, force bool) string {
-	fullUrl := auth.HostUrl + "/rest/zones/" + zoneID
+func (api *API) DeleteZone(zoneID string, force bool) (string, error) {
 	params := map[string]string{"force": strconv.FormatBool(force)}
-	return callHttpRequest("DELETE", fullUrl, params, nil)
+	return api.callHTTPRequest("DELETE", "/rest/zones/"+zoneID, params, nil)
 }
 
 // actionType: "reset|add-capacity|reduce-capacity"
 // resourceType: "compute|storage"
-func ActionOnZone(zoneID, actionType, resourceType string, resourceCapacity int) string {
-	fullUrl := auth.HostUrl + "/rest/zones/" + zoneID + "/actions"
+func (api *API) ActionOnZone(zoneID, actionType, resourceType string, resourceCapacity int) (string, error) {
 	values := map[string]interface{}{
 		"type": actionType,
 		"resourceOp": map[string]interface{}{
 			"resourceType":     resourceType,
 			"resourceCapacity": resourceCapacity}}
-	return callHttpRequest("POST", fullUrl, nil, values)
+	return api.callHTTPRequest("POST", "/rest/zones/"+zoneID+"/actions", nil, values)
 }
 
-func GetZoneApplianceImage(zoneID string) string {
-	fullUrl := auth.HostUrl + "/rest/zones/" + zoneID + "/appliance-image"
-	return callHttpRequest("GET", fullUrl, nil, nil)
+func (api *API) GetZoneApplianceImage(zoneID string) (string, error) {
+	return api.callHTTPRequest("GET", "/rest/zones/"+zoneID+"/appliance-image", nil, nil)
 }
 
-func GetZoneTaskStatus(zoneID string) string {
-	fullUrl := auth.HostUrl + "/rest/zones/" + zoneID + "/task-status"
-	return callHttpRequest("GET", fullUrl, nil, nil)
+func (api *API) GetZoneTaskStatus(zoneID string) (string, error) {
+	return api.callHTTPRequest("GET", "/rest/zones/"+zoneID+"/task-status", nil, nil)
 }
 
-func GetZoneConnections(zoneID, uuid string) string {
-	fullUrl := auth.HostUrl + "/rest/zones/" + zoneID + "/connections"
+func (api *API) GetZoneConnections(zoneID, uuid string) (string, error) {
 	params := map[string]string{"uuid": uuid}
-	return callHttpRequest("GET", fullUrl, params, nil)
+	return api.callHTTPRequest("GET", "/rest/zones/"+zoneID+"/connections", params, nil)
 }
 
 // state: "Enabling|Enabled|Disabling|Disabled"
-func CreateZoneConnection(zoneID, uuid, name, ipAddress, username, password string,
-	port int, state string) string {
-	fullUrl := auth.HostUrl + "/rest/zones/" + zoneID + "/connections"
+func (api *API) CreateZoneConnection(zoneID, uuid, name, ipAddress, username, password string,
+	port int, state string) (string, error) {
 	values := map[string]interface{}{
 		"uuid": uuid,
 		"name": name,
@@ -847,17 +763,15 @@ func CreateZoneConnection(zoneID, uuid, name, ipAddress, username, password stri
 			"password":  password,
 			"port":      port},
 		"state": state}
-	return callHttpRequest("POST", fullUrl, nil, values)
+	return api.callHTTPRequest("POST", "/rest/zones/"+zoneID+"/connections", nil, values)
 }
 
-func DeleteZoneConnection(zoneID, uuid string) string {
-	fullUrl := auth.HostUrl + "/rest/zones/" + zoneID + "/connections/" + uuid
-	return callHttpRequest("DELETE", fullUrl, nil, nil)
+func (api *API) DeleteZoneConnection(zoneID, uuid string) (string, error) {
+	return api.callHTTPRequest("DELETE", "/rest/zones/"+zoneID+"/connections/"+uuid, nil, nil)
 }
 
 // op: "add|replace|remove"
-func UpdateZoneConnection(zoneID, uuid, op, path string, value interface{}) string {
-	fullUrl := auth.HostUrl + "/rest/zones/" + zoneID + "/connections"
+func (api *API) UpdateZoneConnection(zoneID, uuid, op, path string, value interface{}) (string, error) {
 	values := map[string]interface{}{"op": op, "path": path, "value": value}
-	return callHttpRequest("PUT", fullUrl, nil, values)
+	return api.callHTTPRequest("PUT", "/rest/zones/"+zoneID+"/connections", nil, values)
 }
