@@ -103,6 +103,12 @@ func main() {
 		fmt.Printf("TagKeys: %s\n\n", tagKeys)
 	}
 
+	if tags, err := oneSphere.GetTags("full"); err != nil {
+		fmt.Printf("Error: %s\n\n", err)
+	} else {
+		fmt.Printf("Tags: %s\n\n", tags)
+	}
+
 	if users, err := oneSphere.GetUsers("full"); err != nil {
 		fmt.Printf("Error: %s\n\n", err)
 	} else {
@@ -114,5 +120,6 @@ func main() {
 	} else {
 		fmt.Printf("ZoneTypes: %s\n\n", zoneTypes)
 	}
+
 	oneSphere.Disconnect()
 }

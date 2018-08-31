@@ -304,6 +304,37 @@ func TestGetTagKeysFull(t *testing.T) {
 
 }
 
+func TestGetTagsFull(t *testing.T) {
+	actual, err := oneSphere.GetTags("full")
+	if err != nil {
+		t.Errorf("TestGetTagsFull Error: %v\n", err)
+	}
+
+	expected := `{
+    "total": 0,
+    "start": 0,
+    "count": 0,
+    "members": [
+        {
+            "id": "a=b",
+            "tagKeyUri": "/rest/tag-keys/a",
+            "tagKey": {
+                "id": "a",
+                "name": "a",
+                "uri": "/rest/tag-keys/a"
+            },
+            "name": "b",
+            "uri": "/rest/tags/a=b"
+        }
+    ]
+	}`
+	compareErr := compareFields(t, "onesphere.API.GetTags(\"full\")", expected, actual)
+	if compareErr != nil {
+		t.Errorf("TestGetTags Error: %s\n", compareErr)
+	}
+
+}
+
 func TestGetUsersFull(t *testing.T) {
 	actual, err := oneSphere.GetUsers("full")
 	if err != nil {
