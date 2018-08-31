@@ -68,14 +68,14 @@ func callHttpRequest(method, url string, params map[string]string, values interf
 	return bodyStr
 }
 
-func Connect(hostUrl, user, password string) {
+func Connect(hostUrl, user, password string) error {
 	HostUrl = hostUrl
 	fullUrl := hostUrl + "/rest/session"
 	values := map[string]string{"userName": user, "password": password}
 	jsonValue, err := json.Marshal(values)
 	req, err := http.NewRequest("POST", fullUrl, bytes.NewBuffer(jsonValue))
 	if err != nil {
-		panic(err)
+		return err
 	}
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("Content-Type", "application/json")
@@ -83,23 +83,24 @@ func Connect(hostUrl, user, password string) {
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	//bodyStr := string(body)
 	var dat map[string]string
 	err = json.Unmarshal(body, &dat)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	Token = dat["token"]
+	return nil
 }
 
 func Disconnect() {

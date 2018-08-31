@@ -27,9 +27,11 @@ import (
 	"os"
 )
 
-var hostURL string
-var user string
-var password string
+type onesphereConfig struct {
+	HostURL  string
+	User     string
+	Password string
+}
 
 func setConfig(configPtr *string, flagName string, defaultVal string, help string) {
 	flag.StringVar(configPtr, flagName, defaultVal, help)
@@ -41,12 +43,19 @@ func setConfig(configPtr *string, flagName string, defaultVal string, help strin
 
 func main() {
 
-	setConfig(&hostURL, "host", "https://onesphere-host-url", "Specify the OneSphere host URL to connect to.")
-	setConfig(&user, "user", "username", "Specify the OneSphere username to authenticate as.")
-	setConfig(&password, "password", "password", "Specify the OneSphere password to authenticate with.")
+	config := &onesphereConfig{}
+	setConfig(&config.HostURL, "host", "https://onesphere-host-url", "Specify the OneSphere host URL to connect to.")
+	setConfig(&config.User, "user", "username", "Specify the OneSphere username to authenticate as.")
+	setConfig(&config.Password, "password", "password", "Specify the OneSphere password to authenticate with.")
 	flag.Parse()
 
-	onesphere.Connect(hostURL, user, password)
+	if err := onesphere.Connect(config.HostURL, config.User, config.Password); err != nil {
+		fmt.Println("onesphere.Connect failed.")
+		fmt.Printf("onesphere.Connect config: %+v\n", config)
+		fmt.Printf("onesphere.Connect error: %v\n", err)
+		return
+	}
+
 	fmt.Println("Token:", onesphere.Token)
 
 	fmt.Println("Status:", onesphere.GetStatus())
