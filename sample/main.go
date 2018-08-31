@@ -84,5 +84,11 @@ func main() {
 	} else {
 		fmt.Printf("ProviderTypes: %s\n", providerTypes)
 	}
+
+	if zoneTypes, err := oneSphere.GetZoneTypes(); err != nil {
+		fmt.Printf("Error: %s\n", err)
+	} else {
+		fmt.Printf("ZoneTypes: %s\n", zoneTypes)
+	}
 	oneSphere.Disconnect()
 }
