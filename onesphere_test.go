@@ -360,6 +360,58 @@ func TestGetCatalogs(t *testing.T) {
 
 }
 
+func TestGetCatalog(t *testing.T) {
+
+	var catalogs struct {
+		Total   int `json:"total"`
+		Start   int `json:"start"`
+		Count   int `json:"count"`
+		Members []struct {
+			Id             string `json:"id"`
+			Name           string `json:"name"`
+			ServiceTypeUri string `json:"serviceTypeUri"`
+			CatalogTypeUri string `json:"catalogTypeUri"`
+			Url            string `json:"url"`
+			Status         string `json:"status"`
+			State          string `json:"state"`
+			Protected      bool   `json:"protected"`
+			Created        string `json:"created"`
+			Modified       string `json:"modified"`
+		} `json:"members"`
+	}
+	if jsonRes, err := oneSphere.GetCatalogs("dock", "full"); err != nil {
+		t.Errorf("TestGetCatalogs Error: %s\n", err)
+	} else {
+		if jsonErr := json.Unmarshal([]byte(jsonRes), &catalogs); jsonErr != nil {
+			t.Errorf("TestGetCatalogs Unmarshal Payload Error: %s\n", jsonErr)
+		}
+	}
+
+	actual, err := oneSphere.GetCatalog(catalogs.Members[0].Id, "full")
+	if err != nil {
+		t.Errorf("TestGetCatalog Error: %v\n", err)
+	}
+
+	expected := `{
+    "id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+    "name": "Abc",
+    "uri": "/rest/catalogs/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+    "serviceTypeUri": "/rest/service-types/container",
+    "catalogTypeUri": "/rest/catalog-types/abc",
+    "url": "https://url",
+    "status": "Unknown",
+    "state": "Disabled",
+    "protected": true,
+    "created": "",
+    "modified": ""
+	}`
+	compareErr := compareFields(t, "onesphere.API.GetCatalog", expected, actual)
+	if compareErr != nil {
+		t.Errorf("TestGetCatalog Error: %s\n", compareErr)
+	}
+
+}
+
 func TestGetProviderTypes(t *testing.T) {
 	actual, err := oneSphere.GetProviderTypes()
 	if err != nil {

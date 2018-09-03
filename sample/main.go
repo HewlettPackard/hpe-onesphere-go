@@ -181,6 +181,12 @@ func main() {
 		fmt.Printf("Delete Catalog: %s\n\n", status)
 	}
 
+	if catalog, err := oneSphere.GetCatalog(catalogs.Members[0].Id, "full"); err != nil {
+		fmt.Printf("Error: %s\n\n", err)
+	} else {
+		fmt.Printf("Catalog: %s\n\n", catalog)
+	}
+
 	if providerTypes, err := oneSphere.GetProviderTypes(); err != nil {
 		fmt.Printf("Error: %s\n\n", err)
 	} else {
