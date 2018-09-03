@@ -248,6 +248,58 @@ func TestGetBillingAccounts(t *testing.T) {
 
 }
 
+func TestGetBillingAccount(t *testing.T) {
+
+	var billingAccounts struct {
+		Total   int `json:"total"`
+		Start   int `json:"start"`
+		Count   int `json:"count"`
+		Members []struct {
+			Id               string        `json:"id"`
+			Name             string        `json:"name"`
+			Uri              string        `json:"uri"`
+			Status           string        `json:"status"`
+			State            string        `json:"state"`
+			ProviderTypeUri  string        `json:"providerTypeUri"`
+			EnrollmentNumber string        `json:"enrollmentNumber"`
+			DirectoryUri     string        `json:"directoryUri"`
+			Created          string        `json:"created"`
+			Modified         string        `json:"modified"`
+			Providers        []interface{} `json:"providers"`
+		} `json:"members"`
+	}
+	if jsonRes, err := oneSphere.GetBillingAccounts("", "full"); err != nil {
+		t.Errorf("TestGetBillingAccount Error: %s\n", err)
+	} else {
+		if jsonErr := json.Unmarshal([]byte(jsonRes), &billingAccounts); jsonErr != nil {
+			t.Errorf("TestGetBillingAccount Unmarshal Payload Error: %s\n", jsonErr)
+		}
+	}
+
+	actual, err := oneSphere.GetBillingAccount(billingAccounts.Members[0].Id)
+	if err != nil {
+		t.Errorf("TestGetBillingAccount Error: %v\n", err)
+	}
+
+	expected := `{
+		"id": "abc",
+		"name": "",
+		"uri": "/rest/billing-accounts/abc",
+		"status": "",
+		"state": "",
+		"providerTypeUri": "/rest/provider-types/a",
+		"enrollmentNumber": "",
+		"directoryUri": "",
+		"created": "",
+		"modified": ""
+	}`
+	compareErr := compareFields(t, "onesphere.API.GetBillingAccount", expected, actual)
+	if compareErr != nil {
+		t.Errorf("TestGetBillingAccount Error: %s\n", compareErr)
+	}
+
+}
+
 func TestGetProviderTypes(t *testing.T) {
 	actual, err := oneSphere.GetProviderTypes()
 	if err != nil {
