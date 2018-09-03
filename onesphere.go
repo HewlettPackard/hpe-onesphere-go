@@ -343,8 +343,22 @@ func (api *API) UpdateCatalog(catalogID string, patchPayload []*PatchOp) (string
 
 // Connect App APIs
 
-// os="windows" or os="mac"
+// GetConnectApp allowed operating systems: ["windows", "mac"]
 func (api *API) GetConnectApp(os string) (string, error) {
+	validOperatingSystems := []string{
+		"windows",
+		"mac",
+	}
+	osIsValid := false
+	for _, validOperatingSystem := range validOperatingSystems {
+		if os == validOperatingSystem {
+			osIsValid = true
+		}
+	}
+	if !osIsValid {
+		return "", fmt.Errorf("GetConnectApp received invalid os parameter.\nReceived os: %s\nValid os values: %v\n", os, validOperatingSystems)
+	}
+
 	params := map[string]string{"os": os}
 	return api.callHTTPRequest("GET", "/rest/connect-app", params, nil)
 }

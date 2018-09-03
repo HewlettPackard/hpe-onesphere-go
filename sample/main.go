@@ -199,6 +199,12 @@ func main() {
 		fmt.Printf("Update (add) Catalog Name: %s\n\n", catalog)
 	}
 
+	if connectAppUrl, err := oneSphere.GetConnectApp("windows"); err != nil {
+		fmt.Printf("Error: %s\n\n", err)
+	} else {
+		fmt.Printf("Generated connect-app s3 url: %s\n\n", connectAppUrl)
+	}
+
 	if providerTypes, err := oneSphere.GetProviderTypes(); err != nil {
 		fmt.Printf("Error: %s\n\n", err)
 	} else {
