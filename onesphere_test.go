@@ -466,6 +466,35 @@ func TestGetDeployments(t *testing.T) {
 	}
 }
 
+func TestGetDeploymentsQuery(t *testing.T) {
+
+	nameQuery := "deic02K8sCluster1"
+
+	var deployments struct {
+		Total   int           `json:"total"`
+		Start   int           `json:"start"`
+		Count   int           `json:"count"`
+		Members []*Deployment `json:"members"`
+	}
+
+	if jsonRes, err := oneSphere.GetDeployments("name EQ "+nameQuery, "", "full"); err != nil {
+		t.Errorf("TestGetDeploymentsQuery \"query=name EQ %s\" Error: %s\n", nameQuery, err)
+	} else {
+		if jsonErr := json.Unmarshal([]byte(jsonRes), &deployments); jsonErr != nil {
+			t.Errorf("TestGetDeploymentsQuery Unmarshal Payload Error: %s\n", jsonErr)
+		}
+	}
+
+	if deployments.Total != 1 {
+		t.Errorf("TestGetDeploymentsQuery \"query=name EQ %s\" Should only return 1 Deployment.\nReturned %v Deployments.\n", nameQuery, deployments.Total)
+	}
+
+	if deployments.Members[0].Name != nameQuery {
+		t.Errorf("TestGetDeploymentsQuery \"query=name EQ %s\" Should return results that meet the query criteria.\nExpected Name: %s\nReturned Deployment with Name: %s\n", nameQuery, nameQuery, deployments.Members[0].Name)
+	}
+
+}
+
 func TestGetProviderTypes(t *testing.T) {
 	actual, err := oneSphere.GetProviderTypes()
 	if err != nil {
