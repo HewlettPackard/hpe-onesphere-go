@@ -311,11 +311,34 @@ func (api *API) DeleteCatalog(catalogID string) (string, error) {
 	return "", api.notImplementedError("DELETE", "/rest/catalogs/"+catalogID, "catalogs")
 }
 
-func (api *API) UpdateCatalog(catalogID, name, password, accessKey, secretKey, regionName, state string) (string, error) {
-	values := map[string]interface{}{
-		"name": name, "password": password, "accessKey": accessKey,
-		"secretKey": secretKey, "regionName": regionName, "state": state}
-	return api.callHTTPRequest("PUT", "/rest/catalogs/"+catalogID, nil, values)
+/* UpdateCatalog allowed fields to update:
+	[Op] => Field
+  - add => /name, /password, /accessKey, /secretKey, /state
+	- replace => /name, /state
+*/
+func (api *API) UpdateCatalog(catalogID string, patchPayload []*PatchOp) (string, error) {
+	allowedFields := map[string][]string{
+		"add":     []string{"/name", "/password", "/accessKey", "/secretKey", "/state"},
+		"replace": []string{"/name", "/state"},
+	}
+
+	for _, pb := range patchPayload {
+		fieldIsValid := false
+
+		if allowedPaths, ok := allowedFields[pb.Op]; ok {
+			for _, allowedPath := range allowedPaths {
+				if pb.Path == allowedPath {
+					fieldIsValid = true
+				}
+			}
+		}
+
+		if !fieldIsValid {
+			return "", fmt.Errorf("UpdateCatalog received invalid Field for update.\nReceived Op: %s\nReceived Path: %s\nValid Fields: %v\n", pb.Op, pb.Path, allowedFields)
+		}
+	}
+
+	return api.callHTTPRequest("PATCH", "/rest/catalogs/"+catalogID, nil, patchPayload)
 }
 
 // Connect App APIs

@@ -187,6 +187,18 @@ func main() {
 		fmt.Printf("Catalog: %s\n\n", catalog)
 	}
 
+	if catalog, err := oneSphere.UpdateCatalog(catalogs.Members[0].Id, []*onesphere.PatchOp{
+		&onesphere.PatchOp{
+			Op:    "add",
+			Path:  "/name",
+			Value: "updated name",
+		},
+	}); err != nil {
+		fmt.Printf("Error: %s\n\n", err)
+	} else {
+		fmt.Printf("Update (add) Catalog Name: %s\n\n", catalog)
+	}
+
 	if providerTypes, err := oneSphere.GetProviderTypes(); err != nil {
 		fmt.Printf("Error: %s\n\n", err)
 	} else {
