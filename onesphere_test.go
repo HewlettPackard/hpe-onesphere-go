@@ -412,6 +412,60 @@ func TestGetCatalog(t *testing.T) {
 
 }
 
+func TestGetDeployments(t *testing.T) {
+
+	actual, err := oneSphere.GetDeployments("", "", "full")
+	if err != nil {
+		t.Errorf("TestGetDeploments Error: %v\n", err)
+	}
+
+	expected := `{
+    "total": 0,
+    "start": 0,
+    "count": 0,
+    "members": [
+        {
+            "id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+            "name": "Abc",
+            "zoneUri": "/rest/zones/ffffffff-gggg-hhhh-iiii-jjjjjjjjjjjj",
+            "zone": {
+                "id": "ffffffff-gggg-hhhh-iiii-jjjjjjjjjjjj",
+                "name": "Cluster1",
+                "uri": "/rest/zones/ffffffff-gggg-hhhh-iiii-jjjjjjjjjjjj"
+            },
+            "regionUri": "/rest/regions/kkkkkkkk-llll-mmmm-nnnn-oooooooooooo",
+            "serviceUri": "/rest/services/11111111-2222-3333-4444-555555555555",
+            "service": {
+                "id": "11111111-2222-3333-4444-555555555555",
+                "name": "service",
+                "uri": "/rest/services/11111111-2222-3333-4444-555555555555"
+            },
+            "serviceTypeUri": "/rest/service-types/abc",
+            "version": "1.0.0",
+            "status": "Ok",
+            "state": "Started",
+            "uri": "/rest/deployments/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+            "projectUri": "/rest/projects/ffffffffffeeeeeeeeeddddddddccccc",
+            "deploymentEndpoints": [
+                {
+                    "address": "http://a200964c98a6511e8a6ea160cfa48d63-2100924509.us-east-1.elb.amazonaws.com:80",
+                    "addressType": "url"
+                }
+            ],
+            "appDeploymentInfo": "",
+            "hasConsole": false,
+            "cloudPlatformId": "66666666-7777-8888-9999-aaaaaaaaaaaa",
+            "created": "",
+            "modified": ""
+        }
+    ]
+	}`
+	compareErr := compareFields(t, "onesphere.API.GetDeployments", expected, actual)
+	if compareErr != nil {
+		t.Errorf("TestGetDeployments Error: %s\n", compareErr)
+	}
+}
+
 func TestGetProviderTypes(t *testing.T) {
 	actual, err := oneSphere.GetProviderTypes()
 	if err != nil {

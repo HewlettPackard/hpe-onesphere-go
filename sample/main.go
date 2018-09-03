@@ -205,6 +205,12 @@ func main() {
 		fmt.Printf("Generated connect-app s3 url: %s\n\n", connectAppUrl)
 	}
 
+	if deployments, err := oneSphere.GetDeployments("", "", "full"); err != nil {
+		fmt.Printf("Error: %s\n\n", err)
+	} else {
+		fmt.Printf("Deployments: %s\n\n", deployments)
+	}
+
 	if providerTypes, err := oneSphere.GetProviderTypes(); err != nil {
 		fmt.Printf("Error: %s\n\n", err)
 	} else {
