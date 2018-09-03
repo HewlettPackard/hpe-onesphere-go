@@ -195,6 +195,18 @@ func (api *API) GetBillingAccounts(query, view string) (string, error) {
 	return api.callHTTPRequest("GET", "/rest/billing-accounts", params, nil)
 }
 
+func (api *API) CreateBillingAccount(accessKey, description, directoryUri, enrollmentNumber, name, providerTypeUri string) (string, error) {
+	values := map[string]string{
+		"apiAccessKey":     accessKey,
+		"description":      description,
+		"directoryUri":     directoryUri,
+		"enrollmentNumber": enrollmentNumber,
+		"name":             name,
+		"providerTypeUri":  providerTypeUri,
+	}
+	return api.callHTTPRequest("POST", "/rest/billing-accounts", nil, values)
+}
+
 // Catalog Types APIs
 
 func (api *API) GetCatalogTypes() (string, error) {

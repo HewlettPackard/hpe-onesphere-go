@@ -79,6 +79,12 @@ func main() {
 		fmt.Printf("Billing Accounts: %s\n\n", billingAccounts)
 	}
 
+	if billingAccount, err := oneSphere.CreateBillingAccount("accessKey", "billing-account-description", "somecompany.com", "abc", "newBillingAccountName", "/rest/provider-types/azure"); err != nil {
+		fmt.Printf("Error: %s\n\n", err)
+	} else {
+		fmt.Printf("Create Billing Account: %s\n\n", billingAccount)
+	}
+
 	if providerTypes, err := oneSphere.GetProviderTypes(); err != nil {
 		fmt.Printf("Error: %s\n\n", err)
 	} else {
