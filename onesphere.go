@@ -195,9 +195,9 @@ func (api *API) GetBillingAccounts(query, view string) (string, error) {
 	return api.callHTTPRequest("GET", "/rest/billing-accounts", params, nil)
 }
 
-func (api *API) CreateBillingAccount(accessKey, description, directoryUri, enrollmentNumber, name, providerTypeUri string) (string, error) {
+func (api *API) CreateBillingAccount(apiAccessKey, description, directoryUri, enrollmentNumber, name, providerTypeUri string) (string, error) {
 	values := map[string]string{
-		"apiAccessKey":     accessKey,
+		"apiAccessKey":     apiAccessKey,
 		"description":      description,
 		"directoryUri":     directoryUri,
 		"enrollmentNumber": enrollmentNumber,
@@ -213,6 +213,24 @@ func (api *API) GetBillingAccount(id string) (string, error) {
 
 func (api *API) DeleteBillingAccount(id string) (string, error) {
 	return api.callHTTPRequest("DELETE", "/rest/billing-accounts/"+id, nil, nil)
+}
+
+// UpdateBillingAccount sends PATCH with Op: "add|replace|remove"
+func (api *API) UpdateBillingAccount(id string, patchPayload []*PatchOp) (string, error) {
+	validOps := []string{"add", "replace", "remove"}
+	for _, pb := range patchPayload {
+		opIsValid := false
+		for _, validOp := range validOps {
+			if pb.Op == validOp {
+				opIsValid = true
+			}
+		}
+		if !opIsValid {
+			return "", fmt.Errorf("UpdateBillingAccount received invalid Op in patchBodies.\nReceived Op: %s\nValid Ops: %v\n", pb.Op, validOps)
+		}
+	}
+
+	return api.callHTTPRequest("PATCH", "/rest/billing-accounts/"+id, nil, patchPayload)
 }
 
 // Catalog Types APIs

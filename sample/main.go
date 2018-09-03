@@ -123,6 +123,19 @@ func main() {
 		fmt.Printf("Delete Billing Account: %s\n\n", status)
 	}
 
+	if billingAccount, err := oneSphere.UpdateBillingAccount(billingAccounts.Members[0].Id, []*onesphere.PatchOp{
+		&onesphere.PatchOp{
+			Op:    "add",
+			Path:  "description",
+			Value: "updated description",
+		},
+	}); err != nil {
+		fmt.Printf("Error: %s\n\n", err)
+	} else {
+		// requires administrator role
+		fmt.Printf("Update Billing Account description: %s\n\n", billingAccount)
+	}
+
 	if providerTypes, err := oneSphere.GetProviderTypes(); err != nil {
 		fmt.Printf("Error: %s\n\n", err)
 	} else {
