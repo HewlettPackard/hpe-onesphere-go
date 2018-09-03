@@ -136,6 +136,12 @@ func main() {
 		fmt.Printf("Update Billing Account description: %s\n\n", billingAccount)
 	}
 
+	if catalogTypes, err := oneSphere.GetCatalogTypes(); err != nil {
+		fmt.Printf("Error: %s\n\n", err)
+	} else {
+		fmt.Printf("Catalog Types: %s\n\n", catalogTypes)
+	}
+
 	if providerTypes, err := oneSphere.GetProviderTypes(); err != nil {
 		fmt.Printf("Error: %s\n\n", err)
 	} else {

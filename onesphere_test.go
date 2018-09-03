@@ -300,6 +300,33 @@ func TestGetBillingAccount(t *testing.T) {
 
 }
 
+func TestGetCatalogTypes(t *testing.T) {
+	actual, err := oneSphere.GetCatalogTypes()
+	if err != nil {
+		t.Errorf("TestGetCatalogTypes Error: %v\n", err)
+	}
+
+	expected := `{
+    "total": 0,
+    "start": 0,
+    "count": 0,
+    "members": [
+        {
+            "id": "abc",
+            "name": "Abc",
+            "uri": "/rest/catalog-types/abc",
+            "can_use_zones": false,
+            "protected": true
+        }
+    ]
+	}`
+	compareErr := compareFields(t, "onesphere.API.GetCatalogTypes", expected, actual)
+	if compareErr != nil {
+		t.Errorf("TestGetCatalogTypes Error: %s\n", compareErr)
+	}
+
+}
+
 func TestGetProviderTypes(t *testing.T) {
 	actual, err := oneSphere.GetProviderTypes()
 	if err != nil {
