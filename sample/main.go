@@ -82,7 +82,15 @@ func main() {
 	if billingAccount, err := oneSphere.CreateBillingAccount("accessKey", "billing-account-description", "somecompany.com", "abc", "newBillingAccountName", "/rest/provider-types/azure"); err != nil {
 		fmt.Printf("Error: %s\n\n", err)
 	} else {
+		// requires administrator role
 		fmt.Printf("Create Billing Account: %s\n\n", billingAccount)
+	}
+
+	if status, err := oneSphere.DeleteBillingAccount("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"); err != nil {
+		fmt.Printf("Error: %s\n\n", err)
+	} else {
+		// requires administrator role
+		fmt.Printf("Delete Billing Account: %s\n\n", status)
 	}
 
 	if providerTypes, err := oneSphere.GetProviderTypes(); err != nil {
