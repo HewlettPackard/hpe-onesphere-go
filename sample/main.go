@@ -142,6 +142,12 @@ func main() {
 		fmt.Printf("Catalog Types: %s\n\n", catalogTypes)
 	}
 
+	if catalogs, err := oneSphere.GetCatalogs("dock", "full"); err != nil {
+		fmt.Printf("Error: %s\n\n", err)
+	} else {
+		fmt.Printf("Catalogs: %s\n\n", catalogs)
+	}
+
 	if providerTypes, err := oneSphere.GetProviderTypes(); err != nil {
 		fmt.Printf("Error: %s\n\n", err)
 	} else {

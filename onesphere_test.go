@@ -327,6 +327,39 @@ func TestGetCatalogTypes(t *testing.T) {
 
 }
 
+func TestGetCatalogs(t *testing.T) {
+	actual, err := oneSphere.GetCatalogs("dock", "full")
+	if err != nil {
+		t.Errorf("TestGetCatalogs Error: %v\n", err)
+	}
+
+	expected := `{
+    "total": 0,
+    "start": 0,
+    "count": 0,
+    "members": [
+        {
+            "id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+            "name": "Abc",
+            "uri": "/rest/catalogs/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+            "serviceTypeUri": "/rest/service-types/container",
+            "catalogTypeUri": "/rest/catalog-types/abc",
+            "url": "https://url",
+            "status": "",
+            "state": "",
+            "protected": true,
+            "created": "",
+            "modified": ""
+        }
+    ]
+	}`
+	compareErr := compareFields(t, "onesphere.API.GetCatalogs", expected, actual)
+	if compareErr != nil {
+		t.Errorf("TestGetCatalogs Error: %s\n", compareErr)
+	}
+
+}
+
 func TestGetProviderTypes(t *testing.T) {
 	actual, err := oneSphere.GetProviderTypes()
 	if err != nil {
