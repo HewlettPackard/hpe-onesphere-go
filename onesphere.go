@@ -307,7 +307,8 @@ func (api *API) GetCatalog(catalogID, view string) (string, error) {
 }
 
 func (api *API) DeleteCatalog(catalogID string) (string, error) {
-	return api.callHTTPRequest("DELETE", "/rest/catalogs/"+catalogID, nil, nil)
+	// return api.callHTTPRequest("DELETE", "/rest/catalogs/"+catalogID, nil, nil)
+	return "", api.notImplementedError("DELETE", "/rest/catalogs/"+catalogID, "catalogs")
 }
 
 func (api *API) UpdateCatalog(catalogID, name, password, accessKey, secretKey, regionName, state string) (string, error) {

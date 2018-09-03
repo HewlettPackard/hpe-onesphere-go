@@ -142,16 +142,43 @@ func main() {
 		fmt.Printf("Catalog Types: %s\n\n", catalogTypes)
 	}
 
-	if catalogs, err := oneSphere.GetCatalogs("dock", "full"); err != nil {
+	var catalogs struct {
+		Total   int `json:"total"`
+		Start   int `json:"start"`
+		Count   int `json:"count"`
+		Members []struct {
+			Id             string `json:"id"`
+			Name           string `json:"name"`
+			ServiceTypeUri string `json:"serviceTypeUri"`
+			CatalogTypeUri string `json:"catalogTypeUri"`
+			Url            string `json:"url"`
+			Status         string `json:"status"`
+			State          string `json:"state"`
+			Protected      bool   `json:"protected"`
+			Created        bool   `json:"created"`
+			Modified       bool   `json:"modified"`
+		} `json:"members"`
+	}
+	if jsonRes, err := oneSphere.GetCatalogs("dock", "full"); err != nil {
 		fmt.Printf("Error: %s\n\n", err)
 	} else {
-		fmt.Printf("Catalogs: %s\n\n", catalogs)
+		if jsonErr := json.Unmarshal([]byte(jsonRes), &catalogs); jsonErr != nil {
+			fmt.Println("Unmarshal Payload Error:", jsonErr)
+		} else {
+			fmt.Printf("Catalogs: %+v\n\n", catalogs)
+		}
 	}
 
 	if catalog, err := oneSphere.CreateCatalog("accessKey", "/rest/catalog-types/docker-hub", "name", "password", "regionName", "secretKey", "url", "username"); err != nil {
 		fmt.Printf("Error: %s\n\n", err)
 	} else {
 		fmt.Printf("New Catalog: %s\n\n", catalog)
+	}
+
+	if status, err := oneSphere.DeleteCatalog(catalogs.Members[0].Id); err != nil {
+		fmt.Printf("Error: %s\n\n", err)
+	} else {
+		fmt.Printf("Delete Catalog: %s\n\n", status)
 	}
 
 	if providerTypes, err := oneSphere.GetProviderTypes(); err != nil {
