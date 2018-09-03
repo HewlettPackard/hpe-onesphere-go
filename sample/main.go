@@ -148,6 +148,12 @@ func main() {
 		fmt.Printf("Catalogs: %s\n\n", catalogs)
 	}
 
+	if catalog, err := oneSphere.CreateCatalog("accessKey", "/rest/catalog-types/docker-hub", "name", "password", "regionName", "secretKey", "url", "username"); err != nil {
+		fmt.Printf("Error: %s\n\n", err)
+	} else {
+		fmt.Printf("New Catalog: %s\n\n", catalog)
+	}
+
 	if providerTypes, err := oneSphere.GetProviderTypes(); err != nil {
 		fmt.Printf("Error: %s\n\n", err)
 	} else {

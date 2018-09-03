@@ -252,7 +252,43 @@ func (api *API) GetCatalogs(userQuery, view string) (string, error) {
 	return api.callHTTPRequest("GET", "/rest/catalogs", params, nil)
 }
 
+/* CreateCatalog sends POST with catalogTypeUri:
+  - /rest/catalog-types/aws-az
+	- /rest/catalog-types/vcenter
+	- /rest/catalog-types/kvm
+	- /rest/catalog-types/helm-charts-repository
+	- /rest/catalog-types/docker-hub
+	- /rest/catalog-types/docker-registry
+	- /rest/catalog-types/docker-trusted-registry
+	- /rest/catalog-types/private-docker-registry
+	- /rest/catalog-types/amazon-ecr
+	- /rest/catalog-types/azure-container-registry
+	- /rest/catalog-types/hpe-managed
+*/
 func (api *API) CreateCatalog(accessKey, catalogTypeUri, name, password, regionName, secretKey, url, username string) (string, error) {
+	validCatalogTypeUris := []string{
+		"/rest/catalog-types/aws-az",
+		"/rest/catalog-types/vcenter",
+		"/rest/catalog-types/kvm",
+		"/rest/catalog-types/helm-charts-repository",
+		"/rest/catalog-types/docker-hub",
+		"/rest/catalog-types/docker-registry",
+		"/rest/catalog-types/docker-trusted-registry",
+		"/rest/catalog-types/private-docker-registry",
+		"/rest/catalog-types/amazon-ecr",
+		"/rest/catalog-types/azure-container-registry",
+		"/rest/catalog-types/hpe-managed",
+	}
+	catalogTypeUriIsValid := false
+	for _, validCatalogTypeUri := range validCatalogTypeUris {
+		if catalogTypeUri == validCatalogTypeUri {
+			catalogTypeUriIsValid = true
+		}
+	}
+	if !catalogTypeUriIsValid {
+		return "", fmt.Errorf("CreateCatalog received invalid catalogTypeUri.\nReceived catalogTypeUri: %s\nValid catalogTypeUri values: %v\n", catalogTypeUri, validCatalogTypeUris)
+	}
+
 	values := map[string]string{
 		"accessKey":      accessKey,
 		"catalogTypeUri": catalogTypeUri,
