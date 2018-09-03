@@ -21,10 +21,12 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
-	"github.com/HewlettPackard/hpe-onesphere-go"
 	"os"
+
+	"github.com/HewlettPackard/hpe-onesphere-go"
 )
 
 var oneSphere *onesphere.API
@@ -73,10 +75,32 @@ func main() {
 		fmt.Printf("Appliances: %s\n\n", appliances)
 	}
 
-	if billingAccounts, err := oneSphere.GetBillingAccounts("", "full"); err != nil {
+	var billingAccounts struct {
+		Total   int `json:"total"`
+		Start   int `json:"start"`
+		Count   int `json:"count"`
+		Members []struct {
+			Id               string        `json:"id"`
+			Name             string        `json:"name"`
+			Uri              string        `json:"uri"`
+			Status           string        `json:"status"`
+			State            string        `json:"state"`
+			ProviderTypeUri  string        `json:"providerTypeUri"`
+			EnrollmentNumber string        `json:"enrollmentNumber"`
+			DirectoryUri     string        `json:"directoryUri"`
+			Created          string        `json:"created"`
+			Modified         string        `json:"modified"`
+			Providers        []interface{} `json:"providers"`
+		} `json:"members"`
+	}
+	if jsonRes, err := oneSphere.GetBillingAccounts("", "full"); err != nil {
 		fmt.Printf("Error: %s\n\n", err)
 	} else {
-		fmt.Printf("Billing Accounts: %s\n\n", billingAccounts)
+		if jsonErr := json.Unmarshal([]byte(jsonRes), &billingAccounts); jsonErr != nil {
+			fmt.Println("Unmarshal Payload Error:", jsonErr)
+		} else {
+			fmt.Printf("Billing Accounts: %+v\n\n", billingAccounts)
+		}
 	}
 
 	if billingAccount, err := oneSphere.CreateBillingAccount("accessKey", "billing-account-description", "somecompany.com", "abc", "newBillingAccountName", "/rest/provider-types/azure"); err != nil {
@@ -86,7 +110,13 @@ func main() {
 		fmt.Printf("Create Billing Account: %s\n\n", billingAccount)
 	}
 
-	if status, err := oneSphere.DeleteBillingAccount("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"); err != nil {
+	if billingAccount, err := oneSphere.GetBillingAccount(billingAccounts.Members[0].Id); err != nil {
+		fmt.Printf("Error: %s\n\n", err)
+	} else {
+		fmt.Printf("Billing Account: %s\n\n", billingAccount)
+	}
+
+	if status, err := oneSphere.DeleteBillingAccount(billingAccounts.Members[0].Id); err != nil {
 		fmt.Printf("Error: %s\n\n", err)
 	} else {
 		// requires administrator role

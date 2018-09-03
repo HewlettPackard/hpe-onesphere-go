@@ -207,6 +207,10 @@ func (api *API) CreateBillingAccount(accessKey, description, directoryUri, enrol
 	return api.callHTTPRequest("POST", "/rest/billing-accounts", nil, values)
 }
 
+func (api *API) GetBillingAccount(id string) (string, error) {
+	return api.callHTTPRequest("GET", "/rest/billing-accounts/"+id, nil, nil)
+}
+
 func (api *API) DeleteBillingAccount(id string) (string, error) {
 	return api.callHTTPRequest("DELETE", "/rest/billing-accounts/"+id, nil, nil)
 }
