@@ -468,7 +468,6 @@ func TestGetDeployments(t *testing.T) {
 }
 
 func TestGetDeploymentsQuery(t *testing.T) {
-
 	nameQuery := "deic02K8sCluster1"
 
 	var deployments struct {
@@ -488,10 +487,43 @@ func TestGetDeploymentsQuery(t *testing.T) {
 
 	if deployments.Total != 1 {
 		t.Errorf("TestGetDeploymentsQuery \"query=name EQ %s\" Should only return 1 Deployment.\nReturned %v Deployments.\n", nameQuery, deployments.Total)
+		return
 	}
 
 	if deployments.Members[0].Name != nameQuery {
 		t.Errorf("TestGetDeploymentsQuery \"query=name EQ %s\" Should return results that meet the query criteria.\nExpected Name: %s\nReturned Deployment with Name: %s\n", nameQuery, nameQuery, deployments.Members[0].Name)
+		return
+	}
+
+}
+
+func TestGetDeploymentsUserQuery(t *testing.T) {
+
+	userQuery := "deic02K8sCluster1"
+
+	var deployments struct {
+		Total   int           `json:"total"`
+		Start   int           `json:"start"`
+		Count   int           `json:"count"`
+		Members []*Deployment `json:"members"`
+	}
+
+	if jsonRes, err := oneSphere.GetDeployments("", userQuery, "full"); err != nil {
+		t.Errorf("TestGetDeploymentsUserQuery \"userQuery=%s\" Error: %s\n", userQuery, err)
+	} else {
+		if jsonErr := json.Unmarshal([]byte(jsonRes), &deployments); jsonErr != nil {
+			t.Errorf("TestGetDeploymentsUserQuery Unmarshal Payload Error: %s\n", jsonErr)
+		}
+	}
+
+	if deployments.Total != 1 {
+		t.Errorf("TestGetDeploymentsUserQuery \"userQuery=%s\" Should only return 1 Deployment.\nReturned %v Deployments.\n", userQuery, deployments.Total)
+		return
+	}
+
+	if deployments.Members[0].Name != userQuery {
+		t.Errorf("TestGetDeploymentsUserQuery \"userQuery=%s\" Should return results that meet the query criteria.\nExpected Name: %s\nReturned Deployment with Name: %s\n", userQuery, userQuery, deployments.Members[0].Name)
+		return
 	}
 
 }
