@@ -399,8 +399,9 @@ func (api *API) GetDeploymentConsole(deploymentID string) (string, error) {
 // Events APIs
 
 func (api *API) GetEvents(resourceUri string) (string, error) {
-	params := map[string]string{"resourceUri": resourceUri}
-	return api.callHTTPRequest("GET", "/rest/events", params, nil)
+	// params := map[string]string{"resourceUri": resourceUri}
+	// return api.callHTTPRequest("GET", "/rest/events", params, nil)
+	return "", api.notImplementedError("GET", "/rest/events", "events")
 }
 
 // Keypairs APIs
