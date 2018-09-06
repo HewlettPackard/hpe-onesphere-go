@@ -513,7 +513,8 @@ func (api *API) GetProject(projectID, view string) (string, error) {
 }
 
 func (api *API) DeleteProject(projectID string) (string, error) {
-	return api.callHTTPRequest("DELETE", "/rest/projects/"+projectID, nil, nil)
+	// return api.callHTTPRequest("DELETE", "/rest/projects/"+projectID, nil, nil)
+	return "", api.notImplementedError("DELETE", "/rest/projects", "projects")
 }
 
 func (api *API) UpdateProject(projectID, name, description string, tagUris []string) (string, error) {
