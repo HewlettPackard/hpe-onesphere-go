@@ -37,6 +37,12 @@ func setup() {
 		fmt.Printf("You must set host and credentials to connect to live api.\nSee the README for details.\n")
 		os.Exit(1)
 	}
+
+	var err error
+	if oneSphere, err = Connect(config.HostURL, config.User, config.Password); err != nil {
+		fmt.Printf("Failed to Connect() using provided credentials.\n")
+		os.Exit(1)
+	}
 }
 
 func tearDown() {
@@ -122,21 +128,16 @@ func TestMain(m *testing.M) {
 func TestInvalidConnect(t *testing.T) {
 	if _, err := Connect("https://onesphere-host-url", "username", "password"); err == nil {
 		t.Errorf("Connect should return an error when invalid host and credentials are used.")
-
 	}
 }
 
 func TestValidConnect(t *testing.T) {
-	var err error
-	oneSphere, err = Connect(config.HostURL, config.User, config.Password)
-
-	if err != nil {
+	if _, err := Connect(config.HostURL, config.User, config.Password); err != nil {
 		t.Logf("onesphere.Connect failed.\n")
 		t.Logf("onesphere.Connect config: %+v\n", config)
 		t.Logf("onesphere.Connect error: %v\n", err)
 		t.Errorf("Connect should succeed with valid host and credentials set.")
 	}
-
 }
 
 func TestToken(t *testing.T) {
