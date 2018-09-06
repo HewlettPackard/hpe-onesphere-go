@@ -697,8 +697,9 @@ func (api *API) GetSession(view string) (string, error) {
 }
 
 func (api *API) GetSessionIdp(userName string) (string, error) {
-	params := map[string]string{"userName": userName}
-	return api.callHTTPRequest("GET", "/rest/session/idp", params, nil)
+	// params := map[string]string{"userName": userName}
+	// return api.callHTTPRequest("GET", "/rest/session/idp", params, nil)
+	return "", api.notImplementedError("GET", "/rest/account", "account")
 }
 
 // GetStatus calls the /rest/status endpoint
