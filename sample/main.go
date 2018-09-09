@@ -256,6 +256,12 @@ func main() {
 		}
 	}
 
+	if deploymentKubeConfig, err := oneSphere.GetDeploymentKubeConfig(k8sDeployment.Members[0].Id); err != nil {
+		fmt.Printf("Error: %s\n\n", err)
+	} else {
+		fmt.Printf("Deployment Kube Config: %+v\n\n", deploymentKubeConfig)
+	}
+
 	if providerTypes, err := oneSphere.GetProviderTypes(); err != nil {
 		fmt.Printf("Error: %s\n\n", err)
 	} else {
