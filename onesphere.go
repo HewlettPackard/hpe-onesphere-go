@@ -489,6 +489,11 @@ func (api *API) GetAzureProviderInfo(directoryUri, location string) (string, err
 	return api.callHTTPRequest("GET", "/rest/onboarding/azure/provider-info", params, nil)
 }
 
+func (api *API) GetAzureSubscriptions(directoryUri, location string) (string, error) {
+	params := map[string]string{"directoryUri": directoryUri, "location": location}
+	return api.callHTTPRequest("GET", "/rest/onboarding/azure/subscriptions", params, nil)
+}
+
 // Password Reset APIs
 
 func (api *API) ResetSingleUsePassword(email string) (string, error) {
