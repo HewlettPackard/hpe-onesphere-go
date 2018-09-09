@@ -478,6 +478,12 @@ func (api *API) UpdateNetwork(networkID string, infoArray []string) (string, err
 	return api.callHTTPRequest("PUT", "/rest/networks/"+networkID, nil, values)
 }
 
+// Onboarding APIs
+
+func (api *API) GetAzureLoginProperties() (string, error) {
+	return api.callHTTPRequest("GET", "/rest/onboarding/azure/properties", nil, nil)
+}
+
 // Password Reset APIs
 
 func (api *API) ResetSingleUsePassword(email string) (string, error) {
