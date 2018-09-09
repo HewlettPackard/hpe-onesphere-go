@@ -711,6 +711,22 @@ func (api *API) GetRoles() (string, error) {
 	return api.callHTTPRequest("GET", "/rest/roles", nil, nil)
 }
 
+// Servers APIs
+
+func (api *API) GetServers(regionUri, applianceUri, zoneUri string) (string, error) {
+	params := map[string]string{}
+	if regionUri != "" {
+		params["regionUri"] = regionUri
+	}
+	if applianceUri != "" {
+		params["applianceUri"] = applianceUri
+	}
+	if zoneUri != "" {
+		params["zoneUri"] = zoneUri
+	}
+	return api.callHTTPRequest("GET", "/rest/servers", params, nil)
+}
+
 // Service Types APIs
 
 func (api *API) GetServiceTypes() (string, error) {
