@@ -147,6 +147,24 @@ func TestToken(t *testing.T) {
 	}
 }
 
+func TestGetVersions(t *testing.T) {
+	actual, err := oneSphere.GetVersions()
+	if err != nil {
+		t.Errorf("TestGetVersions Error: %v\n", err)
+	}
+
+	expected := `{
+		"versions": [
+			"v1"
+		]
+	}`
+	compareErr := compareFields(t, "onesphere.API.GetVersions", expected, actual)
+	if compareErr != nil {
+		t.Errorf("TestGetVersions Error: %s\n", compareErr)
+	}
+
+}
+
 func TestGetAccountFull(t *testing.T) {
 	t.Skipf("@TODO Implement onesphere.API.GetAccount()")
 }

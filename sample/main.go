@@ -63,6 +63,12 @@ func main() {
 
 	fmt.Println("Token:", oneSphere.Auth.Token)
 
+	if versions, err := oneSphere.GetVersions(); err != nil {
+		fmt.Printf("Error: %s\n\n", err)
+	} else {
+		fmt.Printf("Versions: %s\n\n", versions)
+	}
+
 	if account, err := oneSphere.GetAccount("full"); err != nil {
 		fmt.Printf("Error: %s\n\n", err)
 	} else {

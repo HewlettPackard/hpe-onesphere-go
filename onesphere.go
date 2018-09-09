@@ -780,6 +780,12 @@ func (api *API) DeleteUser(userID string) (string, error) {
 	return api.callHTTPRequest("DELETE", "/rest/users/"+userID, nil, nil)
 }
 
+// Versions APIs
+
+func (api *API) GetVersions() (string, error) {
+	return api.callHTTPRequest("GET", "/rest/about/versions", nil, nil)
+}
+
 // Virtual Machine Profiles APIs
 
 func (api *API) GetVirtualMachineProfiles(zoneUri, serviceUri string) (string, error) {
