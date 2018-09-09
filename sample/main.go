@@ -262,6 +262,12 @@ func main() {
 		fmt.Printf("Deployment Kube Config: %+v\n\n", deploymentKubeConfig)
 	}
 
+	if azureLoginProperties, err := oneSphere.GetAzureLoginProperties(); err != nil {
+		fmt.Printf("Error: %s\n\n", err)
+	} else {
+		fmt.Printf("Azure Login Properties: %s\n\n", azureLoginProperties)
+	}
+
 	if providerTypes, err := oneSphere.GetProviderTypes(); err != nil {
 		fmt.Printf("Error: %s\n\n", err)
 	} else {
