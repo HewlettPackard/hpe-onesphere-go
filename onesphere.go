@@ -494,6 +494,32 @@ func (api *API) GetAzureSubscriptions(directoryUri, location string) (string, er
 	return api.callHTTPRequest("GET", "/rest/onboarding/azure/subscriptions", params, nil)
 }
 
+/* UpdateAzureSubscription allowed Ops in patchPayload:
+  - add
+	- replace
+*/
+func (api *API) UpdateAzureSubscription(directoryUri, location, subscriptionId string, patchPayload []*PatchOp) (string, error) {
+	allowedOps := []string{"add", "replace"}
+
+	for _, pb := range patchPayload {
+		opIsValid := false
+
+		for _, allowedOp := range allowedOps {
+			if pb.Op == allowedOp {
+				opIsValid = true
+			}
+		}
+
+		if !opIsValid {
+			return "", fmt.Errorf("UpdateAzureSubscription received invalid Op for update.\nReceived Op: %s\nValid Ops: %v\n", pb.Op, allowedOps)
+		}
+	}
+
+	params := map[string]string{"directoryUri": directoryUri, "location": location}
+	values := map[string][]*PatchOp{"items": patchPayload}
+	return api.callHTTPRequest("PATCH", "/rest/onboarding/azure/subscriptions/"+subscriptionId, params, values)
+}
+
 // Password Reset APIs
 
 func (api *API) ResetSingleUsePassword(email string) (string, error) {
