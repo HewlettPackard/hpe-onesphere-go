@@ -223,7 +223,14 @@ func main() {
 		if jsonErr := json.Unmarshal([]byte(jsonRes), &deployments); jsonErr != nil {
 			fmt.Println("Unmarshal Payload Error:", jsonErr)
 		} else {
-			fmt.Printf("Deployments: %+v\n\n", deployments)
+			fmt.Printf("Deployments:\n\tTotal: %d\n", deployments.Total)
+			/* // verbose output
+			fmt.Printf("\tDeployments Members:\n")
+			for _, deployment := range deployments.Members {
+				fmt.Printf("\t%+v\n", deployment)
+			}
+			*/
+			fmt.Println("")
 		}
 	}
 
