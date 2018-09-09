@@ -240,6 +240,22 @@ func main() {
 		fmt.Printf("Deployment Console URL: %s\n\n", deploymentConsoleURL)
 	}
 
+	var k8sDeployment struct {
+		Total   int                     `json:"total"`
+		Start   int                     `json:"start"`
+		Count   int                     `json:"count"`
+		Members []*onesphere.Deployment `json:"members"`
+	}
+	if jsonRes, err := oneSphere.GetDeployments("", "deic02K8sCluster1", "full"); err != nil {
+		fmt.Printf("Error: %s\n\n", err)
+	} else {
+		if jsonErr := json.Unmarshal([]byte(jsonRes), &k8sDeployment); jsonErr != nil {
+			fmt.Println("Unmarshal Payload Error:", jsonErr)
+		} else {
+			fmt.Printf("Deployment User Query deic02K8sCluster1: %+v\n\n", k8sDeployment.Members[0])
+		}
+	}
+
 	if providerTypes, err := oneSphere.GetProviderTypes(); err != nil {
 		fmt.Printf("Error: %s\n\n", err)
 	} else {
