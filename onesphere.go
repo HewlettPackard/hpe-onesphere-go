@@ -396,6 +396,10 @@ func (api *API) GetDeploymentConsole(deploymentID string) (string, error) {
 	return api.callHTTPRequest("POST", "/rest/deployments/"+deploymentID+"/console", nil, nil)
 }
 
+func (api *API) GetDeploymentKubeConfig(deploymentID string) (string, error) {
+	return api.callHTTPRequest("GET", "/rest/deployments/"+deploymentID+"/kubeconfig", nil, nil)
+}
+
 // Events APIs
 
 func (api *API) GetEvents(resourceUri string) (string, error) {
