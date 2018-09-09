@@ -573,6 +573,28 @@ func TestGetDeploymentKubeConfig(t *testing.T) {
 
 }
 
+func TestGetAzureLoginProperties(t *testing.T) {
+	actual, err := oneSphere.GetAzureLoginProperties()
+	if err != nil {
+		t.Errorf("TestGetAzureLoginProperties Error: %v\n", err)
+	}
+
+	expected := `{
+    "authHost": "https://host",
+    "clientId": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+    "resource": "https://resource",
+    "authType": "oauth2",
+    "responseType": "code",
+    "responseMode": "query",
+    "prompt": "consent"
+	}`
+	compareErr := compareFields(t, "onesphere.API.GetAzureLoginProperties", expected, actual)
+	if compareErr != nil {
+		t.Errorf("TestGetAzureLoginProperties Error: %s\n", compareErr)
+	}
+
+}
+
 func TestGetProviderTypes(t *testing.T) {
 	actual, err := oneSphere.GetProviderTypes()
 	if err != nil {
