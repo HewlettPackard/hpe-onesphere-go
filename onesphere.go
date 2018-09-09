@@ -393,7 +393,7 @@ func (api *API) ActionOnDeployment(deploymentID, actionType string, force bool) 
 }
 
 func (api *API) GetDeploymentConsole(deploymentID string) (string, error) {
-	return api.callHTTPRequest("GET", "/rest/deployments/"+deploymentID+"/console", nil, nil)
+	return api.callHTTPRequest("POST", "/rest/deployments/"+deploymentID+"/console", nil, nil)
 }
 
 // Events APIs

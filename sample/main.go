@@ -211,10 +211,26 @@ func main() {
 		fmt.Printf("Generated connect-app s3 url: %s\n\n", connectAppUrl)
 	}
 
-	if deployments, err := oneSphere.GetDeployments("", "", "full"); err != nil {
+	var deployments struct {
+		Total   int                     `json:"total"`
+		Start   int                     `json:"start"`
+		Count   int                     `json:"count"`
+		Members []*onesphere.Deployment `json:"members"`
+	}
+	if jsonRes, err := oneSphere.GetDeployments("", "", "full"); err != nil {
 		fmt.Printf("Error: %s\n\n", err)
 	} else {
-		fmt.Printf("Deployments: %s\n\n", deployments)
+		if jsonErr := json.Unmarshal([]byte(jsonRes), &deployments); jsonErr != nil {
+			fmt.Println("Unmarshal Payload Error:", jsonErr)
+		} else {
+			fmt.Printf("Deployments: %+v\n\n", deployments)
+		}
+	}
+
+	if deploymentConsoleURL, err := oneSphere.GetDeploymentConsole(deployments.Members[0].Id); err != nil {
+		fmt.Printf("Error: %s\n\n", err)
+	} else {
+		fmt.Printf("Deployment Console URL: %s\n\n", deploymentConsoleURL)
 	}
 
 	if providerTypes, err := oneSphere.GetProviderTypes(); err != nil {
