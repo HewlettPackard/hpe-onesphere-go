@@ -546,6 +546,33 @@ func TestGetDeploymentsUserQuery(t *testing.T) {
 
 }
 
+func TestGetDeploymentKubeConfig(t *testing.T) {
+
+	userQuery := "deic02K8sCluster1"
+
+	var deployments struct {
+		Total   int           `json:"total"`
+		Start   int           `json:"start"`
+		Count   int           `json:"count"`
+		Members []*Deployment `json:"members"`
+	}
+
+	if jsonRes, err := oneSphere.GetDeployments("", userQuery, "full"); err != nil {
+		t.Errorf("TestGetDeploymentKubeConfig \"userQuery=%s\" Error: %s\n", userQuery, err)
+	} else {
+		if jsonErr := json.Unmarshal([]byte(jsonRes), &deployments); jsonErr != nil {
+			t.Errorf("TestGetDeploymentKubeConfig Unmarshal Payload Error: %s\n", jsonErr)
+		}
+	}
+
+	if deploymentKubeConfig, err := oneSphere.GetDeploymentKubeConfig(deployments.Members[0].Id); err != nil {
+		t.Errorf("TestGetDeploymentKubeConfig Error: %v\n", err)
+	} else if len(deploymentKubeConfig) == 0 {
+		t.Errorf("TestGetDeploymentKubeConfig Should return a kubernetes config as non empty string.")
+	}
+
+}
+
 func TestGetProviderTypes(t *testing.T) {
 	actual, err := oneSphere.GetProviderTypes()
 	if err != nil {
