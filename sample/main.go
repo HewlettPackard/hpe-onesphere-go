@@ -61,7 +61,7 @@ func main() {
 		return
 	}
 
-	fmt.Println("Token:", oneSphere.Auth.Token)
+	fmt.Printf("Token: %s\n\n", oneSphere.Auth.Token)
 
 	if versions, err := oneSphere.GetVersions(); err != nil {
 		fmt.Printf("Error: %s\n\n", err)
