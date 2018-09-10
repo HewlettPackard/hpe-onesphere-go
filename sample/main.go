@@ -283,7 +283,7 @@ func main() {
 	if servers, err := oneSphere.GetServers("", "", ""); err != nil {
 		fmt.Printf("Error: %s\n\n", err)
 	} else {
-		fmt.Printf("Servers: %s\n\n", res)
+		fmt.Printf("Servers: %s\n\n", servers)
 	}
 
 	server := &onesphere.Server{
