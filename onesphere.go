@@ -742,6 +742,10 @@ func (api *API) DeleteServer(serverID string, force bool) (string, error) {
 	return api.callHTTPRequest("DELETE", "/rest/servers/"+serverID, params, nil)
 }
 
+func (api *API) GetServer(serverID string) (string, error) {
+	return api.callHTTPRequest("GET", "/rest/servers/"+serverID, nil, nil)
+}
+
 // Service Types APIs
 
 func (api *API) GetServiceTypes() (string, error) {
