@@ -727,6 +727,13 @@ func (api *API) GetServers(regionUri, applianceUri, zoneUri string) (string, err
 	return api.callHTTPRequest("GET", "/rest/servers", params, nil)
 }
 
+func (api *API) CreateServer(server *Server) (string, error) {
+	values := map[string]*Server{
+		"server": server,
+	}
+	return api.callHTTPRequest("POST", "/rest/servers", nil, values)
+}
+
 // Service Types APIs
 
 func (api *API) GetServiceTypes() (string, error) {
