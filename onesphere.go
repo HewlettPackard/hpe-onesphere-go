@@ -746,6 +746,31 @@ func (api *API) GetServer(serverID string) (string, error) {
 	return api.callHTTPRequest("GET", "/rest/servers/"+serverID, nil, nil)
 }
 
+/* UpdateServer allowed Ops in patchPayload:
+- replace
+- remove
+*/
+func (api *API) UpdateServer(serverID string, patchPayload []*PatchOp) (string, error) {
+	allowedOps := []string{"replace", "remove"}
+
+	for _, pb := range patchPayload {
+		opIsValid := false
+
+		for _, allowedOp := range allowedOps {
+			if pb.Op == allowedOp {
+				opIsValid = true
+			}
+		}
+
+		if !opIsValid {
+			return "", fmt.Errorf("UpdateServer received invalid Op for update.\nReceived Op: %s\nValid Ops: %v\n", pb.Op, allowedOps)
+		}
+	}
+
+	values := map[string][]*PatchOp{"body": patchPayload}
+	return api.callHTTPRequest("PATCH", "/rest/servers/"+serverID, nil, values)
+}
+
 // Service Types APIs
 
 func (api *API) GetServiceTypes() (string, error) {
