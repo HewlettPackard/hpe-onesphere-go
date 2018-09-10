@@ -286,6 +286,32 @@ func main() {
 		fmt.Printf("Servers: %s\n\n", res)
 	}
 
+	server := &onesphere.Server{
+		ApplianceUri: "https://applianceUri",
+		CoreCount:    8,
+		CoreSpeedMHz: 4000,
+		CpuModel:     "xeon",
+		ExternalIds: []*onesphere.ServerExternalId{
+			&onesphere.ServerExternalId{
+				Type:  "abc",
+				Value: "def",
+			},
+		},
+		MemoryGB:       4,
+		Name:           "test-server",
+		ProcessorCount: 2,
+		ProjectUri:     "https://projectUri",
+		RegionUri:      "https://regionUri",
+		ServerModel:    "xeon",
+		State:          "Enabled",
+		ZoneUri:        "https://zoneUri",
+	}
+	if newServer, err := oneSphere.CreateServer(server); err != nil {
+		fmt.Printf("Error: %s\n\n", err)
+	} else {
+		fmt.Printf("Create Server: %s\n\n", newServer)
+	}
+
 	if serviceTypes, err := oneSphere.GetServiceTypes(); err != nil {
 		fmt.Printf("Error: %s\n\n", err)
 	} else {
