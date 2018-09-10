@@ -280,6 +280,12 @@ func main() {
 		fmt.Printf("Roles: %s\n\n", roles)
 	}
 
+	if servers, err := oneSphere.GetServers("", "", ""); err != nil {
+		fmt.Printf("Error: %s\n\n", err)
+	} else {
+		fmt.Printf("Servers: %s\n\n", res)
+	}
+
 	if serviceTypes, err := oneSphere.GetServiceTypes(); err != nil {
 		fmt.Printf("Error: %s\n\n", err)
 	} else {
