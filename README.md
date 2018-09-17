@@ -27,13 +27,13 @@ import (
 #### Connect to the OneSphere server
 
 ```go
-osbinding.Connect("https://onesphere-host-url", "username", "password")
+oneSphere, err := onesphere.Connect("https://onesphere-host-url", "username", "password")
 ```
 
 #### Make calls to the OneSphere API
 
 ```go
-fmt.Println("Status:", onesphere.GetStatus())
+fmt.Println("Status:", oneSphere.GetStatus())
 ```
 
 example output
@@ -45,7 +45,7 @@ example output
 #### Disconnect from the OneSphere server
 
 ```go
-osbinding.Disconnect()
+oneSphere.Disconnect()
 ```
 
 ## Full Example
@@ -80,6 +80,32 @@ host=https://ONESPHERE_HOST_URL \
   user=YOUR_ONESPHERE_USERNAME \
   password=YOUR_ONESPHERE_PASSWORD \
   go run $GOPATH/src/github.com/HewlettPackard/hpe-onesphere-go/sample/main.go
+```
+
+## Run the tests
+
+_http requests are not mocked, a valid OneSphere account is required to pass tests_
+
+`go get` the OneSphere project
+
+```sh
+go get github.com/HewlettPackard/hpe-onesphere-go
+```
+
+```sh
+go test github.com/HewlettPackard/hpe-onesphere-go \
+  -host=https://ONESPHERE_HOST_URL \
+  -user=YOUR_ONESPHERE_USERNAME \
+  -password=YOUR_ONESPHERE_PASSWORD
+```
+
+_or_ use environment variables
+
+```sh
+host=https://ONESPHERE_HOST_URL \
+  user=YOUR_ONESPHERE_USERNAME \
+  password=YOUR_ONESPHERE_PASSWORD \
+  go test github.com/HewlettPackard/hpe-onesphere-go
 ```
 
 ## APIs
