@@ -20,6 +20,31 @@
 
 package onesphere
 
+import (
+	"encoding/json"
+	"fmt"
+
+	"github.com/HewlettPackard/hpe-onesphere-go/rest"
+	"github.com/HewlettPackard/hpe-onesphere-go/utils"
+)
+
+type DeploymentRequest struct {
+	AssignExternalIP string        `json:"assignExternalIP,omitempty"`
+	PublicKey        string        `json:"publicKey,omitempty"`
+	Name             string        `json:"name,omitempty"`
+	ZoneURI          string        `json:"zoneUri,omitempty"`
+	ProjectURI       utils.Nstring `json:"projectUri,omitempty"`
+	Networks         []struct {
+		NetworkURI string `json:"networkUri,omitempty"`
+	} `json:"networks,omitempty"`
+	ServiceURI               utils.Nstring `json:"serviceUri,omitempty"`
+	UserData                 string        `json:"userData"`
+	Version                  string        `json:"version,omitempty"`
+	RegionURI                utils.Nstring `json:"regionUri,omitempty"`
+	VirtualMachineProfileURI utils.Nstring `json:"virtualMachineProfileUri,omitempty"`
+	ServiceInput             string        `json:"serviceInput,omitempty"`
+}
+
 type Deployment struct {
 	Id      string `json:"id"`
 	Name    string `json:"name"`
@@ -51,4 +76,91 @@ type Deployment struct {
 	CloudPlatformId   string `json:"cloudPlatformId"`
 	Created           string `json:"created"`
 	Modified          string `json:"modified"`
+}
+
+//deploymentList structure
+type DeploymentList struct {
+	Total       int           `json:"total"`
+	Count       int           `json:"count"`
+	Start       int           `json:"start"`
+	PrevPageURI utils.Nstring `json:"prevPageUri,omitempty"`
+	NextPageURI utils.Nstring `json:"nextPageUri,omitempty"`
+	URI         utils.Nstring `json:"uri,omitempty"`
+	Members     []Deployment  `json:"members"`
+}
+
+//GetDeploymentByName Retrieve Deployment by Name
+func (c *Client) GetDeploymentByName(name string) (Deployment, error) {
+
+	var deployment Deployment
+
+	deployments, err := c.GetDeployments(fmt.Sprintf("name matches '%s'", name), "name:asc")
+	if deployments.Total > 0 {
+		return deployments.Members[0], err
+	} else {
+		return deployment, err
+	}
+}
+
+//GetDeploymentByID Retrieve Deployment by ID
+func (c *Client) GetDeploymentByID(id string) (Deployment, error) {
+	var (
+		uri        = ""
+		deployment Deployment
+	)
+	if id != "" {
+		uri = "/rest/deployments/" + id
+	}
+
+	data, err := c.RestAPICall(rest.GET, uri, nil, nil)
+	if err != nil {
+		return deployment, err
+	}
+	if err := json.Unmarshal([]byte(data), &deployment); err != nil {
+		return deployment, err
+	} else {
+		return deployment, err
+	}
+}
+
+//GetDeployments Retrieve Deployments by filter
+func (c *Client) GetDeployments(filter string, sort string) (DeploymentList, error) {
+	var (
+		uri         = "/rest/deployments"
+		q           map[string]string
+		deployments DeploymentList
+	)
+	q = make(map[string]string)
+	if len(filter) > 0 {
+		q["userQuery"] = filter
+	}
+
+	if sort != "" {
+		q["sort"] = sort
+	}
+
+	data, err := c.RestAPICall(rest.GET, uri, q, nil)
+	if err != nil {
+		return deployments, err
+	}
+
+	if err := json.Unmarshal([]byte(data), &deployments); err != nil {
+		return deployments, err
+	}
+	return deployments, nil
+}
+
+//CreateDeployment Create Deployment
+func (c *Client) CreateDeployment(deployment DeploymentRequest) error {
+
+	fmt.Printf("Input deployment %s", deployment)
+	var uri = "/rest/deployments/"
+
+	data, err := c.RestAPICall(rest.POST, uri, nil, deployment)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("Response New deployment %s", data)
+
+	return nil
 }
