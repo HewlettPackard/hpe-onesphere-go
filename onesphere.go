@@ -28,11 +28,13 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+
+	"github.com/HewlettPackard/hpe-onesphere-go/rest"
 )
 
 // API contains all the methods needed to interact with the OneSphere API
 // use Connect() to return an *API
-type API struct {
+type Client struct {
 	Auth *Auth
 }
 
@@ -42,10 +44,8 @@ type Auth struct {
 	HostURL string
 }
 
-var auth *Auth
-
 // Connect provides an interface to make calls to the OneSphere API
-func Connect(hostURL, user, password string) (*API, error) {
+func Connect(hostURL, user, password string) (*Client, error) {
 	fullUrl := hostURL + "/rest/session"
 	values := map[string]string{"userName": user, "password": password}
 	jsonValue, err := json.Marshal(values)
@@ -75,7 +75,7 @@ func Connect(hostURL, user, password string) (*API, error) {
 		return nil, err
 	}
 
-	return &API{
+	return &Client{
 		Auth: &Auth{
 			HostURL: hostURL,
 			Token:   dat["token"],
@@ -84,18 +84,18 @@ func Connect(hostURL, user, password string) (*API, error) {
 
 }
 
-func (api *API) callHTTPRequest(method, path string, params map[string]string, values interface{}) (string, error) {
+func (c *Client) callHTTPRequest(method, path string, params map[string]string, values interface{}) (string, error) {
 	jsonValue, err := json.Marshal(values)
 	if err != nil {
 		return "", err
 	}
-	req, err := http.NewRequest(method, api.buildURL(path), bytes.NewBuffer(jsonValue))
+	req, err := http.NewRequest(method, c.buildURL(path), bytes.NewBuffer(jsonValue))
 	if err != nil {
 		return "", err
 	}
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", api.Auth.Token)
+	req.Header.Set("Authorization", c.Auth.Token)
 
 	if params != nil && len(params) > 0 {
 		q := req.URL.Query()
@@ -120,30 +120,66 @@ func (api *API) callHTTPRequest(method, path string, params map[string]string, v
 	return bodyStr, nil
 }
 
-func (api *API) buildURL(path string) string {
-	return api.Auth.HostURL + path
+func (c *Client) RestAPICall(method rest.Method, path string, params map[string]string, values interface{}) (string, error) {
+	jsonValue, err := json.Marshal(values)
+	if err != nil {
+		return "", err
+	}
+	req, err := http.NewRequest(method.String(), c.buildURL(path), bytes.NewBuffer(jsonValue))
+	if err != nil {
+		return "", err
+	}
+	req.Header.Set("Accept", "application/json")
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", c.Auth.Token)
+
+	if params != nil && len(params) > 0 {
+		q := req.URL.Query()
+		for key, value := range params {
+			q.Add(key, value)
+		}
+		req.URL.RawQuery = q.Encode()
+	}
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+
+	bodyBytes, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
+	}
+	bodyStr := string(bodyBytes)
+	return bodyStr, nil
 }
 
-func (api *API) notImplementedError(method, endpoint, path string) error {
-	return fmt.Errorf("%s %s is not yet implemented.\nSee: %s/docs/api/endpoint?&path=%%2F%s", method, endpoint, api.Auth.HostURL, path)
+func (c *Client) buildURL(path string) string {
+	return c.Auth.HostURL + path
 }
 
-func (api *API) Disconnect() {
-	api.callHTTPRequest("DELETE", "/rest/session", nil, nil)
+func (c *Client) notImplementedError(method, endpoint, path string) error {
+	return fmt.Errorf("%s %s is not yet implemented.\nSee: %s/docs/api/endpoint?&path=%%2F%s", method, endpoint, c.Auth.HostURL, path)
+}
+
+func (c *Client) Disconnect() {
+	c.callHTTPRequest("DELETE", "/rest/session", nil, nil)
 }
 
 // Account APIs
 
 // view="full"
-func (api *API) GetAccount(view string) (string, error) {
+func (c *Client) GetAccount(view string) (string, error) {
 	// params := map[string]string{"view": view}
-	// return api.callHTTPRequest("GET", "/rest/account", params, nil)
-	return "", api.notImplementedError("GET", "/rest/account", "account")
+	// return c.callHTTPRequest("GET", "/rest/account", params, nil)
+	return "", c.notImplementedError("GET", "/rest/account", "account")
 }
 
 // Appliances APIs
 
-func (api *API) GetAppliances(name, regionUri string) (string, error) {
+func (c *Client) GetAppliances(name, regionUri string) (string, error) {
 	params := map[string]string{}
 	if strings.TrimSpace(name) != "" {
 		params["name"] = name
@@ -151,10 +187,10 @@ func (api *API) GetAppliances(name, regionUri string) (string, error) {
 	if strings.TrimSpace(regionUri) != "" {
 		params["regionUri"] = regionUri
 	}
-	return api.callHTTPRequest("GET", "/rest/appliances", params, nil)
+	return c.callHTTPRequest("GET", "/rest/appliances", params, nil)
 }
 
-func (api *API) CreateAppliance(epAddress, epUsername, epPassword,
+func (c *Client) CreateAppliance(epAddress, epUsername, epPassword,
 	name, regionUri, applianceType string) (string, error) {
 	values := map[string]interface{}{
 		"endpoint": map[string]interface{}{
@@ -164,27 +200,27 @@ func (api *API) CreateAppliance(epAddress, epUsername, epPassword,
 		"name":      name,
 		"regionUri": regionUri,
 		"type":      applianceType}
-	return api.callHTTPRequest("POST", "/rest/appliances", nil, values)
+	return c.callHTTPRequest("POST", "/rest/appliances", nil, values)
 }
 
-func (api *API) GetAppliance(applianceID string) (string, error) {
-	return api.callHTTPRequest("GET", "/rest/appliances/"+applianceID, nil, nil)
+func (c *Client) GetAppliance(applianceID string) (string, error) {
+	return c.callHTTPRequest("GET", "/rest/appliances/"+applianceID, nil, nil)
 }
 
-func (api *API) DeleteAppliance(applianceID string) (string, error) {
-	return api.callHTTPRequest("DELETE", "/rest/appliances/"+applianceID, nil, nil)
+func (c *Client) DeleteAppliance(applianceID string) (string, error) {
+	return c.callHTTPRequest("DELETE", "/rest/appliances/"+applianceID, nil, nil)
 }
 
 // infoArray: [{op, path, value}]
 // op: "replace|remove"
-func (api *API) UpdateAppliance(applianceID string, infoArray []string) (string, error) {
+func (c *Client) UpdateAppliance(applianceID string, infoArray []string) (string, error) {
 	values := infoArray
-	return api.callHTTPRequest("PUT", "/rest/appliances/"+applianceID, nil, values)
+	return c.callHTTPRequest("PUT", "/rest/appliances/"+applianceID, nil, values)
 }
 
 // Billing Accounts APIs
 
-func (api *API) GetBillingAccounts(query, view string) (string, error) {
+func (c *Client) GetBillingAccounts(query, view string) (string, error) {
 	params := map[string]string{}
 	if strings.TrimSpace(query) != "" {
 		params["query"] = query
@@ -192,10 +228,10 @@ func (api *API) GetBillingAccounts(query, view string) (string, error) {
 	if strings.TrimSpace(view) != "" {
 		params["view"] = view
 	}
-	return api.callHTTPRequest("GET", "/rest/billing-accounts", params, nil)
+	return c.callHTTPRequest("GET", "/rest/billing-accounts", params, nil)
 }
 
-func (api *API) CreateBillingAccount(apiAccessKey, description, directoryUri, enrollmentNumber, name, providerTypeUri string) (string, error) {
+func (c *Client) CreateBillingAccount(apiAccessKey, description, directoryUri, enrollmentNumber, name, providerTypeUri string) (string, error) {
 	values := map[string]string{
 		"apiAccessKey":     apiAccessKey,
 		"description":      description,
@@ -204,19 +240,19 @@ func (api *API) CreateBillingAccount(apiAccessKey, description, directoryUri, en
 		"name":             name,
 		"providerTypeUri":  providerTypeUri,
 	}
-	return api.callHTTPRequest("POST", "/rest/billing-accounts", nil, values)
+	return c.callHTTPRequest("POST", "/rest/billing-accounts", nil, values)
 }
 
-func (api *API) GetBillingAccount(id string) (string, error) {
-	return api.callHTTPRequest("GET", "/rest/billing-accounts/"+id, nil, nil)
+func (c *Client) GetBillingAccount(id string) (string, error) {
+	return c.callHTTPRequest("GET", "/rest/billing-accounts/"+id, nil, nil)
 }
 
-func (api *API) DeleteBillingAccount(id string) (string, error) {
-	return api.callHTTPRequest("DELETE", "/rest/billing-accounts/"+id, nil, nil)
+func (c *Client) DeleteBillingAccount(id string) (string, error) {
+	return c.callHTTPRequest("DELETE", "/rest/billing-accounts/"+id, nil, nil)
 }
 
 // UpdateBillingAccount sends PATCH with Op: "add|replace|remove"
-func (api *API) UpdateBillingAccount(id string, patchPayload []*PatchOp) (string, error) {
+func (c *Client) UpdateBillingAccount(id string, patchPayload []*PatchOp) (string, error) {
 	validOps := []string{"add", "replace", "remove"}
 	for _, pb := range patchPayload {
 		opIsValid := false
@@ -230,18 +266,18 @@ func (api *API) UpdateBillingAccount(id string, patchPayload []*PatchOp) (string
 		}
 	}
 
-	return api.callHTTPRequest("PATCH", "/rest/billing-accounts/"+id, nil, patchPayload)
+	return c.callHTTPRequest("PATCH", "/rest/billing-accounts/"+id, nil, patchPayload)
 }
 
 // Catalog Types APIs
 
-func (api *API) GetCatalogTypes() (string, error) {
-	return api.callHTTPRequest("GET", "/rest/catalog-types", nil, nil)
+func (c *Client) GetCatalogTypes() (string, error) {
+	return c.callHTTPRequest("GET", "/rest/catalog-types", nil, nil)
 }
 
 // Catalogs APIs
 
-func (api *API) GetCatalogs(userQuery, view string) (string, error) {
+func (c *Client) GetCatalogs(userQuery, view string) (string, error) {
 	params := map[string]string{}
 	if strings.TrimSpace(userQuery) != "" {
 		params["userQuery"] = userQuery
@@ -249,7 +285,7 @@ func (api *API) GetCatalogs(userQuery, view string) (string, error) {
 	if strings.TrimSpace(view) != "" {
 		params["view"] = view
 	}
-	return api.callHTTPRequest("GET", "/rest/catalogs", params, nil)
+	return c.callHTTPRequest("GET", "/rest/catalogs", params, nil)
 }
 
 /* CreateCatalog sends POST with catalogTypeUri:
@@ -265,7 +301,7 @@ func (api *API) GetCatalogs(userQuery, view string) (string, error) {
 	- /rest/catalog-types/azure-container-registry
 	- /rest/catalog-types/hpe-managed
 */
-func (api *API) CreateCatalog(accessKey, catalogTypeUri, name, password, regionName, secretKey, url, username string) (string, error) {
+func (c *Client) CreateCatalog(accessKey, catalogTypeUri, name, password, regionName, secretKey, url, username string) (string, error) {
 	validCatalogTypeUris := []string{
 		"/rest/catalog-types/aws-az",
 		"/rest/catalog-types/vcenter",
@@ -298,17 +334,17 @@ func (api *API) CreateCatalog(accessKey, catalogTypeUri, name, password, regionN
 		"secretKey":      secretKey,
 		"url":            url,
 		"username":       username}
-	return api.callHTTPRequest("POST", "/rest/catalogs", nil, values)
+	return c.callHTTPRequest("POST", "/rest/catalogs", nil, values)
 }
 
-func (api *API) GetCatalog(catalogID, view string) (string, error) {
+func (c *Client) GetCatalog(catalogID, view string) (string, error) {
 	params := map[string]string{"view": view}
-	return api.callHTTPRequest("GET", "/rest/catalogs/"+catalogID, params, nil)
+	return c.callHTTPRequest("GET", "/rest/catalogs/"+catalogID, params, nil)
 }
 
-func (api *API) DeleteCatalog(catalogID string) (string, error) {
-	// return api.callHTTPRequest("DELETE", "/rest/catalogs/"+catalogID, nil, nil)
-	return "", api.notImplementedError("DELETE", "/rest/catalogs/"+catalogID, "catalogs")
+func (c *Client) DeleteCatalog(catalogID string) (string, error) {
+	// return c.callHTTPRequest("DELETE", "/rest/catalogs/"+catalogID, nil, nil)
+	return "", c.notImplementedError("DELETE", "/rest/catalogs/"+catalogID, "catalogs")
 }
 
 /* UpdateCatalog allowed fields to update:
@@ -316,10 +352,10 @@ func (api *API) DeleteCatalog(catalogID string) (string, error) {
   - add => /name, /password, /accessKey, /secretKey, /state
 	- replace => /name, /state
 */
-func (api *API) UpdateCatalog(catalogID string, patchPayload []*PatchOp) (string, error) {
+func (c *Client) UpdateCatalog(catalogID string, patchPayload []*PatchOp) (string, error) {
 	allowedFields := map[string][]string{
-		"add":     []string{"/name", "/password", "/accessKey", "/secretKey", "/state"},
-		"replace": []string{"/name", "/state"},
+		"add":     {"/name", "/password", "/accessKey", "/secretKey", "/state"},
+		"replace": {"/name", "/state"},
 	}
 
 	for _, pb := range patchPayload {
@@ -338,13 +374,13 @@ func (api *API) UpdateCatalog(catalogID string, patchPayload []*PatchOp) (string
 		}
 	}
 
-	return api.callHTTPRequest("PATCH", "/rest/catalogs/"+catalogID, nil, patchPayload)
+	return c.callHTTPRequest("PATCH", "/rest/catalogs/"+catalogID, nil, patchPayload)
 }
 
 // Connect App APIs
 
 // GetConnectApp allowed operating systems: ["windows", "mac"]
-func (api *API) GetConnectApp(os string) (string, error) {
+func (c *Client) GetConnectApp(os string) (string, error) {
 	validOperatingSystems := []string{
 		"windows",
 		"mac",
@@ -360,87 +396,87 @@ func (api *API) GetConnectApp(os string) (string, error) {
 	}
 
 	params := map[string]string{"os": os}
-	return api.callHTTPRequest("GET", "/rest/connect-app", params, nil)
+	return c.callHTTPRequest("GET", "/rest/connect-app", params, nil)
 }
 
 // Deployments APIs
 
-func (api *API) GetDeployments(query, userQuery, view string) (string, error) {
-	params := map[string]string{"query": query, "userQuery": userQuery, "view": view}
-	return api.callHTTPRequest("GET", "/rest/deployments", params, nil)
-}
+// func (c *Client) GetDeployments(query, userQuery, view string) (string, error) {
+// 	params := map[string]string{"query": query, "userQuery": userQuery, "view": view}
+// 	return c.callHTTPRequest("GET", "/rest/deployments", params, nil)
+// }
 
-func (api *API) CreateDeployment(info string) (string, error) {
-	return api.callHTTPRequest("POST", "/rest/deployments", nil, info)
-}
+// func (c *Client) CreateDeployment(info string) (string, error) {
+// 	return c.callHTTPRequest("POST", "/rest/deployments", nil, info)
+// }
 
-func (api *API) GetDeployment(deploymentID, view string) (string, error) {
-	values := map[string]string{"view": view}
-	return api.callHTTPRequest("GET", "/rest/deployments/"+deploymentID, nil, values)
-}
+// func (c *Client) GetDeployment(deploymentID, view string) (string, error) {
+// 	values := map[string]string{"view": view}
+// 	return c.callHTTPRequest("GET", "/rest/deployments/"+deploymentID, nil, values)
+// }
 
-func (api *API) UpdateDeployment(deploymentID, info string) (string, error) {
-	return api.callHTTPRequest("PUT", "/rest/deployments/"+deploymentID, nil, info)
-}
+// func (c *Client) UpdateDeployment(deploymentID, info string) (string, error) {
+// 	return c.callHTTPRequest("PUT", "/rest/deployments/"+deploymentID, nil, info)
+// }
 
-func (api *API) DeleteDeployment(deploymentID string) (string, error) {
-	return api.callHTTPRequest("DELETE", "/rest/deployments/"+deploymentID, nil, nil)
-}
+// func (c *Client) DeleteDeployment(deploymentID string) (string, error) {
+// 	return c.callHTTPRequest("DELETE", "/rest/deployments/"+deploymentID, nil, nil)
+// }
 
-func (api *API) ActionOnDeployment(deploymentID, actionType string, force bool) (string, error) {
-	values := map[string]interface{}{"force": force, "type": actionType}
-	return api.callHTTPRequest("POST", "/rest/deployments/"+deploymentID+"/actions", nil, values)
-}
+// func (c *Client) ActionOnDeployment(deploymentID, actionType string, force bool) (string, error) {
+// 	values := map[string]interface{}{"force": force, "type": actionType}
+// 	return c.callHTTPRequest("POST", "/rest/deployments/"+deploymentID+"/actions", nil, values)
+// }
 
-func (api *API) GetDeploymentConsole(deploymentID string) (string, error) {
-	return api.callHTTPRequest("POST", "/rest/deployments/"+deploymentID+"/console", nil, nil)
-}
+// func (c *Client) GetDeploymentConsole(deploymentID string) (string, error) {
+// 	return c.callHTTPRequest("POST", "/rest/deployments/"+deploymentID+"/console", nil, nil)
+// }
 
-func (api *API) GetDeploymentKubeConfig(deploymentID string) (string, error) {
-	return api.callHTTPRequest("GET", "/rest/deployments/"+deploymentID+"/kubeconfig", nil, nil)
-}
+// func (c *Client) GetDeploymentKubeConfig(deploymentID string) (string, error) {
+// 	return c.callHTTPRequest("GET", "/rest/deployments/"+deploymentID+"/kubeconfig", nil, nil)
+// }
 
 // Events APIs
 
-func (api *API) GetEvents(resourceUri string) (string, error) {
+func (c *Client) GetEvents(resourceUri string) (string, error) {
 	// params := map[string]string{"resourceUri": resourceUri}
-	// return api.callHTTPRequest("GET", "/rest/events", params, nil)
-	return "", api.notImplementedError("GET", "/rest/events", "events")
+	// return c.callHTTPRequest("GET", "/rest/events", params, nil)
+	return "", c.notImplementedError("GET", "/rest/events", "events")
 }
 
 // Keypairs APIs
 
-func (api *API) GetKeyPair(regionUri, projectUri string) (string, error) {
+func (c *Client) GetKeyPair(regionUri, projectUri string) (string, error) {
 	params := map[string]string{"regionUri": regionUri, "projectUri": projectUri}
-	return api.callHTTPRequest("GET", "/rest/keypairs", params, nil)
+	return c.callHTTPRequest("GET", "/rest/keypairs", params, nil)
 }
 
 // Membership Roles APIs
 
-func (api *API) GetMembershipRoles() (string, error) {
-	return api.callHTTPRequest("GET", "/rest/membership-roles", nil, nil)
+func (c *Client) GetMembershipRoles() (string, error) {
+	return c.callHTTPRequest("GET", "/rest/membership-roles", nil, nil)
 }
 
 // Memberships APIs
 
-func (api *API) GetMemberships(query string) (string, error) {
+func (c *Client) GetMemberships(query string) (string, error) {
 	params := map[string]string{"query": query}
-	return api.callHTTPRequest("GET", "/rest/memberships", params, nil)
+	return c.callHTTPRequest("GET", "/rest/memberships", params, nil)
 }
 
-func (api *API) CreateMembership(userUri, roleUri, projectUri string) (string, error) {
+func (c *Client) CreateMembership(userUri, roleUri, projectUri string) (string, error) {
 	values := map[string]string{"userUri": userUri, "membershipRoleUri": roleUri, "projectUri": projectUri}
-	return api.callHTTPRequest("POST", "/rest/memberships", nil, values)
+	return c.callHTTPRequest("POST", "/rest/memberships", nil, values)
 }
 
-func (api *API) DeleteMembership(userUri, roleUri, projectUri string) (string, error) {
+func (c *Client) DeleteMembership(userUri, roleUri, projectUri string) (string, error) {
 	values := map[string]string{"userUri": userUri, "membershipRoleUri": roleUri, "projectUri": projectUri}
-	return api.callHTTPRequest("DELETE", "/rest/memberships", nil, values)
+	return c.callHTTPRequest("DELETE", "/rest/memberships", nil, values)
 }
 
 // Metrics APIs
 
-func (api *API) GetMetrics(
+func (c *Client) GetMetrics(
 	resourceUri, category, groupBy, query, name string,
 	periodStart, period string,
 	periodCount int,
@@ -458,47 +494,47 @@ func (api *API) GetMetrics(
 		"view":        view,
 		"start":       strconv.Itoa(start),
 		"count":       strconv.Itoa(count)}
-	return api.callHTTPRequest("GET", "/rest/metrics", params, nil)
+	return c.callHTTPRequest("GET", "/rest/metrics", params, nil)
 }
 
 // Networks APIs
 
-func (api *API) GetNetworks(query string) (string, error) {
+func (c *Client) GetNetworks(query string) (string, error) {
 	params := map[string]string{"query": query}
-	return api.callHTTPRequest("GET", "/rest/networks", params, nil)
+	return c.callHTTPRequest("GET", "/rest/networks", params, nil)
 }
 
-func (api *API) GetNetwork(networkID string) (string, error) {
-	return api.callHTTPRequest("GET", "/rest/networks/"+networkID, nil, nil)
+func (c *Client) GetNetwork(networkID string) (string, error) {
+	return c.callHTTPRequest("GET", "/rest/networks/"+networkID, nil, nil)
 }
 
 // infoArray: [{op, path, value}]
-func (api *API) UpdateNetwork(networkID string, infoArray []string) (string, error) {
+func (c *Client) UpdateNetwork(networkID string, infoArray []string) (string, error) {
 	values := infoArray
-	return api.callHTTPRequest("PUT", "/rest/networks/"+networkID, nil, values)
+	return c.callHTTPRequest("PUT", "/rest/networks/"+networkID, nil, values)
 }
 
 // Onboarding APIs
 
-func (api *API) GetAzureLoginProperties() (string, error) {
-	return api.callHTTPRequest("GET", "/rest/onboarding/azure/properties", nil, nil)
+func (c *Client) GetAzureLoginProperties() (string, error) {
+	return c.callHTTPRequest("GET", "/rest/onboarding/azure/properties", nil, nil)
 }
 
-func (api *API) GetAzureProviderInfo(directoryUri, location string) (string, error) {
+func (c *Client) GetAzureProviderInfo(directoryUri, location string) (string, error) {
 	params := map[string]string{"directoryUri": directoryUri, "location": location}
-	return api.callHTTPRequest("GET", "/rest/onboarding/azure/provider-info", params, nil)
+	return c.callHTTPRequest("GET", "/rest/onboarding/azure/provider-info", params, nil)
 }
 
-func (api *API) GetAzureSubscriptions(directoryUri, location string) (string, error) {
+func (c *Client) GetAzureSubscriptions(directoryUri, location string) (string, error) {
 	params := map[string]string{"directoryUri": directoryUri, "location": location}
-	return api.callHTTPRequest("GET", "/rest/onboarding/azure/subscriptions", params, nil)
+	return c.callHTTPRequest("GET", "/rest/onboarding/azure/subscriptions", params, nil)
 }
 
 /* UpdateAzureSubscription allowed Ops in patchPayload:
   - add
 	- replace
 */
-func (api *API) UpdateAzureSubscription(directoryUri, location, subscriptionId string, patchPayload []*PatchOp) (string, error) {
+func (c *Client) UpdateAzureSubscription(directoryUri, location, subscriptionId string, patchPayload []*PatchOp) (string, error) {
 	allowedOps := []string{"add", "replace"}
 
 	for _, pb := range patchPayload {
@@ -517,24 +553,24 @@ func (api *API) UpdateAzureSubscription(directoryUri, location, subscriptionId s
 
 	params := map[string]string{"directoryUri": directoryUri, "location": location}
 	values := map[string][]*PatchOp{"items": patchPayload}
-	return api.callHTTPRequest("PATCH", "/rest/onboarding/azure/subscriptions/"+subscriptionId, params, values)
+	return c.callHTTPRequest("PATCH", "/rest/onboarding/azure/subscriptions/"+subscriptionId, params, values)
 }
 
 // Password Reset APIs
 
-func (api *API) ResetSingleUsePassword(email string) (string, error) {
+func (c *Client) ResetSingleUsePassword(email string) (string, error) {
 	values := map[string]string{"email": email}
-	return api.callHTTPRequest("POST", "/rest/password-reset", nil, values)
+	return c.callHTTPRequest("POST", "/rest/password-reset", nil, values)
 }
 
-func (api *API) ChangePassword(password, token string) (string, error) {
+func (c *Client) ChangePassword(password, token string) (string, error) {
 	values := map[string]string{"password": password, "token": token}
-	return api.callHTTPRequest("POST", "/rest/password-reset/change", nil, values)
+	return c.callHTTPRequest("POST", "/rest/password-reset/change", nil, values)
 }
 
 // Projects APIs
 
-func (api *API) GetProjects(userQuery, view string) (string, error) {
+func (c *Client) GetProjects(userQuery, view string) (string, error) {
 	params := map[string]string{}
 	if strings.TrimSpace(userQuery) != "" {
 		params["userQuery"] = userQuery
@@ -542,50 +578,50 @@ func (api *API) GetProjects(userQuery, view string) (string, error) {
 	if strings.TrimSpace(view) != "" {
 		params["view"] = view
 	}
-	return api.callHTTPRequest("GET", "/rest/projects", params, nil)
+	return c.callHTTPRequest("GET", "/rest/projects", params, nil)
 }
 
-func (api *API) CreateProject(name, description string, tagUris []string) (string, error) {
+func (c *Client) CreateProject(name, description string, tagUris []string) (string, error) {
 	values := map[string]interface{}{
 		"name":        name,
 		"description": description,
 		"tagUris":     tagUris}
-	return api.callHTTPRequest("POST", "/rest/projects", nil, values)
+	return c.callHTTPRequest("POST", "/rest/projects", nil, values)
 }
 
-func (api *API) GetProject(projectID, view string) (string, error) {
+func (c *Client) GetProject(projectID, view string) (string, error) {
 	params := map[string]string{"view": view}
-	return api.callHTTPRequest("GET", "/rest/projects/"+projectID, params, nil)
+	return c.callHTTPRequest("GET", "/rest/projects/"+projectID, params, nil)
 }
 
-func (api *API) DeleteProject(projectID string) (string, error) {
-	// return api.callHTTPRequest("DELETE", "/rest/projects/"+projectID, nil, nil)
-	return "", api.notImplementedError("DELETE", "/rest/projects", "projects")
+func (c *Client) DeleteProject(projectID string) (string, error) {
+	// return c.callHTTPRequest("DELETE", "/rest/projects/"+projectID, nil, nil)
+	return "", c.notImplementedError("DELETE", "/rest/projects", "projects")
 }
 
-func (api *API) UpdateProject(projectID, name, description string, tagUris []string) (string, error) {
+func (c *Client) UpdateProject(projectID, name, description string, tagUris []string) (string, error) {
 	values := map[string]interface{}{
 		"name":        name,
 		"description": description,
 		"tagUris":     tagUris}
-	return api.callHTTPRequest("PUT", "/rest/projects/"+projectID, nil, values)
+	return c.callHTTPRequest("PUT", "/rest/projects/"+projectID, nil, values)
 }
 
 // Provider Types APIs
 
-func (api *API) GetProviderTypes() (string, error) {
-	return api.callHTTPRequest("GET", "/rest/provider-types", nil, nil)
+func (c *Client) GetProviderTypes() (string, error) {
+	return c.callHTTPRequest("GET", "/rest/provider-types", nil, nil)
 }
 
 // Providers APIs
 
-func (api *API) GetProviders(query string) (string, error) {
+func (c *Client) GetProviders(query string) (string, error) {
 	params := map[string]string{"query": query}
-	return api.callHTTPRequest("GET", "/rest/providers", params, nil)
+	return c.callHTTPRequest("GET", "/rest/providers", params, nil)
 }
 
 // state: "Enabled|Disabled"
-func (api *API) CreateProvider(providerID, providerTypeUri, accessKey, secretKey string,
+func (c *Client) CreateProvider(providerID, providerTypeUri, accessKey, secretKey string,
 	paymentProvider bool,
 	s3CostBucket, masterUri, state string) (string, error) {
 	values := map[string]interface{}{
@@ -597,31 +633,31 @@ func (api *API) CreateProvider(providerID, providerTypeUri, accessKey, secretKey
 		"s3CostBucket":    s3CostBucket,
 		"masterUri":       masterUri,
 		"state":           state}
-	return api.callHTTPRequest("POST", "/rest/providers", nil, values)
+	return c.callHTTPRequest("POST", "/rest/providers", nil, values)
 }
 
 // view="full"
 // discover: boolean
-func (api *API) GetProvider(providerID, view string, discover bool) (string, error) {
+func (c *Client) GetProvider(providerID, view string, discover bool) (string, error) {
 	params := map[string]string{
 		"view":     view,
 		"discover": strconv.FormatBool(discover)}
-	return api.callHTTPRequest("GET", "/rest/providers/"+providerID, params, nil)
+	return c.callHTTPRequest("GET", "/rest/providers/"+providerID, params, nil)
 }
 
-func (api *API) DeleteProvider(providerID string) (string, error) {
-	return api.callHTTPRequest("DELETE", "/rest/providers/"+providerID, nil, nil)
+func (c *Client) DeleteProvider(providerID string) (string, error) {
+	return c.callHTTPRequest("DELETE", "/rest/providers/"+providerID, nil, nil)
 }
 
 // infoArray: [{op, path, value}]
 // op: "add|replace|remove"
-func (api *API) UpdateProvider(providerID, infoArray string) (string, error) {
-	return api.callHTTPRequest("PUT", "/rest/providers/"+providerID, nil, infoArray)
+func (c *Client) UpdateProvider(providerID, infoArray string) (string, error) {
+	return c.callHTTPRequest("PUT", "/rest/providers/"+providerID, nil, infoArray)
 }
 
 // Rates APIs
 
-func (api *API) GetRates(resourceUri, effectiveForDate, effectiveDate, metricName string,
+func (c *Client) GetRates(resourceUri, effectiveForDate, effectiveDate, metricName string,
 	active bool, start, count int) (string, error) {
 	params := map[string]string{
 		"resourceUri":      resourceUri,
@@ -631,57 +667,57 @@ func (api *API) GetRates(resourceUri, effectiveForDate, effectiveDate, metricNam
 		"active":           strconv.FormatBool(active),
 		"start":            strconv.Itoa(start),
 		"count":            strconv.Itoa(count)}
-	return api.callHTTPRequest("GET", "/rest/rates", params, nil)
+	return c.callHTTPRequest("GET", "/rest/rates", params, nil)
 }
 
-func (api *API) GetRate(rateID string) (string, error) {
-	return api.callHTTPRequest("GET", "/rest/rates/"+rateID, nil, nil)
+func (c *Client) GetRate(rateID string) (string, error) {
+	return c.callHTTPRequest("GET", "/rest/rates/"+rateID, nil, nil)
 }
 
 // Regions APIs
 
-func (api *API) GetRegions(query, view string) (string, error) {
+func (c *Client) GetRegions(query, view string) (string, error) {
 	params := map[string]string{"query": query, "view": view}
-	return api.callHTTPRequest("GET", "/rest/regions", params, nil)
+	return c.callHTTPRequest("GET", "/rest/regions", params, nil)
 }
 
-func (api *API) CreateRegion(name, providerUri, locLatitude, locLongitude string) (string, error) {
+func (c *Client) CreateRegion(name, providerUri, locLatitude, locLongitude string) (string, error) {
 	values := map[string]interface{}{
 		"location": map[string]interface{}{
 			"latitude":  locLatitude,
 			"longitude": locLongitude},
 		"name":        name,
 		"providerUri": providerUri}
-	return api.callHTTPRequest("POST", "/rest/regions", nil, values)
+	return c.callHTTPRequest("POST", "/rest/regions", nil, values)
 }
 
-func (api *API) GetRegion(regionID, view string, discover bool) (string, error) {
+func (c *Client) GetRegion(regionID, view string, discover bool) (string, error) {
 	params := map[string]string{"view": view, "discover": strconv.FormatBool(discover)}
-	return api.callHTTPRequest("GET", "/rest/regions/"+regionID, params, nil)
+	return c.callHTTPRequest("GET", "/rest/regions/"+regionID, params, nil)
 }
 
-func (api *API) DeleteRegion(regionID string, force bool) (string, error) {
+func (c *Client) DeleteRegion(regionID string, force bool) (string, error) {
 	params := map[string]string{"force": strconv.FormatBool(force)}
-	return api.callHTTPRequest("DELETE", "/rest/regions/"+regionID, params, nil)
+	return c.callHTTPRequest("DELETE", "/rest/regions/"+regionID, params, nil)
 }
 
 // infoArray: [{op, path, value}]
 // op: "add|replace"
 // path: "/name|/location"
-func (api *API) PatchRegion(regionID string, infoArray []string) (string, error) {
-	return api.callHTTPRequest("PUT", "/rest/regions/"+regionID, nil, infoArray)
+func (c *Client) PatchRegion(regionID string, infoArray []string) (string, error) {
+	return c.callHTTPRequest("PUT", "/rest/regions/"+regionID, nil, infoArray)
 }
 
-func (api *API) UpdateRegion(regionID, region string) (string, error) {
-	return api.callHTTPRequest("PUT", "/rest/regions/"+regionID, nil, region)
+func (c *Client) UpdateRegion(regionID, region string) (string, error) {
+	return c.callHTTPRequest("PUT", "/rest/regions/"+regionID, nil, region)
 }
 
-func (api *API) GetRegionConnection(regionID string) (string, error) {
-	return api.callHTTPRequest("GET", "/rest/regions/"+regionID+"/connection", nil, nil)
+func (c *Client) GetRegionConnection(regionID string) (string, error) {
+	return c.callHTTPRequest("GET", "/rest/regions/"+regionID+"/connection", nil, nil)
 }
 
 // state: "Enabling|Enabled|Disabling|Disabled"
-func (api *API) CreateRegionConnection(regionID, endpointUuid, name, ipAddress, username, password string,
+func (c *Client) CreateRegionConnection(regionID, endpointUuid, name, ipAddress, username, password string,
 	port int,
 	state, uri string) (string, error) {
 	values := map[string]interface{}{
@@ -694,26 +730,26 @@ func (api *API) CreateRegionConnection(regionID, endpointUuid, name, ipAddress, 
 			"port":      strconv.Itoa(port)},
 		"state": state,
 		"uri":   uri}
-	return api.callHTTPRequest("POST", "/rest/regions/"+regionID+"/connection", nil, values)
+	return c.callHTTPRequest("POST", "/rest/regions/"+regionID+"/connection", nil, values)
 }
 
-func (api *API) DeleteRegionConnection(regionID string) (string, error) {
-	return api.callHTTPRequest("DELETE", "/rest/regions/"+regionID+"/connection", nil, nil)
+func (c *Client) DeleteRegionConnection(regionID string) (string, error) {
+	return c.callHTTPRequest("DELETE", "/rest/regions/"+regionID+"/connection", nil, nil)
 }
 
-func (api *API) GetRegionConnectorImage(regionID string) (string, error) {
-	return api.callHTTPRequest("GET", "/rest/regions/"+regionID+"/connector-image", nil, nil)
+func (c *Client) GetRegionConnectorImage(regionID string) (string, error) {
+	return c.callHTTPRequest("GET", "/rest/regions/"+regionID+"/connector-image", nil, nil)
 }
 
 // Roles APIs
 
-func (api *API) GetRoles() (string, error) {
-	return api.callHTTPRequest("GET", "/rest/roles", nil, nil)
+func (c *Client) GetRoles() (string, error) {
+	return c.callHTTPRequest("GET", "/rest/roles", nil, nil)
 }
 
 // Servers APIs
 
-func (api *API) GetServers(regionUri, applianceUri, zoneUri string) (string, error) {
+func (c *Client) GetServers(regionUri, applianceUri, zoneUri string) (string, error) {
 	params := map[string]string{}
 	if regionUri != "" {
 		params["regionUri"] = regionUri
@@ -724,33 +760,33 @@ func (api *API) GetServers(regionUri, applianceUri, zoneUri string) (string, err
 	if zoneUri != "" {
 		params["zoneUri"] = zoneUri
 	}
-	return api.callHTTPRequest("GET", "/rest/servers", params, nil)
+	return c.callHTTPRequest("GET", "/rest/servers", params, nil)
 }
 
-func (api *API) CreateServer(server *Server) (string, error) {
+func (c *Client) CreateServer(server *Server) (string, error) {
 	values := map[string]*Server{
 		"server": server,
 	}
-	return api.callHTTPRequest("POST", "/rest/servers", nil, values)
+	return c.callHTTPRequest("POST", "/rest/servers", nil, values)
 }
 
-func (api *API) DeleteServer(serverID string, force bool) (string, error) {
+func (c *Client) DeleteServer(serverID string, force bool) (string, error) {
 	params := map[string]string{}
 	if force {
 		params["force"] = "true"
 	}
-	return api.callHTTPRequest("DELETE", "/rest/servers/"+serverID, params, nil)
+	return c.callHTTPRequest("DELETE", "/rest/servers/"+serverID, params, nil)
 }
 
-func (api *API) GetServer(serverID string) (string, error) {
-	return api.callHTTPRequest("GET", "/rest/servers/"+serverID, nil, nil)
+func (c *Client) GetServer(serverID string) (string, error) {
+	return c.callHTTPRequest("GET", "/rest/servers/"+serverID, nil, nil)
 }
 
 /* UpdateServer allowed Ops in patchPayload:
 - replace
 - remove
 */
-func (api *API) UpdateServer(serverID string, patchPayload []*PatchOp) (string, error) {
+func (c *Client) UpdateServer(serverID string, patchPayload []*PatchOp) (string, error) {
 	allowedOps := []string{"replace", "remove"}
 
 	for _, pb := range patchPayload {
@@ -768,237 +804,237 @@ func (api *API) UpdateServer(serverID string, patchPayload []*PatchOp) (string, 
 	}
 
 	values := map[string][]*PatchOp{"body": patchPayload}
-	return api.callHTTPRequest("PATCH", "/rest/servers/"+serverID, nil, values)
+	return c.callHTTPRequest("PATCH", "/rest/servers/"+serverID, nil, values)
 }
 
 // Service Types APIs
 
-func (api *API) GetServiceTypes() (string, error) {
-	return api.callHTTPRequest("GET", "/rest/service-types", nil, nil)
+func (c *Client) GetServiceTypes() (string, error) {
+	return c.callHTTPRequest("GET", "/rest/service-types", nil, nil)
 }
 
-func (api *API) GetServiceType(serviceTypeID string) (string, error) {
-	return api.callHTTPRequest("GET", "/rest/service-types/"+serviceTypeID, nil, nil)
+func (c *Client) GetServiceType(serviceTypeID string) (string, error) {
+	return c.callHTTPRequest("GET", "/rest/service-types/"+serviceTypeID, nil, nil)
 }
 
 // Services APIs
 
-func (api *API) GetServices(query, userQuery, view string) (string, error) {
+func (c *Client) GetServices(query, userQuery, view string) (string, error) {
 	params := map[string]string{"query": query, "userQuery": userQuery, "view": view}
-	return api.callHTTPRequest("GET", "/rest/services", params, nil)
+	return c.callHTTPRequest("GET", "/rest/services", params, nil)
 }
 
 // view: "full|deployment"
-func (api *API) GetService(serviceID, view string) (string, error) {
+func (c *Client) GetService(serviceID, view string) (string, error) {
 	params := map[string]string{"view": view}
-	return api.callHTTPRequest("GET", "/rest/services/"+serviceID, params, nil)
+	return c.callHTTPRequest("GET", "/rest/services/"+serviceID, params, nil)
 }
 
 // Session APIs
 
 // view: "full"
-func (api *API) GetSession(view string) (string, error) {
+func (c *Client) GetSession(view string) (string, error) {
 	params := map[string]string{"view": view}
-	return api.callHTTPRequest("GET", "/rest/session", params, nil)
+	return c.callHTTPRequest("GET", "/rest/session", params, nil)
 }
 
-func (api *API) GetSessionIdp(userName string) (string, error) {
+func (c *Client) GetSessionIdp(userName string) (string, error) {
 	// params := map[string]string{"userName": userName}
-	// return api.callHTTPRequest("GET", "/rest/session/idp", params, nil)
-	return "", api.notImplementedError("GET", "/rest/account", "account")
+	// return c.callHTTPRequest("GET", "/rest/session/idp", params, nil)
+	return "", c.notImplementedError("GET", "/rest/account", "account")
 }
 
 // GetStatus calls the /rest/status endpoint
-func (api *API) GetStatus() (string, error) {
-	return api.callHTTPRequest("GET", "/rest/status", nil, nil)
+func (c *Client) GetStatus() (string, error) {
+	return c.callHTTPRequest("GET", "/rest/status", nil, nil)
 }
 
 // Tag Keys APIs
 
 // view: "full"
-func (api *API) GetTagKeys(view string) (string, error) {
+func (c *Client) GetTagKeys(view string) (string, error) {
 	params := map[string]string{"view": view}
-	return api.callHTTPRequest("GET", "/rest/tag-keys", params, nil)
+	return c.callHTTPRequest("GET", "/rest/tag-keys", params, nil)
 }
 
-func (api *API) CreateTagKey(name string) (string, error) {
+func (c *Client) CreateTagKey(name string) (string, error) {
 	values := map[string]string{"name": name}
-	return api.callHTTPRequest("POST", "/rest/tag-keys", nil, values)
+	return c.callHTTPRequest("POST", "/rest/tag-keys", nil, values)
 }
 
 // view: "full"
-func (api *API) GetTagKey(tagKeyID, view string) (string, error) {
+func (c *Client) GetTagKey(tagKeyID, view string) (string, error) {
 	params := map[string]string{"view": view}
-	return api.callHTTPRequest("GET", "/rest/tag-keys/"+tagKeyID, params, nil)
+	return c.callHTTPRequest("GET", "/rest/tag-keys/"+tagKeyID, params, nil)
 }
 
-func (api *API) DeleteTagKey(tagKeyID string) (string, error) {
-	return api.callHTTPRequest("DELETE", "/rest/tag-keys/"+tagKeyID, nil, nil)
+func (c *Client) DeleteTagKey(tagKeyID string) (string, error) {
+	return c.callHTTPRequest("DELETE", "/rest/tag-keys/"+tagKeyID, nil, nil)
 }
 
 // Tags APIs
 
 // view: "full"
-func (api *API) GetTags(view string) (string, error) {
+func (c *Client) GetTags(view string) (string, error) {
 	params := map[string]string{"view": view}
-	return api.callHTTPRequest("GET", "/rest/tags", params, nil)
+	return c.callHTTPRequest("GET", "/rest/tags", params, nil)
 }
 
-func (api *API) CreateTag(name, tagKeyUri string) (string, error) {
+func (c *Client) CreateTag(name, tagKeyUri string) (string, error) {
 	values := map[string]string{"name": name, "tagKeyUri": tagKeyUri}
-	return api.callHTTPRequest("POST", "/rest/tags", nil, values)
+	return c.callHTTPRequest("POST", "/rest/tags", nil, values)
 }
 
 // view: "full"
-func (api *API) GetTag(tagID, view string) (string, error) {
+func (c *Client) GetTag(tagID, view string) (string, error) {
 	params := map[string]string{"view": view}
-	return api.callHTTPRequest("GET", "/rest/tags/"+tagID, params, nil)
+	return c.callHTTPRequest("GET", "/rest/tags/"+tagID, params, nil)
 }
 
-func (api *API) DeleteTag(tagID string) (string, error) {
-	return api.callHTTPRequest("DELETE", "/rest/tags/"+tagID, nil, nil)
+func (c *Client) DeleteTag(tagID string) (string, error) {
+	return c.callHTTPRequest("DELETE", "/rest/tags/"+tagID, nil, nil)
 }
 
 // Users APIs
 
-func (api *API) GetUsers(userQuery string) (string, error) {
+func (c *Client) GetUsers(userQuery string) (string, error) {
 	params := map[string]string{"userQuery": userQuery}
-	return api.callHTTPRequest("GET", "/rest/users", params, nil)
+	return c.callHTTPRequest("GET", "/rest/users", params, nil)
 }
 
 // role: "administrator|analyst|consumer|project-creator"
-func (api *API) CreateUser(email, name, password, role string) (string, error) {
+func (c *Client) CreateUser(email, name, password, role string) (string, error) {
 	values := map[string]string{"email": email, "name": name, "password": password, "role": role}
-	return api.callHTTPRequest("POST", "/rest/users", nil, values)
+	return c.callHTTPRequest("POST", "/rest/users", nil, values)
 }
 
-func (api *API) GetUser(userID string) (string, error) {
-	return api.callHTTPRequest("GET", "/rest/users/"+userID, nil, nil)
+func (c *Client) GetUser(userID string) (string, error) {
+	return c.callHTTPRequest("GET", "/rest/users/"+userID, nil, nil)
 }
 
 // role: "administrator|analyst|consumer|project-creator"
-func (api *API) UpdateUser(userID, email, name, password, role string) (string, error) {
+func (c *Client) UpdateUser(userID, email, name, password, role string) (string, error) {
 	values := map[string]string{"email": email, "name": name, "password": password, "role": role}
-	return api.callHTTPRequest("PUT", "/rest/users/"+userID, nil, values)
+	return c.callHTTPRequest("PUT", "/rest/users/"+userID, nil, values)
 }
 
-func (api *API) DeleteUser(userID string) (string, error) {
-	return api.callHTTPRequest("DELETE", "/rest/users/"+userID, nil, nil)
+func (c *Client) DeleteUser(userID string) (string, error) {
+	return c.callHTTPRequest("DELETE", "/rest/users/"+userID, nil, nil)
 }
 
 // Versions APIs
 
-func (api *API) GetVersions() (string, error) {
-	return api.callHTTPRequest("GET", "/rest/about/versions", nil, nil)
+func (c *Client) GetVersions() (string, error) {
+	return c.callHTTPRequest("GET", "/rest/about/versions", nil, nil)
 }
 
 // Virtual Machine Profiles APIs
 
-func (api *API) GetVirtualMachineProfiles(zoneUri, serviceUri string) (string, error) {
+func (c *Client) GetVirtualMachineProfiles(zoneUri, serviceUri string) (string, error) {
 	params := map[string]string{"zoneUri": zoneUri, "serviceUri": serviceUri}
-	return api.callHTTPRequest("GET", "/rest/virtual-machine-profiles", params, nil)
+	return c.callHTTPRequest("GET", "/rest/virtual-machine-profiles", params, nil)
 }
 
-func (api *API) GetVirtualMachineProfile(vmProfileID string) (string, error) {
-	return api.callHTTPRequest("GET", "/rest/virtual-machine-profiles/"+vmProfileID, nil, nil)
+func (c *Client) GetVirtualMachineProfile(vmProfileID string) (string, error) {
+	return c.callHTTPRequest("GET", "/rest/virtual-machine-profiles/"+vmProfileID, nil, nil)
 }
 
 // Volumes APIs
 
 // view: "full"
-func (api *API) GetVolumes(query, view string) (string, error) {
+func (c *Client) GetVolumes(query, view string) (string, error) {
 	params := map[string]string{"query": query, "view": view}
-	return api.callHTTPRequest("GET", "/rest/volumes", params, nil)
+	return c.callHTTPRequest("GET", "/rest/volumes", params, nil)
 }
 
-func (api *API) CreateVolume(name string, sizeGiB int, zoneUri, projectUri string) (string, error) {
+func (c *Client) CreateVolume(name string, sizeGiB int, zoneUri, projectUri string) (string, error) {
 	values := map[string]interface{}{
 		"name":       name,
 		"sizeGiB":    strconv.Itoa(sizeGiB),
 		"zoneUri":    zoneUri,
 		"projectUri": projectUri}
-	return api.callHTTPRequest("POST", "/rest/volumes", nil, values)
+	return c.callHTTPRequest("POST", "/rest/volumes", nil, values)
 }
 
-func (api *API) GetVolume(volumeID string) (string, error) {
-	return api.callHTTPRequest("GET", "/rest/volumes/"+volumeID, nil, nil)
+func (c *Client) GetVolume(volumeID string) (string, error) {
+	return c.callHTTPRequest("GET", "/rest/volumes/"+volumeID, nil, nil)
 }
 
-func (api *API) UpdateVolume(volumeID, name string, sizeGiB int) (string, error) {
+func (c *Client) UpdateVolume(volumeID, name string, sizeGiB int) (string, error) {
 	values := map[string]interface{}{
 		"name":    name,
 		"sizeGiB": strconv.Itoa(sizeGiB)}
-	return api.callHTTPRequest("PUT", "/rest/volumes/"+volumeID, nil, values)
+	return c.callHTTPRequest("PUT", "/rest/volumes/"+volumeID, nil, values)
 }
 
-func (api *API) DeleteVolume(volumeID string) (string, error) {
-	return api.callHTTPRequest("DELETE", "/rest/volumes/"+volumeID, nil, nil)
+func (c *Client) DeleteVolume(volumeID string) (string, error) {
+	return c.callHTTPRequest("DELETE", "/rest/volumes/"+volumeID, nil, nil)
 }
 
 // Zone Types APIs
 
-func (api *API) GetZoneTypes() (string, error) {
-	return api.callHTTPRequest("GET", "/rest/zone-types", nil, nil)
+func (c *Client) GetZoneTypes() (string, error) {
+	return c.callHTTPRequest("GET", "/rest/zone-types", nil, nil)
 }
 
-func (api *API) GetZoneTypeResourceProfiles(zoneTypeID string) (string, error) {
-	return api.callHTTPRequest("GET", "/rest/zone-types/"+zoneTypeID+"/resource-profiles", nil, nil)
+func (c *Client) GetZoneTypeResourceProfiles(zoneTypeID string) (string, error) {
+	return c.callHTTPRequest("GET", "/rest/zone-types/"+zoneTypeID+"/resource-profiles", nil, nil)
 }
 
 // Zones APIs
 
-func (api *API) GetZones(query, regionUri, applianceUri string) (string, error) {
+func (c *Client) GetZones(query, regionUri, applianceUri string) (string, error) {
 	params := map[string]string{"query": query, "regionUri": regionUri, "applianceUri": applianceUri}
-	return api.callHTTPRequest("GET", "/rest/zones", params, nil)
+	return c.callHTTPRequest("GET", "/rest/zones", params, nil)
 }
 
-func (api *API) CreateZone(zoneData string) (string, error) {
-	return api.callHTTPRequest("POST", "/rest/zones", nil, zoneData)
+func (c *Client) CreateZone(zoneData string) (string, error) {
+	return c.callHTTPRequest("POST", "/rest/zones", nil, zoneData)
 }
 
 // view: "full"
-func (api *API) GetZone(zoneID, view string) (string, error) {
+func (c *Client) GetZone(zoneID, view string) (string, error) {
 	params := map[string]string{"view": view}
-	return api.callHTTPRequest("GET", "/rest/zones/"+zoneID, params, nil)
+	return c.callHTTPRequest("GET", "/rest/zones/"+zoneID, params, nil)
 }
 
 // op: "add|replace|remove"
-func (api *API) UpdateZone(zoneID, op, path string, value interface{}) (string, error) {
+func (c *Client) UpdateZone(zoneID, op, path string, value interface{}) (string, error) {
 	values := map[string]interface{}{"op": op, "path": path, "value": value}
-	return api.callHTTPRequest("PUT", "/rest/zones/"+zoneID, nil, values)
+	return c.callHTTPRequest("PUT", "/rest/zones/"+zoneID, nil, values)
 }
 
-func (api *API) DeleteZone(zoneID string, force bool) (string, error) {
+func (c *Client) DeleteZone(zoneID string, force bool) (string, error) {
 	params := map[string]string{"force": strconv.FormatBool(force)}
-	return api.callHTTPRequest("DELETE", "/rest/zones/"+zoneID, params, nil)
+	return c.callHTTPRequest("DELETE", "/rest/zones/"+zoneID, params, nil)
 }
 
 // actionType: "reset|add-capacity|reduce-capacity"
 // resourceType: "compute|storage"
-func (api *API) ActionOnZone(zoneID, actionType, resourceType string, resourceCapacity int) (string, error) {
+func (c *Client) ActionOnZone(zoneID, actionType, resourceType string, resourceCapacity int) (string, error) {
 	values := map[string]interface{}{
 		"type": actionType,
 		"resourceOp": map[string]interface{}{
 			"resourceType":     resourceType,
 			"resourceCapacity": resourceCapacity}}
-	return api.callHTTPRequest("POST", "/rest/zones/"+zoneID+"/actions", nil, values)
+	return c.callHTTPRequest("POST", "/rest/zones/"+zoneID+"/actions", nil, values)
 }
 
-func (api *API) GetZoneApplianceImage(zoneID string) (string, error) {
-	return api.callHTTPRequest("GET", "/rest/zones/"+zoneID+"/appliance-image", nil, nil)
+func (c *Client) GetZoneApplianceImage(zoneID string) (string, error) {
+	return c.callHTTPRequest("GET", "/rest/zones/"+zoneID+"/appliance-image", nil, nil)
 }
 
-func (api *API) GetZoneTaskStatus(zoneID string) (string, error) {
-	return api.callHTTPRequest("GET", "/rest/zones/"+zoneID+"/task-status", nil, nil)
+func (c *Client) GetZoneTaskStatus(zoneID string) (string, error) {
+	return c.callHTTPRequest("GET", "/rest/zones/"+zoneID+"/task-status", nil, nil)
 }
 
-func (api *API) GetZoneConnections(zoneID, uuid string) (string, error) {
+func (c *Client) GetZoneConnections(zoneID, uuid string) (string, error) {
 	params := map[string]string{"uuid": uuid}
-	return api.callHTTPRequest("GET", "/rest/zones/"+zoneID+"/connections", params, nil)
+	return c.callHTTPRequest("GET", "/rest/zones/"+zoneID+"/connections", params, nil)
 }
 
 // state: "Enabling|Enabled|Disabling|Disabled"
-func (api *API) CreateZoneConnection(zoneID, uuid, name, ipAddress, username, password string,
+func (c *Client) CreateZoneConnection(zoneID, uuid, name, ipAddress, username, password string,
 	port int, state string) (string, error) {
 	values := map[string]interface{}{
 		"uuid": uuid,
@@ -1009,15 +1045,15 @@ func (api *API) CreateZoneConnection(zoneID, uuid, name, ipAddress, username, pa
 			"password":  password,
 			"port":      port},
 		"state": state}
-	return api.callHTTPRequest("POST", "/rest/zones/"+zoneID+"/connections", nil, values)
+	return c.callHTTPRequest("POST", "/rest/zones/"+zoneID+"/connections", nil, values)
 }
 
-func (api *API) DeleteZoneConnection(zoneID, uuid string) (string, error) {
-	return api.callHTTPRequest("DELETE", "/rest/zones/"+zoneID+"/connections/"+uuid, nil, nil)
+func (c *Client) DeleteZoneConnection(zoneID, uuid string) (string, error) {
+	return c.callHTTPRequest("DELETE", "/rest/zones/"+zoneID+"/connections/"+uuid, nil, nil)
 }
 
 // op: "add|replace|remove"
-func (api *API) UpdateZoneConnection(zoneID, uuid, op, path string, value interface{}) (string, error) {
+func (c *Client) UpdateZoneConnection(zoneID, uuid, op, path string, value interface{}) (string, error) {
 	values := map[string]interface{}{"op": op, "path": path, "value": value}
-	return api.callHTTPRequest("PUT", "/rest/zones/"+zoneID+"/connections", nil, values)
+	return c.callHTTPRequest("PUT", "/rest/zones/"+zoneID+"/connections", nil, values)
 }

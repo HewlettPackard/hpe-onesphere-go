@@ -27,13 +27,13 @@ import (
 #### Connect to the OneSphere server
 
 ```go
-oneSphere, err := onesphere.Connect("https://onesphere-host-url", "username", "password")
+osClient, err := onesphere.Connect("https://onesphere-host-url", "username", "password")
 ```
 
 #### Make calls to the OneSphere API
 
 ```go
-fmt.Println("Status:", oneSphere.GetStatus())
+fmt.Println("Status:", osClient.GetStatus())
 ```
 
 example output
@@ -45,7 +45,7 @@ example output
 #### Disconnect from the OneSphere server
 
 ```go
-oneSphere.Disconnect()
+osClient.Disconnect()
 ```
 
 ## Full Example
