@@ -256,6 +256,19 @@ func (c *Client) GetDeploymentConsole(deployment Deployment) (string, error) {
 	return consoleUrl, nil
 }
 
-// func (c *Client) GetDeploymentKubeConfig(deploymentID string) (string, error) {
-// 	return c.callHTTPRequest("GET", "/rest/deployments/"+deploymentID+"/kubeconfig", nil, nil)
-// }
+// GetDeploymentKubeConfig returns the kubeconfig of the deployment
+func (c *Client) GetDeploymentKubeConfig(deployment Deployment) (string, error) {
+	if deployment.Id == "" {
+		return "", fmt.Errorf("Deployment must have a non-empty Id")
+	}
+
+	var uri = "/rest/deployments/" + deployment.Id + "/kubeconfig"
+
+	kubeConfig, err := c.RestAPICall(rest.GET, uri, nil, nil)
+
+	if err != nil {
+		return kubeConfig, apiResponseError(kubeConfig, err)
+	}
+
+	return kubeConfig, nil
+}
