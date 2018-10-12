@@ -78,17 +78,29 @@ type DeploymentList struct {
 	Members     []Deployment  `json:"members"`
 }
 
-//GetDeploymentByName Retrieve Deployment by Name
-func (c *Client) GetDeploymentByName(name string) (Deployment, error) {
+// GetDeployments with optional userQuery and sort
+// leave filter blank to get all deployments
+func (c *Client) GetDeployments(userQuery string, sort string) (DeploymentList, error) {
+	var (
+		uri   = "/rest/deployments"
+		query = createQuery(&map[string]string{
+			"userQuery": userQuery,
+			"sort":      sort,
+		})
+		deployments DeploymentList
+	)
 
-	var deployment Deployment
+	data, err := c.RestAPICall(rest.GET, uri, query, nil)
 
-	deployments, err := c.GetDeployments(fmt.Sprintf("name matches '%s'", name), "name:asc")
-	if deployments.Total > 0 {
-		return deployments.Members[0], err
-	} else {
-		return deployment, err
+	if err != nil {
+		return deployments, err
 	}
+
+	if err := json.Unmarshal([]byte(data), &deployments); err != nil {
+		return deployments, err
+	}
+
+	return deployments, nil
 }
 
 //GetDeploymentByID Retrieve Deployment by ID
@@ -112,31 +124,17 @@ func (c *Client) GetDeploymentByID(id string) (Deployment, error) {
 	}
 }
 
-//GetDeployments Retrieve Deployments by filter
-func (c *Client) GetDeployments(filter string, sort string) (DeploymentList, error) {
-	var (
-		uri         = "/rest/deployments"
-		q           map[string]string
-		deployments DeploymentList
-	)
-	q = make(map[string]string)
-	if len(filter) > 0 {
-		q["userQuery"] = filter
-	}
+//GetDeploymentByName Retrieve Deployment by Name
+func (c *Client) GetDeploymentByName(name string) (Deployment, error) {
 
-	if sort != "" {
-		q["sort"] = sort
-	}
+	var deployment Deployment
 
-	data, err := c.RestAPICall(rest.GET, uri, q, nil)
-	if err != nil {
-		return deployments, err
+	deployments, err := c.GetDeployments(fmt.Sprintf("name matches '%s'", name), "name:asc")
+	if deployments.Total > 0 {
+		return deployments.Members[0], err
+	} else {
+		return deployment, err
 	}
-
-	if err := json.Unmarshal([]byte(data), &deployments); err != nil {
-		return deployments, err
-	}
-	return deployments, nil
 }
 
 //CreateDeployment Create Deployment
