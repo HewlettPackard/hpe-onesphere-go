@@ -22,55 +22,11 @@ func TestGetDeployments(t *testing.T) {
 	}
 }
 
-func TestGetDeploymentsQuery(t *testing.T) {
-	t.Skipf("@TODO replace 'name' query with valid key")
-	return
-
-	nameQuery := "deic02K8sCluster1"
-
-	var (
-		deployments DeploymentList
-		err         error
-	)
-
-	if deployments, err = client.GetDeployments("name EQ "+nameQuery, ""); err != nil {
-		t.Errorf("TestGetDeploymentsQuery \"query=name EQ %s\" Error: %s\n", nameQuery, err)
-	}
-
-	if deployments.Total != 1 {
-		t.Errorf("TestGetDeploymentsQuery \"query=name EQ %s\" Should only return 1 Deployment.\nReturned %v Deployments.\n", nameQuery, deployments.Total)
-		return
-	}
-
-	if deployments.Members[0].Name != nameQuery {
-		t.Errorf("TestGetDeploymentsQuery \"query=name EQ %s\" Should return results that meet the query criteria.\nExpected Name: %s\nReturned Deployment with Name: %s\n", nameQuery, nameQuery, deployments.Members[0].Name)
-		return
-	}
-
-}
-
 func TestGetDeploymentsUserQuery(t *testing.T) {
-	t.Skipf("@TODO update userQuery test for new GetDeployments")
-	return
+	userQuery := "zoneUri EQ /rest/zones/test"
 
-	userQuery := "deic02K8sCluster1"
-
-	var (
-		deployments DeploymentList
-		err         error
-	)
-	if deployments, err = client.GetDeployments("", userQuery); err != nil {
-		t.Errorf("TestGetDeploymentsUserQuery \"userQuery=%s\" Error: %s\n", userQuery, err)
-	}
-
-	if deployments.Total != 1 {
-		t.Errorf("TestGetDeploymentsUserQuery \"userQuery=%s\" Should only return 1 Deployment.\nReturned %v Deployments.\n", userQuery, deployments.Total)
-		return
-	}
-
-	if deployments.Members[0].Name != userQuery {
-		t.Errorf("TestGetDeploymentsUserQuery \"userQuery=%s\" Should return results that meet the query criteria.\nExpected Name: %s\nReturned Deployment with Name: %s\n", userQuery, userQuery, deployments.Members[0].Name)
-		return
+	if _, err := client.GetDeployments(userQuery, ""); err != nil {
+		t.Errorf("TestGetDeploymentsQuery \"%s\" Error: %s\n", userQuery, err)
 	}
 
 }
