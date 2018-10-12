@@ -428,35 +428,6 @@ func (c *Client) GetConnectApp(os string) (string, error) {
 	return c.callHTTPRequest("GET", "/rest/connect-app", params, nil)
 }
 
-// Deployments APIs
-
-// func (c *Client) GetDeployments(query, userQuery, view string) (string, error) {
-// 	params := map[string]string{"query": query, "userQuery": userQuery, "view": view}
-// 	return c.callHTTPRequest("GET", "/rest/deployments", params, nil)
-// }
-
-// func (c *Client) CreateDeployment(info string) (string, error) {
-// 	return c.callHTTPRequest("POST", "/rest/deployments", nil, info)
-// }
-
-// func (c *Client) GetDeployment(deploymentID, view string) (string, error) {
-// 	values := map[string]string{"view": view}
-// 	return c.callHTTPRequest("GET", "/rest/deployments/"+deploymentID, nil, values)
-// }
-
-// func (c *Client) UpdateDeployment(deploymentID, info string) (string, error) {
-// 	return c.callHTTPRequest("PUT", "/rest/deployments/"+deploymentID, nil, info)
-// }
-
-// func (c *Client) DeleteDeployment(deploymentID string) (string, error) {
-// 	return c.callHTTPRequest("DELETE", "/rest/deployments/"+deploymentID, nil, nil)
-// }
-
-// func (c *Client) ActionOnDeployment(deploymentID, actionType string, force bool) (string, error) {
-// 	values := map[string]interface{}{"force": force, "type": actionType}
-// 	return c.callHTTPRequest("POST", "/rest/deployments/"+deploymentID+"/actions", nil, values)
-// }
-
 // Events APIs
 
 func (c *Client) GetEvents(resourceUri string) (string, error) {

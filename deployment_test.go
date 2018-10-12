@@ -126,21 +126,11 @@ func TestGetDeploymentConsole(t *testing.T) {
 }
 
 func TestGetDeploymentKubeConfig(t *testing.T) {
+	setup()
 
-	userQuery := "deic02K8sCluster1"
+	deployment := Deployment{Id: "2"}
 
-	var (
-		//deployments DeploymentList
-		err error
-	)
-	if _, err = client.GetDeployments("", userQuery, ""); err != nil {
-		t.Errorf("TestGetDeploymentKubeConfig \"userQuery=%s\" Error: %s\n", userQuery, err)
+	if _, err := client.GetDeploymentKubeConfig(deployment); err != nil {
+		t.Error(err)
 	}
-
-	//if deploymentKubeConfig, err := client.GetDeploymentKubeConfig(deployments.Members[0].Id); err != nil {
-	//	t.Errorf("TestGetDeploymentKubeConfig Error: %v\n", err)
-	//} else if len(deploymentKubeConfig) == 0 {
-	//	t.Errorf("TestGetDeploymentKubeConfig Should return a kubernetes deploymentConfig as non empty string.")
-	//}
-
 }
