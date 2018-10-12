@@ -197,15 +197,6 @@ func (c *Client) Disconnect() {
 	c.callHTTPRequest("DELETE", "/rest/session", nil, nil)
 }
 
-// Account APIs
-
-// view="full"
-func (c *Client) GetAccount(view string) (string, error) {
-	// params := map[string]string{"view": view}
-	// return c.callHTTPRequest("GET", "/rest/account", params, nil)
-	return "", c.notImplementedError("GET", "/rest/account", "account")
-}
-
 // Appliances APIs
 
 func (c *Client) GetAppliances(name, regionUri string) (string, error) {

@@ -164,10 +164,6 @@ func TestGetVersions(t *testing.T) {
 
 }
 
-func TestGetAccountFull(t *testing.T) {
-	t.Skipf("@TODO Implement onesphere.Client.GetAccount()")
-}
-
 func TestGetAppliances(t *testing.T) {
 	actual, err := client.GetAppliances("", "")
 	if err != nil {
@@ -428,15 +424,6 @@ func TestGetCatalog(t *testing.T) {
 		t.Errorf("TestGetCatalog Error: %s\n", compareErr)
 	}
 
-}
-
-func structFieldsAsString(t *testing.T, actual interface{}) string {
-	actualString, err := json.Marshal(actual)
-	if err != nil {
-		t.Errorf("TestGetDeploments Error: %v\n", err)
-		return ""
-	}
-	return string(actualString)
 }
 
 func TestGetAzureLoginProperties(t *testing.T) {
