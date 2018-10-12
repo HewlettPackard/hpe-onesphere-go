@@ -148,19 +148,24 @@ func (c *Client) GetDeploymentByName(name string) (Deployment, error) {
 	}
 }
 
-//CreateDeployment Create Deployment
-func (c *Client) CreateDeployment(deployment DeploymentRequest) error {
+// CreateDeployment Creates Deployment and returns updated deployment
+func (c *Client) CreateDeployment(deploymentRequest DeploymentRequest) (Deployment, error) {
+	var (
+		uri        = "/rest/deployments/"
+		deployment Deployment
+	)
 
-	fmt.Printf("Input deployment %s", deployment)
-	var uri = "/rest/deployments/"
+	data, err := c.RestAPICall(rest.POST, uri, nil, deploymentRequest)
 
-	data, err := c.RestAPICall(rest.POST, uri, nil, deployment)
 	if err != nil {
-		return err
+		return deployment, err
 	}
-	fmt.Printf("Response New deployment %s", data)
 
-	return nil
+	if err := json.Unmarshal([]byte(data), &deployment); err != nil {
+		return deployment, err
+	}
+
+	return deployment, err
 }
 
 // func (c *Client) GetDeploymentConsole(deploymentID string) (string, error) {
