@@ -23,6 +23,7 @@ func TestGetDeployments(t *testing.T) {
 }
 
 func TestGetDeploymentsUserQuery(t *testing.T) {
+	setup()
 	userQuery := "zoneUri EQ /rest/zones/test"
 
 	if _, err := client.GetDeployments(userQuery, ""); err != nil {
