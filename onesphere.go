@@ -144,8 +144,8 @@ func createQuery(params *map[string]string) map[string]string {
 	return *params
 }
 
-// unmarshalError returns a more helpful error including the response payload
-func unmarshalError(response string, err error) error {
+// apiResponseError returns a more helpful error including the response payload
+func apiResponseError(response string, err error) error {
 	return fmt.Errorf("Unmarshal Error:\n\tRaw Response: %v\n\tError: %v", response, err)
 }
 

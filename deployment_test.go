@@ -94,6 +94,16 @@ func TestUpdateDeployment(t *testing.T) {
 	}
 }
 
+func TestDeleteDeployment(t *testing.T) {
+	setup()
+
+	deployment := Deployment{Id: "2"}
+
+	if err := client.DeleteDeployment(deployment); err != nil {
+		t.Error(err)
+	}
+}
+
 func TestGetDeploymentKubeConfig(t *testing.T) {
 
 	userQuery := "deic02K8sCluster1"
