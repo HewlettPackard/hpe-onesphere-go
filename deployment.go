@@ -209,6 +209,36 @@ func (c *Client) DeleteDeployment(deployment Deployment) error {
 	return nil
 }
 
+// ActionDeployment Perform an Action on Deployment
+// example actionType: "restart"
+func (c *Client) ActionDeployment(deployment Deployment, actionType string, force bool) error {
+	if deployment.Id == "" {
+		return fmt.Errorf("Deployment must have a non-empty Id")
+	}
+
+	var (
+		url         = "/rest/deployments/" + deployment.Id + "/actions"
+		forceString = "false"
+	)
+
+	if force {
+		forceString = "true"
+	}
+
+	values := createQuery(&map[string]string{
+		"force": forceString,
+		"type":  actionType,
+	})
+
+	response, err := c.RestAPICall(rest.POST, url, nil, values)
+
+	if err != nil {
+		return apiResponseError(response, err)
+	}
+
+	return nil
+}
+
 // func (c *Client) GetDeploymentConsole(deploymentID string) (string, error) {
 // 	return c.callHTTPRequest("POST", "/rest/deployments/"+deploymentID+"/console", nil, nil)
 // }
