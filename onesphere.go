@@ -452,14 +452,6 @@ func (c *Client) GetConnectApp(os string) (string, error) {
 // 	return c.callHTTPRequest("POST", "/rest/deployments/"+deploymentID+"/actions", nil, values)
 // }
 
-// func (c *Client) GetDeploymentConsole(deploymentID string) (string, error) {
-// 	return c.callHTTPRequest("POST", "/rest/deployments/"+deploymentID+"/console", nil, nil)
-// }
-
-// func (c *Client) GetDeploymentKubeConfig(deploymentID string) (string, error) {
-// 	return c.callHTTPRequest("GET", "/rest/deployments/"+deploymentID+"/kubeconfig", nil, nil)
-// }
-
 // Events APIs
 
 func (c *Client) GetEvents(resourceUri string) (string, error) {

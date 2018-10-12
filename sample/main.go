@@ -61,7 +61,7 @@ func main() {
 	fmt.Printf("Token: %s\n\n", osClient.Auth.Token)
 
 	// var deployments *onesphere.DeploymentResponse
-	if deploymentResponse, err := osClient.GetDeployments("", ""); err != nil {
+	if deploymentResponse, err := osClient.GetDeployments("", "", ""); err != nil {
 		fmt.Printf("Error: %s\n\n", err)
 	} else {
 		fmt.Printf("Deployments:\n\tTotal: %d\n", deploymentResponse.Total)

@@ -80,17 +80,20 @@ type DeploymentList struct {
 
 // GetDeployments with optional userQuery and sort
 // leave filter blank to get all deployments
-func (c *Client) GetDeployments(userQuery string, sort string) (DeploymentList, error) {
+// example query: "zoneUri EQ /rest/zones/xxxx"
+// example userQuery: "ubuntu"
+func (c *Client) GetDeployments(query string, userQuery string, sort string) (DeploymentList, error) {
 	var (
-		uri   = "/rest/deployments"
-		query = createQuery(&map[string]string{
+		uri         = "/rest/deployments"
+		queryParams = createQuery(&map[string]string{
+			"query":     query,
 			"userQuery": userQuery,
 			"sort":      sort,
 		})
 		deployments DeploymentList
 	)
 
-	data, err := c.RestAPICall(rest.GET, uri, query, nil)
+	data, err := c.RestAPICall(rest.GET, uri, queryParams, nil)
 
 	if err != nil {
 		return deployments, err
@@ -103,34 +106,42 @@ func (c *Client) GetDeployments(userQuery string, sort string) (DeploymentList, 
 	return deployments, nil
 }
 
-//GetDeploymentByID Retrieve Deployment by ID
+// GetDeploymentByID Retrieve Deployment by ID
 func (c *Client) GetDeploymentByID(id string) (Deployment, error) {
 	var (
-		uri        = ""
+		uri        = "/rest/deployments/" + id
 		deployment Deployment
 	)
-	if id != "" {
-		uri = "/rest/deployments/" + id
+
+	if id == "" {
+		return deployment, fmt.Errorf("id must not be empty")
 	}
 
 	data, err := c.RestAPICall(rest.GET, uri, nil, nil)
+
 	if err != nil {
 		return deployment, err
 	}
+
 	if err := json.Unmarshal([]byte(data), &deployment); err != nil {
 		return deployment, err
-	} else {
-		return deployment, err
 	}
+
+	return deployment, err
 }
 
-//GetDeploymentByName Retrieve Deployment by Name
-func (c *Client) GetDeploymentByName(name string) (Deployment, error) {
+func (c *Client) GetDeploymentsByName(name string) (DeploymentList, error) {
+	userQuery := fmt.Sprintf("name matches '%s'", name)
 
+	return c.GetDeployments("", userQuery, "name:asc")
+}
+
+// GetDeploymentByName returns first member of GetDeploymentsByName
+func (c *Client) GetDeploymentByName(name string) (Deployment, error) {
 	var deployment Deployment
 
-	deployments, err := c.GetDeployments(fmt.Sprintf("name matches '%s'", name), "name:asc")
-	if deployments.Total > 0 {
+	deployments, err := c.GetDeploymentsByName(name)
+	if len(deployments.Members) > 0 {
 		return deployments.Members[0], err
 	} else {
 		return deployment, err
@@ -151,3 +162,11 @@ func (c *Client) CreateDeployment(deployment DeploymentRequest) error {
 
 	return nil
 }
+
+// func (c *Client) GetDeploymentConsole(deploymentID string) (string, error) {
+// 	return c.callHTTPRequest("POST", "/rest/deployments/"+deploymentID+"/console", nil, nil)
+// }
+
+// func (c *Client) GetDeploymentKubeConfig(deploymentID string) (string, error) {
+// 	return c.callHTTPRequest("GET", "/rest/deployments/"+deploymentID+"/kubeconfig", nil, nil)
+// }
