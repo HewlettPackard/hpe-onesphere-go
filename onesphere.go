@@ -199,19 +199,6 @@ func (c *Client) Disconnect() {
 
 // Appliances APIs
 
-func (c *Client) CreateAppliance(epAddress, epUsername, epPassword,
-	name, regionUri, applianceType string) (string, error) {
-	values := map[string]interface{}{
-		"endpoint": map[string]interface{}{
-			"address":  epAddress,
-			"password": epPassword,
-			"username": epUsername},
-		"name":      name,
-		"regionUri": regionUri,
-		"type":      applianceType}
-	return c.callHTTPRequest("POST", "/rest/appliances", nil, values)
-}
-
 func (c *Client) GetAppliance(applianceID string) (string, error) {
 	return c.callHTTPRequest("GET", "/rest/appliances/"+applianceID, nil, nil)
 }
