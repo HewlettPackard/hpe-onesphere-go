@@ -93,14 +93,14 @@ func (c *Client) GetDeployments(query string, userQuery string, sort string) (De
 		deployments DeploymentList
 	)
 
-	data, err := c.RestAPICall(rest.GET, uri, queryParams, nil)
+	response, err := c.RestAPICall(rest.GET, uri, queryParams, nil)
 
 	if err != nil {
 		return deployments, err
 	}
 
-	if err := json.Unmarshal([]byte(data), &deployments); err != nil {
-		return deployments, unmarshalError(data, err)
+	if err := json.Unmarshal([]byte(response), &deployments); err != nil {
+		return deployments, apiResponseError(response, err)
 	}
 
 	return deployments, nil
@@ -117,14 +117,14 @@ func (c *Client) GetDeploymentByID(id string) (Deployment, error) {
 		return deployment, fmt.Errorf("id must not be empty")
 	}
 
-	data, err := c.RestAPICall(rest.GET, uri, nil, nil)
+	response, err := c.RestAPICall(rest.GET, uri, nil, nil)
 
 	if err != nil {
 		return deployment, err
 	}
 
-	if err := json.Unmarshal([]byte(data), &deployment); err != nil {
-		return deployment, unmarshalError(data, err)
+	if err := json.Unmarshal([]byte(response), &deployment); err != nil {
+		return deployment, apiResponseError(response, err)
 	}
 
 	return deployment, err
@@ -155,14 +155,14 @@ func (c *Client) CreateDeployment(deploymentRequest DeploymentRequest) (Deployme
 		deployment Deployment
 	)
 
-	data, err := c.RestAPICall(rest.POST, uri, nil, deploymentRequest)
+	response, err := c.RestAPICall(rest.POST, uri, nil, deploymentRequest)
 
 	if err != nil {
 		return deployment, err
 	}
 
-	if err := json.Unmarshal([]byte(data), &deployment); err != nil {
-		return deployment, unmarshalError(data, err)
+	if err := json.Unmarshal([]byte(response), &deployment); err != nil {
+		return deployment, apiResponseError(response, err)
 	}
 
 	return deployment, err
@@ -170,22 +170,43 @@ func (c *Client) CreateDeployment(deploymentRequest DeploymentRequest) (Deployme
 
 // UpdateDeployment Updates Deployment and returns updated deployment
 func (c *Client) UpdateDeployment(deployment Deployment, updates []*PatchOp) (Deployment, error) {
+	if deployment.Id == "" {
+		return deployment, fmt.Errorf("Deployment must have a non-empty Id")
+	}
+
 	var (
 		uri               = "/rest/deployments/" + deployment.Id
 		updatedDeployment Deployment
 	)
 
-	data, err := c.RestAPICall(rest.PATCH, uri, nil, updates)
+	response, err := c.RestAPICall(rest.PATCH, uri, nil, updates)
 
 	if err != nil {
 		return deployment, err
 	}
 
-	if err := json.Unmarshal([]byte(data), &updatedDeployment); err != nil {
-		return updatedDeployment, unmarshalError(data, err)
+	if err := json.Unmarshal([]byte(response), &updatedDeployment); err != nil {
+		return updatedDeployment, apiResponseError(response, err)
 	}
 
 	return updatedDeployment, err
+}
+
+// DeleteDeployment Deletes Deployment
+func (c *Client) DeleteDeployment(deployment Deployment) error {
+	if deployment.Id == "" {
+		return fmt.Errorf("Deployment must have a non-empty Id")
+	}
+
+	var uri = "/rest/deployments/" + deployment.Id
+
+	response, err := c.RestAPICall(rest.DELETE, uri, nil, nil)
+
+	if err != nil {
+		return apiResponseError(response, err)
+	}
+
+	return nil
 }
 
 // func (c *Client) GetDeploymentConsole(deploymentID string) (string, error) {
