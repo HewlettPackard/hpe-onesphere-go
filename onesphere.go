@@ -133,6 +133,17 @@ func (c *Client) callHTTPRequest(method, path string, params map[string]string, 
 	return bodyStr, nil
 }
 
+// createQuery returns a map for passing to Client.RestAPICall
+// if values are "", it will be omitted from the map
+func createQuery(params *map[string]string) map[string]string {
+	for k, v := range *params {
+		if len(v) == 0 {
+			delete(*params, k)
+		}
+	}
+	return *params
+}
+
 func (c *Client) RestAPICall(method rest.Method, path string, params map[string]string, values interface{}) (string, error) {
 	jsonValue, err := json.Marshal(values)
 	if err != nil {
