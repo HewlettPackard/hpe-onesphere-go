@@ -189,7 +189,7 @@ func (c *Client) buildURL(path string) string {
 	return c.Auth.HostURL + path
 }
 
-func (c *Client) notImplementedError(method, endpoint, path string) error {
+func (c *Client) notImplementedError(method rest.Method, endpoint, path string) error {
 	return fmt.Errorf("%s %s is not yet implemented.\nSee: %s/docs/api/endpoint?&path=%%2F%s", method, endpoint, c.Auth.HostURL, path)
 }
 
@@ -198,17 +198,6 @@ func (c *Client) Disconnect() {
 }
 
 // Appliances APIs
-
-func (c *Client) GetAppliances(name, regionUri string) (string, error) {
-	params := map[string]string{}
-	if strings.TrimSpace(name) != "" {
-		params["name"] = name
-	}
-	if strings.TrimSpace(regionUri) != "" {
-		params["regionUri"] = regionUri
-	}
-	return c.callHTTPRequest("GET", "/rest/appliances", params, nil)
-}
 
 func (c *Client) CreateAppliance(epAddress, epUsername, epPassword,
 	name, regionUri, applianceType string) (string, error) {
@@ -364,7 +353,7 @@ func (c *Client) GetCatalog(catalogID, view string) (string, error) {
 
 func (c *Client) DeleteCatalog(catalogID string) (string, error) {
 	// return c.callHTTPRequest("DELETE", "/rest/catalogs/"+catalogID, nil, nil)
-	return "", c.notImplementedError("DELETE", "/rest/catalogs/"+catalogID, "catalogs")
+	return "", c.notImplementedError(rest.DELETE, "/rest/catalogs/"+catalogID, "catalogs")
 }
 
 /* UpdateCatalog allowed fields to update:
@@ -424,7 +413,7 @@ func (c *Client) GetConnectApp(os string) (string, error) {
 func (c *Client) GetEvents(resourceUri string) (string, error) {
 	// params := map[string]string{"resourceUri": resourceUri}
 	// return c.callHTTPRequest("GET", "/rest/events", params, nil)
-	return "", c.notImplementedError("GET", "/rest/events", "events")
+	return "", c.notImplementedError(rest.GET, "/rest/events", "events")
 }
 
 // Keypairs APIs
@@ -579,7 +568,7 @@ func (c *Client) GetProject(projectID, view string) (string, error) {
 
 func (c *Client) DeleteProject(projectID string) (string, error) {
 	// return c.callHTTPRequest("DELETE", "/rest/projects/"+projectID, nil, nil)
-	return "", c.notImplementedError("DELETE", "/rest/projects", "projects")
+	return "", c.notImplementedError(rest.DELETE, "/rest/projects", "projects")
 }
 
 func (c *Client) UpdateProject(projectID, name, description string, tagUris []string) (string, error) {
@@ -824,7 +813,7 @@ func (c *Client) GetSession(view string) (string, error) {
 func (c *Client) GetSessionIdp(userName string) (string, error) {
 	// params := map[string]string{"userName": userName}
 	// return c.callHTTPRequest("GET", "/rest/session/idp", params, nil)
-	return "", c.notImplementedError("GET", "/rest/account", "account")
+	return "", c.notImplementedError(rest.GET, "/rest/account", "account")
 }
 
 // GetStatus calls the /rest/status endpoint

@@ -164,50 +164,6 @@ func TestGetVersions(t *testing.T) {
 
 }
 
-func TestGetAppliances(t *testing.T) {
-	actual, err := client.GetAppliances("", "")
-	if err != nil {
-		t.Errorf("TestAppliances Error: %v\n", err)
-	}
-
-	expected := `{
-    "total": 0,
-    "start": 0,
-    "count": 0,
-    "members": [
-        {
-            "created": "",
-            "endpoint": {
-                "address": "",
-                "password": "",
-                "username": ""
-            },
-            "l2networks": [
-                {
-                    "ethernetNetworkType": "",
-                    "name": "",
-                    "purpose": "",
-                    "uri": "",
-                    "vlanId": 123
-                }
-            ],
-            "modified": "",
-            "name": "",
-            "regionUri": "",
-            "state": "",
-            "status": "",
-            "type": "",
-            "uri": ""
-        }
-    ]
-	}`
-	compareErr := compareFields(t, "onesphere.Client.GetAppliances", expected, actual)
-	if compareErr != nil {
-		t.Errorf("TestGetAppliances Error: %s\n", compareErr)
-	}
-
-}
-
 func TestGetBillingAccounts(t *testing.T) {
 	actual, err := client.GetBillingAccounts("", "full")
 	if err != nil {

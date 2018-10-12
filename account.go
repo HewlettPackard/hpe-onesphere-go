@@ -99,7 +99,7 @@ func (c *Client) GetAccount(view string) (Account, error) {
 		})
 	)
 
-	return account, c.notImplementedError("GET", "/rest/account", "account")
+	return account, c.notImplementedError(rest.GET, uri, "account")
 
 	response, err := c.RestAPICall(rest.GET, uri, queryParams, nil)
 
