@@ -7,7 +7,7 @@ import (
 func TestGetDeployments(t *testing.T) {
 	setup()
 
-	deploymentList, err := client.GetDeployments("", "")
+	deploymentList, err := client.GetDeployments("", "", "")
 	if err != nil {
 		t.Errorf("TestGetDeployments Error: %v\n", err)
 		return
@@ -22,20 +22,19 @@ func TestGetDeployments(t *testing.T) {
 	}
 }
 
-func TestGetDeploymentsUserQuery(t *testing.T) {
+func TestGetDeploymentsQuery(t *testing.T) {
 	setup()
-	userQuery := "zoneUri EQ /rest/zones/test"
+	query := "zoneUri EQ /rest/zones/test"
 
-	if _, err := client.GetDeployments(userQuery, ""); err != nil {
-		t.Errorf("TestGetDeploymentsQuery \"%s\" Error: %s\n", userQuery, err)
+	if _, err := client.GetDeployments(query, "", ""); err != nil {
+		t.Errorf("TestGetDeploymentsQuery \"%s\" Error: %s\n", query, err)
 	}
 
 }
-
 func TestGetDeploymentByID(t *testing.T) {
 	setup()
 
-	deploymentList, err := client.GetDeployments("", "")
+	deploymentList, err := client.GetDeployments("", "", "")
 	if err != nil {
 		t.Errorf("TestGetDeploymentByID Error: %v\n", err)
 		return
@@ -55,6 +54,25 @@ func TestGetDeploymentByID(t *testing.T) {
 	}
 }
 
+func TestGetDeploymentsByName(t *testing.T) {
+	setup()
+
+	name := "ubun"
+
+	if _, err := client.GetDeploymentsByName(name); err != nil {
+		t.Errorf("TestGetDeploymentsByName \"%s\" Error: %s\n", name, err)
+	}
+}
+func TestGetDeploymentByName(t *testing.T) {
+	setup()
+
+	name := "ubuntu"
+
+	if _, err := client.GetDeploymentByName(name); err != nil {
+		t.Errorf("TestGetDeploymentsByName \"%s\" Error: %s\n", name, err)
+	}
+}
+
 func TestGetDeploymentKubeConfig(t *testing.T) {
 
 	userQuery := "deic02K8sCluster1"
@@ -63,7 +81,7 @@ func TestGetDeploymentKubeConfig(t *testing.T) {
 		//deployments DeploymentList
 		err error
 	)
-	if _, err = client.GetDeployments("", userQuery); err != nil {
+	if _, err = client.GetDeployments("", userQuery, ""); err != nil {
 		t.Errorf("TestGetDeploymentKubeConfig \"userQuery=%s\" Error: %s\n", userQuery, err)
 	}
 
