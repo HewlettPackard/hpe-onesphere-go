@@ -39,3 +39,12 @@ func TestGetAppliancesByNameAndRegion(t *testing.T) {
 		t.Error(err)
 	}
 }
+
+func TestGetApplianceById(t *testing.T) {
+	setup()
+
+	_, err := client.GetApplianceById("1")
+	if err != nil {
+		t.Error(err)
+	}
+}
