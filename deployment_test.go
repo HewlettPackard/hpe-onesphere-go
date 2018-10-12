@@ -73,6 +73,16 @@ func TestGetDeploymentByName(t *testing.T) {
 	}
 }
 
+func TestCreateDeployment(t *testing.T) {
+	setup()
+
+	deploymentRequest := DeploymentRequest{}
+
+	if _, err := client.CreateDeployment(deploymentRequest); err != nil {
+		t.Errorf("TestCreateDeployment Error: %s\n", err)
+	}
+}
+
 func TestGetDeploymentKubeConfig(t *testing.T) {
 
 	userQuery := "deic02K8sCluster1"
