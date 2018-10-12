@@ -100,7 +100,7 @@ func (c *Client) GetDeployments(query string, userQuery string, sort string) (De
 	}
 
 	if err := json.Unmarshal([]byte(data), &deployments); err != nil {
-		return deployments, err
+		return deployments, unmarshalError(data, err)
 	}
 
 	return deployments, nil
@@ -124,7 +124,7 @@ func (c *Client) GetDeploymentByID(id string) (Deployment, error) {
 	}
 
 	if err := json.Unmarshal([]byte(data), &deployment); err != nil {
-		return deployment, err
+		return deployment, unmarshalError(data, err)
 	}
 
 	return deployment, err
@@ -162,10 +162,30 @@ func (c *Client) CreateDeployment(deploymentRequest DeploymentRequest) (Deployme
 	}
 
 	if err := json.Unmarshal([]byte(data), &deployment); err != nil {
-		return deployment, err
+		return deployment, unmarshalError(data, err)
 	}
 
 	return deployment, err
+}
+
+// UpdateDeployment Updates Deployment and returns updated deployment
+func (c *Client) UpdateDeployment(deployment Deployment, updates []*PatchOp) (Deployment, error) {
+	var (
+		uri               = "/rest/deployments/" + deployment.Id
+		updatedDeployment Deployment
+	)
+
+	data, err := c.RestAPICall(rest.PATCH, uri, nil, updates)
+
+	if err != nil {
+		return deployment, err
+	}
+
+	if err := json.Unmarshal([]byte(data), &updatedDeployment); err != nil {
+		return updatedDeployment, unmarshalError(data, err)
+	}
+
+	return updatedDeployment, err
 }
 
 // func (c *Client) GetDeploymentConsole(deploymentID string) (string, error) {

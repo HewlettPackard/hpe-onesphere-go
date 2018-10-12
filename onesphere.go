@@ -144,6 +144,11 @@ func createQuery(params *map[string]string) map[string]string {
 	return *params
 }
 
+// unmarshalError returns a more helpful error including the response payload
+func unmarshalError(response string, err error) error {
+	return fmt.Errorf("Unmarshal Error:\n\tRaw Response: %v\n\tError: %v", response, err)
+}
+
 func (c *Client) RestAPICall(method rest.Method, path string, params map[string]string, values interface{}) (string, error) {
 	jsonValue, err := json.Marshal(values)
 	if err != nil {
