@@ -104,6 +104,17 @@ func TestDeleteDeployment(t *testing.T) {
 	}
 }
 
+func TestActionDeployment(t *testing.T) {
+	setup()
+
+	deployment := Deployment{Id: "2"}
+	actionType := "restart"
+
+	if err := client.ActionDeployment(deployment, actionType, false); err != nil {
+		t.Error(err)
+	}
+}
+
 func TestGetDeploymentKubeConfig(t *testing.T) {
 
 	userQuery := "deic02K8sCluster1"
