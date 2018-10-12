@@ -26,15 +26,24 @@ import (
 	"github.com/HewlettPackard/hpe-onesphere-go/rest"
 )
 
+type ApplianceEndpoint struct {
+	Address  string `json:"address"`
+	Password string `json:"password"`
+	Username string `json:"username"`
+}
+
+type ApplianceRequest struct {
+	Name      string             `json:"name"`
+	Endpoint  *ApplianceEndpoint `json:"endpoint"`
+	RegionUri string             `json:"regionUri"`
+	Type      string             `json:"type"`
+}
+
 type Appliance struct {
-	Id       string `json:"id"`
-	Name     string `json:"name"`
-	Uri      string `json:"uri"`
-	Endpoint struct {
-		Address  string `json:"address"`
-		Password string `json:"password"`
-		Name     string `json:"name"`
-	} `json:"endpoint"`
+	Id         string             `json:"id"`
+	Name       string             `json:"name"`
+	Uri        string             `json:"uri"`
+	Endpoint   *ApplianceEndpoint `json:"endpoint"`
 	L2Networks []struct {
 		EthernetNetworkType string `json:"ethernetNetworkType"`
 		Name                string `json:"name"`
@@ -109,6 +118,26 @@ func (c *Client) GetApplianceById(id string) (Appliance, error) {
 	}
 
 	response, err := c.RestAPICall(rest.GET, uri, nil, nil)
+
+	if err != nil {
+		return appliance, err
+	}
+
+	if err := json.Unmarshal([]byte(response), &appliance); err != nil {
+		return appliance, apiResponseError(response, err)
+	}
+
+	return appliance, err
+}
+
+// CreateAppliance Creates Appliance and returns updated appliance
+func (c *Client) CreateAppliance(applianceRequest ApplianceRequest) (Appliance, error) {
+	var (
+		uri       = "/rest/deployments/"
+		appliance Appliance
+	)
+
+	response, err := c.RestAPICall(rest.POST, uri, nil, applianceRequest)
 
 	if err != nil {
 		return appliance, err

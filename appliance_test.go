@@ -48,3 +48,14 @@ func TestGetApplianceById(t *testing.T) {
 		t.Error(err)
 	}
 }
+
+func TestCreateAppliance(t *testing.T) {
+	setup()
+
+	applianceRequest := ApplianceRequest{}
+
+	_, err := client.CreateAppliance(applianceRequest)
+	if err != nil {
+		t.Error(err)
+	}
+}
