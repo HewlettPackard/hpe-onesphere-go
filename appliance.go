@@ -22,6 +22,7 @@ package onesphere
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/HewlettPackard/hpe-onesphere-go/rest"
 )
 
@@ -94,4 +95,28 @@ func (c *Client) GetAppliancesByName(name string) (ApplianceList, error) {
 // GetAppliancesByName returns a list of all Appliances by name or names
 func (c *Client) GetAppliancesByRegion(regionUri string) (ApplianceList, error) {
 	return c.GetAppliancesByNameAndRegion("", regionUri)
+}
+
+// GetApplianceById returns an Appliance by id
+func (c *Client) GetApplianceById(id string) (Appliance, error) {
+	var (
+		uri       = "/rest/appliances/" + id
+		appliance Appliance
+	)
+
+	if id == "" {
+		return appliance, fmt.Errorf("id must not be empty")
+	}
+
+	response, err := c.RestAPICall(rest.GET, uri, nil, nil)
+
+	if err != nil {
+		return appliance, err
+	}
+
+	if err := json.Unmarshal([]byte(response), &appliance); err != nil {
+		return appliance, apiResponseError(response, err)
+	}
+
+	return appliance, err
 }
