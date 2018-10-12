@@ -217,7 +217,7 @@ func (c *Client) ActionDeployment(deployment Deployment, actionType string, forc
 	}
 
 	var (
-		url         = "/rest/deployments/" + deployment.Id + "/actions"
+		uri         = "/rest/deployments/" + deployment.Id + "/actions"
 		forceString = "false"
 	)
 
@@ -230,7 +230,7 @@ func (c *Client) ActionDeployment(deployment Deployment, actionType string, forc
 		"type":  actionType,
 	})
 
-	response, err := c.RestAPICall(rest.POST, url, nil, values)
+	response, err := c.RestAPICall(rest.POST, uri, nil, values)
 
 	if err != nil {
 		return apiResponseError(response, err)
@@ -239,9 +239,22 @@ func (c *Client) ActionDeployment(deployment Deployment, actionType string, forc
 	return nil
 }
 
-// func (c *Client) GetDeploymentConsole(deploymentID string) (string, error) {
-// 	return c.callHTTPRequest("POST", "/rest/deployments/"+deploymentID+"/console", nil, nil)
-// }
+// GetDeploymentConsole returns a Deployment console url
+func (c *Client) GetDeploymentConsole(deployment Deployment) (string, error) {
+	if deployment.Id == "" {
+		return "", fmt.Errorf("Deployment must have a non-empty Id")
+	}
+
+	var uri = "/rest/deployments/" + deployment.Id + "/console"
+
+	consoleUrl, err := c.RestAPICall(rest.POST, uri, nil, nil)
+
+	if err != nil {
+		return consoleUrl, apiResponseError(consoleUrl, err)
+	}
+
+	return consoleUrl, nil
+}
 
 // func (c *Client) GetDeploymentKubeConfig(deploymentID string) (string, error) {
 // 	return c.callHTTPRequest("GET", "/rest/deployments/"+deploymentID+"/kubeconfig", nil, nil)
