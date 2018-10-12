@@ -10,7 +10,7 @@ import (
 )
 
 var config *onesphereConfig
-var osClient *Client
+var client *Client
 
 type onesphereConfig struct {
 	HostURL  string
@@ -27,26 +27,25 @@ func setConfig(configPtr *string, flagName string, defaultVal string, help strin
 }
 
 func setup() {
-	config = &onesphereConfig{}
-	setConfig(&config.HostURL, "host", "", "Specify the OneSphere host URL to connect to.")
-	setConfig(&config.User, "user", "", "Specify the OneSphere username to authenticate as.")
-	setConfig(&config.Password, "password", "", "Specify the OneSphere password to authenticate with.")
-	flag.Parse()
+	if client == nil {
+		config = &onesphereConfig{}
+		client = &Client{}
+		setConfig(&config.HostURL, "host", "", "Specify the OneSphere host URL to connect to.")
+		setConfig(&config.User, "user", "", "Specify the OneSphere username to authenticate as.")
+		setConfig(&config.Password, "password", "", "Specify the OneSphere password to authenticate with.")
+		flag.Parse()
 
-	if config.HostURL == "" || config.User == "" || config.Password == "" {
-		fmt.Printf("You must set host and credentials to connect to live api.\nSee the README for details.\n")
-		os.Exit(1)
+		if config.HostURL == "" || config.User == "" || config.Password == "" {
+			fmt.Printf("You must set host and credentials to connect to live api.\nSee the README for details.\n")
+			os.Exit(1)
+		}
+
+		var err error
+		if client, err = Connect(config.HostURL, config.User, config.Password); err != nil {
+			fmt.Printf("Failed to Connect() using provided credentials.\n")
+			os.Exit(1)
+		}
 	}
-
-	var err error
-	if osClient, err = Connect(config.HostURL, config.User, config.Password); err != nil {
-		fmt.Printf("Failed to Connect() using provided credentials.\n")
-		os.Exit(1)
-	}
-}
-
-func tearDown() {
-	osClient.Disconnect()
 }
 
 func comparePayload(t *testing.T, testName string, expectedStr string, actualStr string) error {
@@ -121,7 +120,7 @@ func compareFields(t *testing.T, testName string, expectedStr string, actualStr 
 func TestMain(m *testing.M) {
 	setup()
 	retCode := m.Run()
-	tearDown()
+	client.Disconnect()
 	os.Exit(retCode)
 }
 
@@ -141,14 +140,14 @@ func TestValidConnect(t *testing.T) {
 }
 
 func TestToken(t *testing.T) {
-	if osClient.Auth.Token == "" {
+	if client.Auth.Token == "" {
 		t.Errorf("onesphere.Client.Auth should have a Token set\n")
-		t.Errorf("onesphere.Client.Auth : %+v\n", osClient.Auth)
+		t.Errorf("onesphere.Client.Auth : %+v\n", client.Auth)
 	}
 }
 
 func TestGetVersions(t *testing.T) {
-	actual, err := osClient.GetVersions()
+	actual, err := client.GetVersions()
 	if err != nil {
 		t.Errorf("TestGetVersions Error: %v\n", err)
 	}
@@ -170,7 +169,7 @@ func TestGetAccountFull(t *testing.T) {
 }
 
 func TestGetAppliances(t *testing.T) {
-	actual, err := osClient.GetAppliances("", "")
+	actual, err := client.GetAppliances("", "")
 	if err != nil {
 		t.Errorf("TestAppliances Error: %v\n", err)
 	}
@@ -214,7 +213,7 @@ func TestGetAppliances(t *testing.T) {
 }
 
 func TestGetBillingAccounts(t *testing.T) {
-	actual, err := osClient.GetBillingAccounts("", "full")
+	actual, err := client.GetBillingAccounts("", "full")
 	if err != nil {
 		t.Errorf("TestGetBillingAccounts Error: %v\n", err)
 	}
@@ -287,7 +286,7 @@ func TestGetBillingAccount(t *testing.T) {
 			Providers        []interface{} `json:"providers"`
 		} `json:"members"`
 	}
-	if jsonRes, err := osClient.GetBillingAccounts("", "full"); err != nil {
+	if jsonRes, err := client.GetBillingAccounts("", "full"); err != nil {
 		t.Errorf("TestGetBillingAccount Error: %s\n", err)
 	} else {
 		if jsonErr := json.Unmarshal([]byte(jsonRes), &billingAccounts); jsonErr != nil {
@@ -295,7 +294,7 @@ func TestGetBillingAccount(t *testing.T) {
 		}
 	}
 
-	actual, err := osClient.GetBillingAccount(billingAccounts.Members[0].Id)
+	actual, err := client.GetBillingAccount(billingAccounts.Members[0].Id)
 	if err != nil {
 		t.Errorf("TestGetBillingAccount Error: %v\n", err)
 	}
@@ -320,7 +319,7 @@ func TestGetBillingAccount(t *testing.T) {
 }
 
 func TestGetCatalogTypes(t *testing.T) {
-	actual, err := osClient.GetCatalogTypes()
+	actual, err := client.GetCatalogTypes()
 	if err != nil {
 		t.Errorf("TestGetCatalogTypes Error: %v\n", err)
 	}
@@ -347,7 +346,7 @@ func TestGetCatalogTypes(t *testing.T) {
 }
 
 func TestGetCatalogs(t *testing.T) {
-	actual, err := osClient.GetCatalogs("dock", "full")
+	actual, err := client.GetCatalogs("dock", "full")
 	if err != nil {
 		t.Errorf("TestGetCatalogs Error: %v\n", err)
 	}
@@ -398,7 +397,7 @@ func TestGetCatalog(t *testing.T) {
 			Modified       string `json:"modified"`
 		} `json:"members"`
 	}
-	if jsonRes, err := osClient.GetCatalogs("dock", "full"); err != nil {
+	if jsonRes, err := client.GetCatalogs("dock", "full"); err != nil {
 		t.Errorf("TestGetCatalogs Error: %s\n", err)
 	} else {
 		if jsonErr := json.Unmarshal([]byte(jsonRes), &catalogs); jsonErr != nil {
@@ -406,7 +405,7 @@ func TestGetCatalog(t *testing.T) {
 		}
 	}
 
-	actual, err := osClient.GetCatalog(catalogs.Members[0].Id, "full")
+	actual, err := client.GetCatalog(catalogs.Members[0].Id, "full")
 	if err != nil {
 		t.Errorf("TestGetCatalog Error: %v\n", err)
 	}
@@ -440,135 +439,8 @@ func structFieldsAsString(t *testing.T, actual interface{}) string {
 	return string(actualString)
 }
 
-func TestGetDeployments(t *testing.T) {
-
-	actual, err := osClient.GetDeployments("", "")
-	if err != nil {
-		t.Errorf("TestGetDeploments Error: %v\n", err)
-	}
-
-	expected := `{
-    "total": 0,
-    "start": 0,
-    "count": 0,
-    "members": [
-        {
-            "id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
-            "name": "Abc",
-            "zoneUri": "/rest/zones/ffffffff-gggg-hhhh-iiii-jjjjjjjjjjjj",
-            "zone": {
-                "id": "ffffffff-gggg-hhhh-iiii-jjjjjjjjjjjj",
-                "name": "Cluster1",
-                "uri": "/rest/zones/ffffffff-gggg-hhhh-iiii-jjjjjjjjjjjj"
-            },
-            "regionUri": "/rest/regions/kkkkkkkk-llll-mmmm-nnnn-oooooooooooo",
-            "serviceUri": "/rest/services/11111111-2222-3333-4444-555555555555",
-            "service": {
-                "id": "11111111-2222-3333-4444-555555555555",
-                "name": "service",
-                "uri": "/rest/services/11111111-2222-3333-4444-555555555555"
-            },
-            "serviceTypeUri": "/rest/service-types/abc",
-            "version": "1.0.0",
-            "status": "Ok",
-            "state": "Started",
-            "uri": "/rest/deployments/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
-            "projectUri": "/rest/projects/ffffffffffeeeeeeeeeddddddddccccc",
-            "deploymentEndpoints": [
-                {
-                    "address": "http://a200964c98a6511e8a6ea160cfa48d63-2100924509.us-east-1.elb.amazonaws.com:80",
-                    "addressType": "url"
-                }
-            ],
-            "appDeploymentInfo": "",
-            "hasConsole": false,
-            "cloudPlatformId": "66666666-7777-8888-9999-aaaaaaaaaaaa",
-            "created": "",
-            "modified": ""
-        }
-    ]
-	}`
-	compareErr := compareFields(t, "onesphere.Client.GetDeployments", expected, structFieldsAsString(t, actual))
-	if compareErr != nil {
-		t.Errorf("TestGetDeployments Error: %s\n", compareErr)
-	}
-}
-
-func TestGetDeploymentsQuery(t *testing.T) {
-	t.Skipf("@TODO replace 'name' query with valid key")
-	return
-
-	nameQuery := "deic02K8sCluster1"
-
-	var (
-		deployments DeploymentList
-		err         error
-	)
-
-	if deployments, err = osClient.GetDeployments("name EQ "+nameQuery, ""); err != nil {
-		t.Errorf("TestGetDeploymentsQuery \"query=name EQ %s\" Error: %s\n", nameQuery, err)
-	}
-
-	if deployments.Total != 1 {
-		t.Errorf("TestGetDeploymentsQuery \"query=name EQ %s\" Should only return 1 Deployment.\nReturned %v Deployments.\n", nameQuery, deployments.Total)
-		return
-	}
-
-	if deployments.Members[0].Name != nameQuery {
-		t.Errorf("TestGetDeploymentsQuery \"query=name EQ %s\" Should return results that meet the query criteria.\nExpected Name: %s\nReturned Deployment with Name: %s\n", nameQuery, nameQuery, deployments.Members[0].Name)
-		return
-	}
-
-}
-
-func TestGetDeploymentsUserQuery(t *testing.T) {
-	t.Skipf("@TODO update userQuery test for new GetDeployments")
-	return
-
-	userQuery := "deic02K8sCluster1"
-
-	var (
-		deployments DeploymentList
-		err         error
-	)
-	if deployments, err = osClient.GetDeployments("", userQuery); err != nil {
-		t.Errorf("TestGetDeploymentsUserQuery \"userQuery=%s\" Error: %s\n", userQuery, err)
-	}
-
-	if deployments.Total != 1 {
-		t.Errorf("TestGetDeploymentsUserQuery \"userQuery=%s\" Should only return 1 Deployment.\nReturned %v Deployments.\n", userQuery, deployments.Total)
-		return
-	}
-
-	if deployments.Members[0].Name != userQuery {
-		t.Errorf("TestGetDeploymentsUserQuery \"userQuery=%s\" Should return results that meet the query criteria.\nExpected Name: %s\nReturned Deployment with Name: %s\n", userQuery, userQuery, deployments.Members[0].Name)
-		return
-	}
-
-}
-
-func TestGetDeploymentKubeConfig(t *testing.T) {
-
-	userQuery := "deic02K8sCluster1"
-
-	var (
-		//deployments DeploymentList
-		err error
-	)
-	if _, err = osClient.GetDeployments("", userQuery); err != nil {
-		t.Errorf("TestGetDeploymentKubeConfig \"userQuery=%s\" Error: %s\n", userQuery, err)
-	}
-
-	//if deploymentKubeConfig, err := osClient.GetDeploymentKubeConfig(deployments.Members[0].Id); err != nil {
-	//	t.Errorf("TestGetDeploymentKubeConfig Error: %v\n", err)
-	//} else if len(deploymentKubeConfig) == 0 {
-	//	t.Errorf("TestGetDeploymentKubeConfig Should return a kubernetes config as non empty string.")
-	//}
-
-}
-
 func TestGetAzureLoginProperties(t *testing.T) {
-	actual, err := osClient.GetAzureLoginProperties()
+	actual, err := client.GetAzureLoginProperties()
 	if err != nil {
 		t.Errorf("TestGetAzureLoginProperties Error: %v\n", err)
 	}
@@ -590,7 +462,7 @@ func TestGetAzureLoginProperties(t *testing.T) {
 }
 
 func TestGetProviderTypes(t *testing.T) {
-	actual, err := osClient.GetProviderTypes()
+	actual, err := client.GetProviderTypes()
 	if err != nil {
 		t.Errorf("TestGetProviderTypes Error: %v\n", err)
 	}
@@ -617,7 +489,7 @@ func TestGetProviderTypes(t *testing.T) {
 }
 
 func TestGetRoles(t *testing.T) {
-	actual, err := osClient.GetRoles()
+	actual, err := client.GetRoles()
 	if err != nil {
 		t.Errorf("TestGetRoles Error: %v\n", err)
 	}
@@ -643,7 +515,7 @@ func TestGetRoles(t *testing.T) {
 }
 
 func TestServiceTypes(t *testing.T) {
-	actual, err := osClient.GetServiceTypes()
+	actual, err := client.GetServiceTypes()
 	if err != nil {
 		t.Errorf("TestServiceTypes Error: %v\n", err)
 	}
@@ -668,7 +540,7 @@ func TestServiceTypes(t *testing.T) {
 }
 
 func TestGetSessionFull(t *testing.T) {
-	actual, err := osClient.GetSession("full")
+	actual, err := client.GetSession("full")
 	if err != nil {
 		t.Errorf("TestGetSessionFull Error: %v\n", err)
 	}
@@ -693,7 +565,7 @@ func TestGetSessionFull(t *testing.T) {
 }
 
 func TestGetStatus(t *testing.T) {
-	actual, err := osClient.GetStatus()
+	actual, err := client.GetStatus()
 	if err != nil {
 		t.Errorf("TestGetStatus Error: %v\n", err)
 	}
@@ -706,7 +578,7 @@ func TestGetStatus(t *testing.T) {
 }
 
 func TestGetTagKeysFull(t *testing.T) {
-	actual, err := osClient.GetTagKeys("full")
+	actual, err := client.GetTagKeys("full")
 	if err != nil {
 		t.Errorf("TestGetTagKeysFull Error: %v\n", err)
 	}
@@ -744,7 +616,7 @@ func TestGetTagKeysFull(t *testing.T) {
 }
 
 func TestGetTagsFull(t *testing.T) {
-	actual, err := osClient.GetTags("full")
+	actual, err := client.GetTags("full")
 	if err != nil {
 		t.Errorf("TestGetTagsFull Error: %v\n", err)
 	}
@@ -775,7 +647,7 @@ func TestGetTagsFull(t *testing.T) {
 }
 
 func TestGetUsersFull(t *testing.T) {
-	actual, err := osClient.GetUsers("full")
+	actual, err := client.GetUsers("full")
 	if err != nil {
 		t.Errorf("TestGetUsersFull Error: %v\n", err)
 	}
@@ -794,7 +666,7 @@ func TestGetUsersFull(t *testing.T) {
 }
 
 func TestGetZoneTypes(t *testing.T) {
-	actual, err := osClient.GetZoneTypes()
+	actual, err := client.GetZoneTypes()
 	if err != nil {
 		t.Errorf("TestGetZoneTypes Error: %v\n", err)
 	}

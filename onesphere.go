@@ -32,8 +32,8 @@ import (
 	"github.com/HewlettPackard/hpe-onesphere-go/rest"
 )
 
-// API contains all the methods needed to interact with the OneSphere API
-// use Connect() to return an *API
+// Client contains all the methods needed to interact with the OneSphere API
+// use Connect() to return a *Client
 type Client struct {
 	Auth *Auth
 }
@@ -42,6 +42,19 @@ type Client struct {
 type Auth struct {
 	Token   string
 	HostURL string
+}
+
+// NamedUriIdentifier defines JSON Struct for { id, name, uri }
+type NamedUriIdentifier struct {
+	Id   string `json:"id"`
+	Name string `json:"name"`
+	Uri  string `json:"uri"`
+}
+
+// AddressWithType defines JSON Struct for { address, addressType }
+type AddressWithType struct {
+	Address     string `json:"address"`
+	AddressType string `json:"addressType"`
 }
 
 // Connect provides an interface to make calls to the OneSphere API

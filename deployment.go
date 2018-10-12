@@ -46,36 +46,25 @@ type DeploymentRequest struct {
 }
 
 type Deployment struct {
-	Id      string `json:"id"`
-	Name    string `json:"name"`
-	ZoneUri string `json:"zoneUri"`
-	Zone    struct {
-		Id   string `json:"id"`
-		Name string `json:"name"`
-		Uri  string `json:"uri"`
-	} `json:"zone"`
-	RegionUri  string `json:"regionUri"`
-	ServiceUri string `json:"serviceUri"`
-	Service    struct {
-		Id   string `json:"id"`
-		Name string `json:"name"`
-		Uri  string `json:"uri"`
-	} `json:"service"`
-	ServiceTypeUri      string `json:"serviceTypeUri"`
-	Version             string `json:"version"`
-	Status              string `json:"status"`
-	State               string `json:"state"`
-	Uri                 string `json:"uri"`
-	ProjectUri          string `json:"projectUri"`
-	DeploymentEndpoints []struct {
-		Address     string `json:"address"`
-		AddressType string `json:"addressType"`
-	} `json:"deploymentEndpoints"`
-	AppDeploymentInfo string `json:"appDeploymentInfo"`
-	HasConsole        bool   `json:"hasConsole"`
-	CloudPlatformId   string `json:"cloudPlatformId"`
-	Created           string `json:"created"`
-	Modified          string `json:"modified"`
+	Id                  string              `json:"id"`
+	Name                string              `json:"name"`
+	ZoneUri             string              `json:"zoneUri"`
+	Zone                *NamedUriIdentifier `json:"zone"`
+	RegionUri           string              `json:"regionUri"`
+	ServiceUri          string              `json:"serviceUri"`
+	Service             *NamedUriIdentifier `json:"service"`
+	ServiceTypeUri      string              `json:"serviceTypeUri"`
+	Version             string              `json:"version"`
+	Status              string              `json:"status"`
+	State               string              `json:"state"`
+	Uri                 string              `json:"uri"`
+	ProjectUri          string              `json:"projectUri"`
+	DeploymentEndpoints []*AddressWithType  `json:"deploymentEndpoints"`
+	AppDeploymentInfo   string              `json:"appDeploymentInfo"`
+	HasConsole          bool                `json:"hasConsole"`
+	CloudPlatformId     string              `json:"cloudPlatformId"`
+	Created             string              `json:"created"`
+	Modified            string              `json:"modified"`
 }
 
 //deploymentList structure
