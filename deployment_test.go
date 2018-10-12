@@ -36,7 +36,7 @@ func TestGetDeploymentByID(t *testing.T) {
 
 	deploymentList, err := client.GetDeployments("", "", "")
 	if err != nil {
-		t.Errorf("TestGetDeploymentByID Error: %v\n", err)
+		t.Error(err)
 		return
 	}
 	if len(deploymentList.Members) == 0 {
@@ -47,7 +47,7 @@ func TestGetDeploymentByID(t *testing.T) {
 	testId := deploymentList.Members[0].Id
 	deployment, err := client.GetDeploymentByID(testId)
 	if err != nil {
-		t.Errorf("TestGetDeploymentByID Error: %v\n", err)
+		t.Error(err)
 	}
 	if deployment.Id == "" {
 		t.Errorf("TestGetDeploymentByID Failed to get deployment: Id is ''")
@@ -60,7 +60,7 @@ func TestGetDeploymentsByName(t *testing.T) {
 	name := "ubun"
 
 	if _, err := client.GetDeploymentsByName(name); err != nil {
-		t.Errorf("TestGetDeploymentsByName \"%s\" Error: %s\n", name, err)
+		t.Errorf("name: \"%s\" Error: %s\n", name, err)
 	}
 }
 func TestGetDeploymentByName(t *testing.T) {
@@ -69,7 +69,7 @@ func TestGetDeploymentByName(t *testing.T) {
 	name := "ubuntu"
 
 	if _, err := client.GetDeploymentByName(name); err != nil {
-		t.Errorf("TestGetDeploymentsByName \"%s\" Error: %s\n", name, err)
+		t.Errorf("name: \"%s\" Error: %s\n", name, err)
 	}
 }
 
@@ -79,7 +79,18 @@ func TestCreateDeployment(t *testing.T) {
 	deploymentRequest := DeploymentRequest{}
 
 	if _, err := client.CreateDeployment(deploymentRequest); err != nil {
-		t.Errorf("TestCreateDeployment Error: %s\n", err)
+		t.Error(err)
+	}
+}
+
+func TestUpdateDeployment(t *testing.T) {
+	setup()
+
+	deployment := Deployment{Id: "2"}
+	updates := []*PatchOp{}
+
+	if _, err := client.UpdateDeployment(deployment, updates); err != nil {
+		t.Error(err)
 	}
 }
 
