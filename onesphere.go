@@ -207,13 +207,6 @@ func (c *Client) DeleteAppliance(applianceID string) (string, error) {
 	return c.callHTTPRequest("DELETE", "/rest/appliances/"+applianceID, nil, nil)
 }
 
-// infoArray: [{op, path, value}]
-// op: "replace|remove"
-func (c *Client) UpdateAppliance(applianceID string, infoArray []string) (string, error) {
-	values := infoArray
-	return c.callHTTPRequest("PUT", "/rest/appliances/"+applianceID, nil, values)
-}
-
 // Billing Accounts APIs
 
 func (c *Client) GetBillingAccounts(query, view string) (string, error) {
