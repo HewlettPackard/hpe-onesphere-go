@@ -173,3 +173,20 @@ func (c *Client) UpdateAppliance(appliance Appliance, updates []*PatchOp) (Appli
 
 	return updatedAppliance, err
 }
+
+// DeleteAppliance Deletes Appliance
+func (c *Client) DeleteAppliance(appliance Appliance) error {
+	if appliance.Id == "" {
+		return fmt.Errorf("Appliance must have a non-empty Id")
+	}
+
+	var uri = "/rest/appliances/" + appliance.Id
+
+	response, err := c.RestAPICall(rest.DELETE, uri, nil, nil)
+
+	if err != nil {
+		return apiResponseError(response, err)
+	}
+
+	return nil
+}
