@@ -197,16 +197,6 @@ func (c *Client) Disconnect() {
 	c.callHTTPRequest("DELETE", "/rest/session", nil, nil)
 }
 
-// Appliances APIs
-
-func (c *Client) GetAppliance(applianceID string) (string, error) {
-	return c.callHTTPRequest("GET", "/rest/appliances/"+applianceID, nil, nil)
-}
-
-func (c *Client) DeleteAppliance(applianceID string) (string, error) {
-	return c.callHTTPRequest("DELETE", "/rest/appliances/"+applianceID, nil, nil)
-}
-
 // Billing Accounts APIs
 
 func (c *Client) GetBillingAccounts(query, view string) (string, error) {
