@@ -168,7 +168,7 @@ func (c *Client) CreateDeployment(deploymentRequest DeploymentRequest) (Deployme
 	return deployment, err
 }
 
-// UpdateDeployment Updates Deployment and returns updated deployment
+// UpdateDeployment using []*PatchOp returns updated deployment on success
 func (c *Client) UpdateDeployment(deployment Deployment, updates []*PatchOp) (Deployment, error) {
 	if deployment.Id == "" {
 		return deployment, fmt.Errorf("Deployment must have a non-empty Id")
@@ -186,7 +186,7 @@ func (c *Client) UpdateDeployment(deployment Deployment, updates []*PatchOp) (De
 	}
 
 	if err := json.Unmarshal([]byte(response), &updatedDeployment); err != nil {
-		return updatedDeployment, apiResponseError(response, err)
+		return deployment, apiResponseError(response, err)
 	}
 
 	return updatedDeployment, err
