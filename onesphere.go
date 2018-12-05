@@ -248,12 +248,6 @@ func (c *Client) UpdateBillingAccount(id string, patchPayload []*PatchOp) (strin
 	return c.callHTTPRequest("PATCH", "/rest/billing-accounts/"+id, nil, patchPayload)
 }
 
-// Catalog Types APIs
-
-func (c *Client) GetCatalogTypes() (string, error) {
-	return c.callHTTPRequest("GET", "/rest/catalog-types", nil, nil)
-}
-
 // Catalogs APIs
 
 func (c *Client) GetCatalogs(userQuery, view string) (string, error) {
