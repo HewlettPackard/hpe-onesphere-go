@@ -60,8 +60,13 @@ type Appliance struct {
 }
 
 type ApplianceList struct {
-	Total   int          `json:"total"`
-	Members []Deployment `json:"members"`
+	Total   int         `json:"total"`
+	Members []Appliance `json:"members"`
+}
+
+// GetAppliances returns a list of all Appliances
+func (c *Client) GetAppliances() (ApplianceList, error) {
+	return c.GetAppliancesByNameAndRegion("", "")
 }
 
 // GetAppliancesByNameAndRegion returns a list of Appliances with optional name and regionUri
@@ -89,11 +94,6 @@ func (c *Client) GetAppliancesByNameAndRegion(name string, regionUri string) (Ap
 	}
 
 	return appliances, err
-}
-
-// GetAppliances returns a list of all Appliances
-func (c *Client) GetAppliances() (ApplianceList, error) {
-	return c.GetAppliancesByNameAndRegion("", "")
 }
 
 // GetAppliancesByName returns a list of all Appliances by name or names
