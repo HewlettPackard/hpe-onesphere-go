@@ -24,6 +24,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -57,6 +58,13 @@ type AddressWithType struct {
 	AddressType string `json:"addressType"`
 }
 
+func closer(r io.Closer, funcName string) {
+	err := r.Close()
+	if err != nil {
+		fmt.Printf("Error closing response body reader in %s\n%v\n", funcName, err)
+	}
+}
+
 // Connect provides an interface to make calls to the OneSphere API
 func Connect(hostURL, user, password string) (*Client, error) {
 	fullUrl := hostURL + "/rest/session"
@@ -74,7 +82,7 @@ func Connect(hostURL, user, password string) (*Client, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer closer(resp.Body, fmt.Sprintf("onesphere.Connect(%s,%s,#masked password#)", hostURL, user))
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
@@ -123,7 +131,7 @@ func (c *Client) callHTTPRequest(method, path string, params map[string]string, 
 	if err != nil {
 		return "", err
 	}
-	defer resp.Body.Close()
+	defer closer(resp.Body, fmt.Sprintf("onesphere.callHTTPRequest(%s,%s,%v,%v)", method, path, params, values))
 
 	bodyBytes, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
@@ -175,7 +183,7 @@ func (c *Client) RestAPICall(method rest.Method, path string, params map[string]
 	if err != nil {
 		return "", err
 	}
-	defer resp.Body.Close()
+	defer closer(resp.Body, fmt.Sprintf("onesphere.RestAPICall(%v,%s,%v,%v)", method, path, params, values))
 
 	bodyBytes, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
@@ -194,7 +202,10 @@ func (c *Client) notImplementedError(method rest.Method, endpoint, path string) 
 }
 
 func (c *Client) Disconnect() {
-	c.callHTTPRequest("DELETE", "/rest/session", nil, nil)
+	_, err := c.callHTTPRequest("DELETE", "/rest/session", nil, nil)
+	if err != nil {
+		fmt.Printf("Error logging out of OneSphere api in onesphere.Disconnect()\n%v\n", err)
+	}
 }
 
 // Billing Accounts APIs
