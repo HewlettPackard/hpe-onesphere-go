@@ -46,7 +46,7 @@ type DeploymentRequest struct {
 }
 
 type Deployment struct {
-	Id                  string              `json:"id"`
+	ID                  string              `json:"id"`
 	Name                string              `json:"name"`
 	ZoneUri             string              `json:"zoneUri"`
 	Zone                *NamedUriIdentifier `json:"zone"`
@@ -62,7 +62,7 @@ type Deployment struct {
 	DeploymentEndpoints []*AddressWithType  `json:"deploymentEndpoints"`
 	AppDeploymentInfo   string              `json:"appDeploymentInfo"`
 	HasConsole          bool                `json:"hasConsole"`
-	CloudPlatformId     string              `json:"cloudPlatformId"`
+	CloudPlatformID     string              `json:"cloudPlatformId"`
 	Created             string              `json:"created"`
 	Modified            string              `json:"modified"`
 }
@@ -170,12 +170,12 @@ func (c *Client) CreateDeployment(deploymentRequest DeploymentRequest) (Deployme
 
 // UpdateDeployment using []*PatchOp returns updated deployment on success
 func (c *Client) UpdateDeployment(deployment Deployment, updates []*PatchOp) (Deployment, error) {
-	if deployment.Id == "" {
-		return deployment, fmt.Errorf("Deployment must have a non-empty Id")
+	if deployment.ID == "" {
+		return deployment, fmt.Errorf("Deployment must have a non-empty ID")
 	}
 
 	var (
-		uri               = "/rest/deployments/" + deployment.Id
+		uri               = "/rest/deployments/" + deployment.ID
 		updatedDeployment Deployment
 	)
 
@@ -194,11 +194,11 @@ func (c *Client) UpdateDeployment(deployment Deployment, updates []*PatchOp) (De
 
 // DeleteDeployment Deletes Deployment
 func (c *Client) DeleteDeployment(deployment Deployment) error {
-	if deployment.Id == "" {
-		return fmt.Errorf("Deployment must have a non-empty Id")
+	if deployment.ID == "" {
+		return fmt.Errorf("Deployment must have a non-empty ID")
 	}
 
-	var uri = "/rest/deployments/" + deployment.Id
+	var uri = "/rest/deployments/" + deployment.ID
 
 	response, err := c.RestAPICall(rest.DELETE, uri, nil, nil)
 
@@ -212,12 +212,12 @@ func (c *Client) DeleteDeployment(deployment Deployment) error {
 // ActionDeployment Perform an Action on Deployment
 // example actionType: "restart"
 func (c *Client) ActionDeployment(deployment Deployment, actionType string, force bool) error {
-	if deployment.Id == "" {
-		return fmt.Errorf("Deployment must have a non-empty Id")
+	if deployment.ID == "" {
+		return fmt.Errorf("Deployment must have a non-empty ID")
 	}
 
 	var (
-		uri         = "/rest/deployments/" + deployment.Id + "/actions"
+		uri         = "/rest/deployments/" + deployment.ID + "/actions"
 		forceString = "false"
 	)
 
@@ -241,11 +241,11 @@ func (c *Client) ActionDeployment(deployment Deployment, actionType string, forc
 
 // GetDeploymentConsole returns a Deployment console url
 func (c *Client) GetDeploymentConsole(deployment Deployment) (string, error) {
-	if deployment.Id == "" {
-		return "", fmt.Errorf("Deployment must have a non-empty Id")
+	if deployment.ID == "" {
+		return "", fmt.Errorf("Deployment must have a non-empty ID")
 	}
 
-	var uri = "/rest/deployments/" + deployment.Id + "/console"
+	var uri = "/rest/deployments/" + deployment.ID + "/console"
 
 	consoleUrl, err := c.RestAPICall(rest.POST, uri, nil, nil)
 
@@ -258,11 +258,11 @@ func (c *Client) GetDeploymentConsole(deployment Deployment) (string, error) {
 
 // GetDeploymentKubeConfig returns the kubeconfig of the deployment
 func (c *Client) GetDeploymentKubeConfig(deployment Deployment) (string, error) {
-	if deployment.Id == "" {
-		return "", fmt.Errorf("Deployment must have a non-empty Id")
+	if deployment.ID == "" {
+		return "", fmt.Errorf("Deployment must have a non-empty ID")
 	}
 
-	var uri = "/rest/deployments/" + deployment.Id + "/kubeconfig"
+	var uri = "/rest/deployments/" + deployment.ID + "/kubeconfig"
 
 	kubeConfig, err := c.RestAPICall(rest.GET, uri, nil, nil)
 
