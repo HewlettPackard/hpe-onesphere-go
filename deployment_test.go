@@ -44,13 +44,13 @@ func TestGetDeploymentByID(t *testing.T) {
 		return
 	}
 
-	testId := deploymentList.Members[0].Id
+	testId := deploymentList.Members[0].ID
 	deployment, err := client.GetDeploymentByID(testId)
 	if err != nil {
 		t.Error(err)
 	}
-	if deployment.Id == "" {
-		t.Errorf("TestGetDeploymentByID Failed to get deployment: Id is ''")
+	if deployment.ID == "" {
+		t.Errorf("TestGetDeploymentByID Failed to get deployment: ID is ''")
 	}
 }
 
@@ -86,7 +86,7 @@ func TestCreateDeployment(t *testing.T) {
 func TestUpdateDeployment(t *testing.T) {
 	setup()
 
-	deployment := Deployment{Id: "2"}
+	deployment := Deployment{ID: "2"}
 	updates := []*PatchOp{}
 
 	if _, err := client.UpdateDeployment(deployment, updates); err != nil {
@@ -97,7 +97,7 @@ func TestUpdateDeployment(t *testing.T) {
 func TestDeleteDeployment(t *testing.T) {
 	setup()
 
-	deployment := Deployment{Id: "2"}
+	deployment := Deployment{ID: "2"}
 
 	if err := client.DeleteDeployment(deployment); err != nil {
 		t.Error(err)
@@ -107,7 +107,7 @@ func TestDeleteDeployment(t *testing.T) {
 func TestActionDeployment(t *testing.T) {
 	setup()
 
-	deployment := Deployment{Id: "2"}
+	deployment := Deployment{ID: "2"}
 	actionType := "restart"
 
 	if err := client.ActionDeployment(deployment, actionType, false); err != nil {
@@ -118,7 +118,7 @@ func TestActionDeployment(t *testing.T) {
 func TestGetDeploymentConsole(t *testing.T) {
 	setup()
 
-	deployment := Deployment{Id: "2"}
+	deployment := Deployment{ID: "2"}
 
 	if _, err := client.GetDeploymentConsole(deployment); err != nil {
 		t.Error(err)
@@ -128,7 +128,7 @@ func TestGetDeploymentConsole(t *testing.T) {
 func TestGetDeploymentKubeConfig(t *testing.T) {
 	setup()
 
-	deployment := Deployment{Id: "2"}
+	deployment := Deployment{ID: "2"}
 
 	if _, err := client.GetDeploymentKubeConfig(deployment); err != nil {
 		t.Error(err)
