@@ -40,10 +40,10 @@ func TestGetAppliancesByNameAndRegion(t *testing.T) {
 	}
 }
 
-func TestGetApplianceById(t *testing.T) {
+func TestGetApplianceByID(t *testing.T) {
 	setup()
 
-	_, err := client.GetApplianceById("1")
+	_, err := client.GetApplianceByID("1")
 	if err != nil {
 		t.Error(err)
 	}
@@ -63,7 +63,7 @@ func TestCreateAppliance(t *testing.T) {
 func TestUpdateAppliance(t *testing.T) {
 	setup()
 
-	appliance := Appliance{Id: "2"}
+	appliance := Appliance{ID: "2"}
 	updates := []*PatchOp{}
 
 	if _, err := client.UpdateAppliance(appliance, updates); err != nil {
@@ -74,7 +74,7 @@ func TestUpdateAppliance(t *testing.T) {
 func TestDeleteAppliance(t *testing.T) {
 	setup()
 
-	appliance := Appliance{Id: "2"}
+	appliance := Appliance{ID: "2"}
 
 	if err := client.DeleteAppliance(appliance); err != nil {
 		t.Error(err)
