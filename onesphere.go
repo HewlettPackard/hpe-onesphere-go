@@ -261,55 +261,6 @@ func (c *Client) UpdateBillingAccount(id string, patchPayload []*PatchOp) (strin
 
 // Catalogs APIs
 
-/* CreateCatalog sends POST with catalogTypeUri:
-  - /rest/catalog-types/aws-az
-	- /rest/catalog-types/vcenter
-	- /rest/catalog-types/kvm
-	- /rest/catalog-types/helm-charts-repository
-	- /rest/catalog-types/docker-hub
-	- /rest/catalog-types/docker-registry
-	- /rest/catalog-types/docker-trusted-registry
-	- /rest/catalog-types/private-docker-registry
-	- /rest/catalog-types/amazon-ecr
-	- /rest/catalog-types/azure-container-registry
-	- /rest/catalog-types/hpe-managed
-*/
-func (c *Client) CreateCatalog(accessKey, catalogTypeUri, name, password, regionName, secretKey, url, username string) (string, error) {
-	validCatalogTypeUris := []string{
-		"/rest/catalog-types/aws-az",
-		"/rest/catalog-types/vcenter",
-		"/rest/catalog-types/kvm",
-		"/rest/catalog-types/helm-charts-repository",
-		"/rest/catalog-types/docker-hub",
-		"/rest/catalog-types/docker-registry",
-		"/rest/catalog-types/docker-trusted-registry",
-		"/rest/catalog-types/private-docker-registry",
-		"/rest/catalog-types/amazon-ecr",
-		"/rest/catalog-types/azure-container-registry",
-		"/rest/catalog-types/hpe-managed",
-	}
-	catalogTypeUriIsValid := false
-	for _, validCatalogTypeUri := range validCatalogTypeUris {
-		if catalogTypeUri == validCatalogTypeUri {
-			catalogTypeUriIsValid = true
-		}
-	}
-	if !catalogTypeUriIsValid {
-		return "", fmt.Errorf("CreateCatalog received invalid catalogTypeUri.\nReceived catalogTypeUri: %s\nValid catalogTypeUri values: %v\n", catalogTypeUri, validCatalogTypeUris)
-	}
-
-	values := map[string]string{
-		"accessKey":      accessKey,
-		"catalogTypeUri": catalogTypeUri,
-		"name":           name,
-		"password":       password,
-		"regionName":     regionName,
-		"secretKey":      secretKey,
-		"url":            url,
-		"username":       username}
-	return c.callHTTPRequest("POST", "/rest/catalogs", nil, values)
-}
-
 func (c *Client) DeleteCatalog(catalogID string) (string, error) {
 	// return c.callHTTPRequest("DELETE", "/rest/catalogs/"+catalogID, nil, nil)
 	return "", c.notImplementedError(rest.DELETE, "/rest/catalogs/"+catalogID, "catalogs")
