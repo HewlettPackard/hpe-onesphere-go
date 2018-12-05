@@ -35,21 +35,21 @@ type ApplianceEndpoint struct {
 type ApplianceRequest struct {
 	Name      string             `json:"name"`
 	Endpoint  *ApplianceEndpoint `json:"endpoint"`
-	RegionUri string             `json:"regionUri"`
+	RegionURI string             `json:"regionUri"`
 	Type      string             `json:"type"`
 }
 
 type Appliance struct {
-	Id         string             `json:"id"`
+	ID         string             `json:"id"`
 	Name       string             `json:"name"`
-	Uri        string             `json:"uri"`
+	URI        string             `json:"uri"`
 	Endpoint   *ApplianceEndpoint `json:"endpoint"`
 	L2Networks []struct {
 		EthernetNetworkType string `json:"ethernetNetworkType"`
 		Name                string `json:"name"`
 		Purpose             string `json:"purpose"`
-		Uri                 string `json:"uri"`
-		VlanId              string `json:"vlanId"`
+		URI                 string `json:"uri"`
+		VlanID              string `json:"vlanId"`
 	} `json:"l2networks"`
 	RegionUri string `json:"regionUri"`
 	State     string `json:"state"`
@@ -106,8 +106,8 @@ func (c *Client) GetAppliancesByRegion(regionUri string) (ApplianceList, error) 
 	return c.GetAppliancesByNameAndRegion("", regionUri)
 }
 
-// GetApplianceById returns an Appliance by id
-func (c *Client) GetApplianceById(id string) (Appliance, error) {
+// GetApplianceByID returns an Appliance by id
+func (c *Client) GetApplianceByID(id string) (Appliance, error) {
 	var (
 		uri       = "/rest/appliances/" + id
 		appliance Appliance
@@ -152,12 +152,12 @@ func (c *Client) CreateAppliance(applianceRequest ApplianceRequest) (Appliance, 
 
 // UpdateAppliance using []*PatchOp and returns updated appliance on success
 func (c *Client) UpdateAppliance(appliance Appliance, updates []*PatchOp) (Appliance, error) {
-	if appliance.Id == "" {
-		return appliance, fmt.Errorf("Appliance must have a non-empty Id")
+	if appliance.ID == "" {
+		return appliance, fmt.Errorf("Appliance must have a non-empty ID")
 	}
 
 	var (
-		uri              = "/rest/appliances/" + appliance.Id
+		uri              = "/rest/appliances/" + appliance.ID
 		updatedAppliance Appliance
 	)
 
@@ -176,11 +176,11 @@ func (c *Client) UpdateAppliance(appliance Appliance, updates []*PatchOp) (Appli
 
 // DeleteAppliance Deletes Appliance
 func (c *Client) DeleteAppliance(appliance Appliance) error {
-	if appliance.Id == "" {
-		return fmt.Errorf("Appliance must have a non-empty Id")
+	if appliance.ID == "" {
+		return fmt.Errorf("Appliance must have a non-empty ID")
 	}
 
-	var uri = "/rest/appliances/" + appliance.Id
+	var uri = "/rest/appliances/" + appliance.ID
 
 	response, err := c.RestAPICall(rest.DELETE, uri, nil, nil)
 
