@@ -22,6 +22,7 @@ package onesphere
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/HewlettPackard/hpe-onesphere-go/rest"
 	"time"
 )
@@ -73,4 +74,33 @@ func (c *Client) GetCatalogs(userQuery, view string) (CatalogList, error) {
 	}
 
 	return catalogs, err
+}
+
+// GetCatalogByID returns an Catalog by id
+// example view: "full"
+func (c *Client) GetCatalogByID(id, view string) (Catalog, error) {
+	var (
+		uri         = "/rest/catalogs/" + id
+		queryParams = createQuery(&map[string]string{
+			"id":   id,
+			"view": view,
+		})
+		catalog Catalog
+	)
+
+	if id == "" {
+		return catalog, fmt.Errorf("id must not be empty")
+	}
+
+	response, err := c.RestAPICall(rest.GET, uri, queryParams, nil)
+
+	if err != nil {
+		return catalog, err
+	}
+
+	if err := json.Unmarshal([]byte(response), &catalog); err != nil {
+		return catalog, apiResponseError(response, err)
+	}
+
+	return catalog, err
 }
