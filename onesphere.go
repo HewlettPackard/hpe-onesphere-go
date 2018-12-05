@@ -261,17 +261,6 @@ func (c *Client) UpdateBillingAccount(id string, patchPayload []*PatchOp) (strin
 
 // Catalogs APIs
 
-func (c *Client) GetCatalogs(userQuery, view string) (string, error) {
-	params := map[string]string{}
-	if strings.TrimSpace(userQuery) != "" {
-		params["userQuery"] = userQuery
-	}
-	if strings.TrimSpace(view) != "" {
-		params["view"] = view
-	}
-	return c.callHTTPRequest("GET", "/rest/catalogs", params, nil)
-}
-
 /* CreateCatalog sends POST with catalogTypeUri:
   - /rest/catalog-types/aws-az
 	- /rest/catalog-types/vcenter
