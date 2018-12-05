@@ -310,11 +310,6 @@ func (c *Client) CreateCatalog(accessKey, catalogTypeUri, name, password, region
 	return c.callHTTPRequest("POST", "/rest/catalogs", nil, values)
 }
 
-func (c *Client) GetCatalog(catalogID, view string) (string, error) {
-	params := map[string]string{"view": view}
-	return c.callHTTPRequest("GET", "/rest/catalogs/"+catalogID, params, nil)
-}
-
 func (c *Client) DeleteCatalog(catalogID string) (string, error) {
 	// return c.callHTTPRequest("DELETE", "/rest/catalogs/"+catalogID, nil, nil)
 	return "", c.notImplementedError(rest.DELETE, "/rest/catalogs/"+catalogID, "catalogs")
