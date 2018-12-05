@@ -33,3 +33,13 @@ func TestGetCatalogByID(t *testing.T) {
 		t.Errorf("TestGetCatalogByID Failed to get catalog: ID is ''")
 	}
 }
+
+func TestCreateCatalog(t *testing.T) {
+	setup()
+
+	catalogRequest := CatalogRequest{}
+
+	if _, err := client.CreateCatalog(catalogRequest); err != nil {
+		t.Error(err)
+	}
+}

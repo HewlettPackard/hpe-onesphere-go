@@ -27,6 +27,17 @@ import (
 	"time"
 )
 
+type CatalogRequest struct {
+	Name           string `json:"name"`
+	URL            string `json:"url"`
+	CatalogTypeURI string `json:"catalogTypeUri"`
+	Username       string `json:"username"`
+	Password       string `json:"password"`
+	AccessKey      string `json:"accessKey"`
+	SecretKey      string `json:"secretKey"`
+	ZoneURI        string `json:"zoneUri"`
+}
+
 type Catalog struct {
 	Created          time.Time `json:"created"`
 	ID               string    `json:"id"`
@@ -93,6 +104,43 @@ func (c *Client) GetCatalogByID(id, view string) (Catalog, error) {
 	}
 
 	response, err := c.RestAPICall(rest.GET, uri, queryParams, nil)
+
+	if err != nil {
+		return catalog, err
+	}
+
+	if err := json.Unmarshal([]byte(response), &catalog); err != nil {
+		return catalog, apiResponseError(response, err)
+	}
+
+	return catalog, err
+}
+
+/* CreateCatalog Creates Catalog and returns updated Catalog
+
+use GetCatalogTypes() for CatalogTypeURI
+
+CatalogTypeURI should be one of:
+- /rest/catalog-types/aws-az
+- /rest/catalog-types/vcenter
+- /rest/catalog-types/kvm
+- /rest/catalog-types/helm-charts-repository
+- /rest/catalog-types/docker-hub
+- /rest/catalog-types/docker-registry
+- /rest/catalog-types/docker-trusted-registry
+- /rest/catalog-types/private-docker-registry
+- /rest/catalog-types/amazon-ecr
+- /rest/catalog-types/azure-container-registry
+- /rest/catalog-types/hpe-managed
+
+*/
+func (c *Client) CreateCatalog(catalogRequest CatalogRequest) (Catalog, error) {
+	var (
+		uri     = "/rest/catalogs"
+		catalog Catalog
+	)
+
+	response, err := c.RestAPICall(rest.POST, uri, nil, catalogRequest)
 
 	if err != nil {
 		return catalog, err
