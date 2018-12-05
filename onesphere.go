@@ -157,7 +157,7 @@ func apiResponseError(response string, err error) error {
 	return fmt.Errorf("Unmarshal Error:\n\tRaw Response: %v\n\tError: %v", response, err)
 }
 
-func (c *Client) RestAPICall(method rest.Method, path string, params map[string]string, values interface{}) (string, error) {
+func (c *Client) RestAPICall(method rest.Method, path string, queryParams map[string]string, values interface{}) (string, error) {
 	jsonValue, err := json.Marshal(values)
 	if err != nil {
 		return "", err
@@ -170,9 +170,9 @@ func (c *Client) RestAPICall(method rest.Method, path string, params map[string]
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", c.Auth.Token)
 
-	if params != nil && len(params) > 0 {
+	if queryParams != nil && len(queryParams) > 0 {
 		q := req.URL.Query()
-		for key, value := range params {
+		for key, value := range queryParams {
 			q.Add(key, value)
 		}
 		req.URL.RawQuery = q.Encode()
@@ -183,7 +183,7 @@ func (c *Client) RestAPICall(method rest.Method, path string, params map[string]
 	if err != nil {
 		return "", err
 	}
-	defer closer(resp.Body, fmt.Sprintf("onesphere.RestAPICall(%v,%s,%v,%v)", method, path, params, values))
+	defer closer(resp.Body, fmt.Sprintf("onesphere.RestAPICall(%v,%s,%v,%v)", method, path, queryParams, values))
 
 	bodyBytes, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
