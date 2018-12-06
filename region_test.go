@@ -93,9 +93,20 @@ func TestGetRegionConnection(t *testing.T) {
 func TestCreateRegionConnection(t *testing.T) {
 	setup()
 
+	region := Region{ID: "2"}
 	regionConnectionRequest := RegionConnectionRequest{}
 
-	if _, err := client.CreateRegionConnection("2", regionConnectionRequest); err != nil {
+	if _, err := client.CreateRegionConnection(region, regionConnectionRequest); err != nil {
+		t.Error(err)
+	}
+}
+
+func TestDeleteRegionConnection(t *testing.T) {
+	setup()
+
+	region := Region{ID: "2"}
+
+	if err := client.DeleteRegionConnection(region); err != nil {
 		t.Error(err)
 	}
 }

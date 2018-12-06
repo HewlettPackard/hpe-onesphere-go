@@ -398,10 +398,6 @@ func (c *Client) GetRate(rateID string) (string, error) {
 	return c.callHTTPRequest("GET", "/rest/rates/"+rateID, nil, nil)
 }
 
-func (c *Client) DeleteRegionConnection(regionID string) (string, error) {
-	return c.callHTTPRequest("DELETE", "/rest/regions/"+regionID+"/connection", nil, nil)
-}
-
 func (c *Client) GetRegionConnectorImage(regionID string) (string, error) {
 	return c.callHTTPRequest("GET", "/rest/regions/"+regionID+"/connector-image", nil, nil)
 }
