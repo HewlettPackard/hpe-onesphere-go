@@ -292,33 +292,6 @@ func TestGetAzureLoginProperties(t *testing.T) {
 
 }
 
-func TestGetProviderTypes(t *testing.T) {
-	actual, err := client.GetProviderTypes()
-	if err != nil {
-		t.Errorf("TestGetProviderTypes Error: %v\n", err)
-	}
-
-	expected := `{
-    "total": 0,
-    "start": 0,
-    "count": 0,
-    "members": [
-        {
-            "id": "abc",
-            "logo": "https://",
-            "logoType": "https://",
-            "name": "",
-            "uri": "/rest/provider-types/abc"
-        }
-    ]
-	}`
-	compareErr := compareFields(t, "onesphere.Client.GetProviderTypes", expected, actual)
-	if compareErr != nil {
-		t.Errorf("TestGetProviderTypes Error: %s\n", compareErr)
-	}
-
-}
-
 func TestGetRoles(t *testing.T) {
 	actual, err := client.GetRoles()
 	if err != nil {
