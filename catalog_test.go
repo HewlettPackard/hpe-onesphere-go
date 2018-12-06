@@ -54,3 +54,13 @@ func TestUpdateCatalog(t *testing.T) {
 		t.Error(err)
 	}
 }
+
+func TestDeleteCatalog(t *testing.T) {
+	setup()
+
+	catalog := Catalog{ID: "2"}
+
+	if err := client.DeleteCatalog(catalog); err != nil {
+		t.Skip(err)
+	}
+}

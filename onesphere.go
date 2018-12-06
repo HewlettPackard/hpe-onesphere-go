@@ -259,13 +259,6 @@ func (c *Client) UpdateBillingAccount(id string, patchPayload []*PatchOp) (strin
 	return c.callHTTPRequest("PATCH", "/rest/billing-accounts/"+id, nil, patchPayload)
 }
 
-// Catalogs APIs
-
-func (c *Client) DeleteCatalog(catalogID string) (string, error) {
-	// return c.callHTTPRequest("DELETE", "/rest/catalogs/"+catalogID, nil, nil)
-	return "", c.notImplementedError(rest.DELETE, "/rest/catalogs/"+catalogID, "catalogs")
-}
-
 // Connect App APIs
 
 // GetConnectApp allowed operating systems: ["windows", "mac"]
