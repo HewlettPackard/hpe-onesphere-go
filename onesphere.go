@@ -348,12 +348,6 @@ func (c *Client) GetNetwork(networkID string) (string, error) {
 	return c.callHTTPRequest("GET", "/rest/networks/"+networkID, nil, nil)
 }
 
-// infoArray: [{op, path, value}]
-func (c *Client) UpdateNetwork(networkID string, infoArray []string) (string, error) {
-	values := infoArray
-	return c.callHTTPRequest("PUT", "/rest/networks/"+networkID, nil, values)
-}
-
 // Onboarding APIs
 
 func (c *Client) GetAzureLoginProperties() (string, error) {
