@@ -22,7 +22,9 @@ package onesphere
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/HewlettPackard/hpe-onesphere-go/rest"
+	"strconv"
 	"time"
 )
 
@@ -603,6 +605,37 @@ func (c *Client) GetProviders(query string) (ProviderList, error) {
 	}
 
 	return providers, err
+}
+
+/* GetProviderByID returns an Provider by id
+example view: "full"
+discover: Will return the merged set of regions from AWS and existing regions in Onesphere.
+*/
+func (c *Client) GetProviderByID(id, view string, discover bool) (Provider, error) {
+	var (
+		uri         = "/rest/providers/" + id
+		queryParams = createQuery(&map[string]string{
+			"view":     view,
+			"discover": strconv.FormatBool(discover),
+		})
+		provider Provider
+	)
+
+	if id == "" {
+		return provider, fmt.Errorf("id must not be empty")
+	}
+
+	response, err := c.RestAPICall(rest.GET, uri, queryParams, nil)
+
+	if err != nil {
+		return provider, err
+	}
+
+	if err := json.Unmarshal([]byte(response), &provider); err != nil {
+		return provider, apiResponseError(response, err)
+	}
+
+	return provider, err
 }
 
 // CreateProvider Creates a new Master provider or Member provider and returns updated Provider
