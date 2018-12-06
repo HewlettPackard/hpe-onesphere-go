@@ -259,14 +259,14 @@ func (c *Client) GetRegionConnection(regionId string) (RegionConnection, error) 
 }
 
 // CreateRegionConnection Creates RegionConnection and returns updated RegionConnection
-func (c *Client) CreateRegionConnection(region Region, regionConnectionRequest RegionConnectionRequest) (RegionConnection, error) {
+func (c *Client) CreateRegionConnection(regionId string, regionConnectionRequest RegionConnectionRequest) (RegionConnection, error) {
 	var (
-		uri        = "/rest/regions/" + region.ID + "/connection"
+		uri        = "/rest/regions/" + regionId + "/connection"
 		regionConn RegionConnection
 	)
 
-	if region.ID == "" {
-		return regionConn, fmt.Errorf("Region.ID must not be empty")
+	if regionId == "" {
+		return regionConn, fmt.Errorf("regionId must not be empty")
 	}
 
 	response, err := c.RestAPICall(rest.POST, uri, nil, regionConnectionRequest)
@@ -283,12 +283,12 @@ func (c *Client) CreateRegionConnection(region Region, regionConnectionRequest R
 }
 
 // DeleteRegionConnection Deletes RegionConnection
-func (c *Client) DeleteRegionConnection(region Region) error {
-	if region.ID == "" {
-		return fmt.Errorf("Region must have a non-empty ID")
+func (c *Client) DeleteRegionConnection(regionId string) error {
+	if regionId == "" {
+		return fmt.Errorf("regionId must not be empty")
 	}
 
-	var uri = "/rest/regions/" + region.ID + "/connection"
+	var uri = "/rest/regions/" + regionId + "/connection"
 
 	response, err := c.RestAPICall(rest.DELETE, uri, nil, nil)
 
@@ -297,4 +297,18 @@ func (c *Client) DeleteRegionConnection(region Region) error {
 	}
 
 	return nil
+}
+
+// GetRegionConnectorImage returns generated connector-image url
+func (c *Client) GetRegionConnectorImage(regionId string) (string, error) {
+	var (
+		uri               = "/rest/regions/" + regionId + "/connection"
+		connectorImageURL string
+	)
+
+	if regionId == "" {
+		return connectorImageURL, fmt.Errorf("regionId must not be empty")
+	}
+
+	return c.RestAPICall(rest.GET, uri, nil, nil)
 }

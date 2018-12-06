@@ -76,7 +76,7 @@ func TestGetRegionConnection(t *testing.T) {
 		return
 	}
 	if len(regionList.Members) == 0 {
-		t.Error("TestGetRegionByID Could not find any Regions")
+		t.Error("TestGetRegionConnection Could not find any Regions")
 		return
 	}
 
@@ -93,10 +93,9 @@ func TestGetRegionConnection(t *testing.T) {
 func TestCreateRegionConnection(t *testing.T) {
 	setup()
 
-	region := Region{ID: "2"}
 	regionConnectionRequest := RegionConnectionRequest{}
 
-	if _, err := client.CreateRegionConnection(region, regionConnectionRequest); err != nil {
+	if _, err := client.CreateRegionConnection("2", regionConnectionRequest); err != nil {
 		t.Error(err)
 	}
 }
@@ -104,9 +103,26 @@ func TestCreateRegionConnection(t *testing.T) {
 func TestDeleteRegionConnection(t *testing.T) {
 	setup()
 
-	region := Region{ID: "2"}
-
-	if err := client.DeleteRegionConnection(region); err != nil {
+	if err := client.DeleteRegionConnection("2"); err != nil {
 		t.Error(err)
+	}
+}
+
+func TestGetRegionConnectorImage(t *testing.T) {
+	setup()
+
+	regionList, err := client.GetRegions("", "")
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	testId := regionList.Members[0].ID
+	connectorImageURL, err := client.GetRegionConnectorImage(testId)
+	if err != nil {
+		t.Error(err)
+	}
+	if connectorImageURL == "" {
+		t.Errorf("TestGetRegionConnectorImage Failed to get connector image url.")
 	}
 }
