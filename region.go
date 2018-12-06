@@ -136,3 +136,59 @@ func (c *Client) CreateRegion(regionRequest RegionRequest) (Region, error) {
 
 	return region, err
 }
+
+/* UpdateRegion using []*PatchOp returns updated region on success
+UpdateRegion only supports provider type(/rest/provider-types/ncs).
+
+Allowed fields for PATCH of NCS provider type: /name | /location
+Allowed OPs for PATCH of NCS provider type: add | replace
+
+Path: /name
+Op: add
+
+Path: /location
+Op: replace
+*/
+func (c *Client) UpdateRegion(region Region, updates []*PatchOp) (Region, error) {
+	if region.ID == "" {
+		return region, fmt.Errorf("Region must have a non-empty ID")
+	}
+
+	allowedFields := map[string][]string{
+		"add":     {"/name", "/location"},
+		"replace": {"/name", "/location"},
+	}
+
+	for _, pb := range updates {
+		fieldIsValid := false
+
+		if allowedPaths, ok := allowedFields[pb.Op]; ok {
+			for _, allowedPath := range allowedPaths {
+				if pb.Path == allowedPath {
+					fieldIsValid = true
+				}
+			}
+		}
+
+		if !fieldIsValid {
+			return region, fmt.Errorf("UpdateRegion received invalid Field for update.\nReceived Op: %s\nReceived Path: %s\nValid Fields: %v\n", pb.Op, pb.Path, allowedFields)
+		}
+	}
+
+	var (
+		uri           = "/rest/regions/" + region.ID
+		updatedRegion Region
+	)
+
+	response, err := c.RestAPICall(rest.PATCH, uri, nil, updates)
+
+	if err != nil {
+		return region, err
+	}
+
+	if err := json.Unmarshal([]byte(response), &updatedRegion); err != nil {
+		return region, apiResponseError(response, err)
+	}
+
+	return updatedRegion, err
+}

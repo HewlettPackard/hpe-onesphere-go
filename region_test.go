@@ -43,3 +43,14 @@ func TestCreateRegion(t *testing.T) {
 		t.Error(err)
 	}
 }
+
+func TestUpdateRegion(t *testing.T) {
+	setup()
+
+	region := Region{ID: "2"}
+	updates := []*PatchOp{}
+
+	if _, err := client.UpdateRegion(region, updates); err != nil {
+		t.Error(err)
+	}
+}
