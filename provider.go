@@ -708,3 +708,20 @@ func (c *Client) UpdateProvider(provider Provider, updates []*PatchOp) (Provider
 
 	return updatedProvider, err
 }
+
+// DeleteProvider Deletes Provider
+func (c *Client) DeleteProvider(provider Provider) error {
+	if provider.ID == "" {
+		return fmt.Errorf("Deployment must have a non-empty ID")
+	}
+
+	var uri = "/rest/providers/" + provider.ID
+
+	response, err := c.RestAPICall(rest.DELETE, uri, nil, nil)
+
+	if err != nil {
+		return apiResponseError(response, err)
+	}
+
+	return nil
+}
