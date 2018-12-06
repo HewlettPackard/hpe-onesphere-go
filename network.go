@@ -22,6 +22,7 @@ package onesphere
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/HewlettPackard/hpe-onesphere-go/rest"
 )
 
@@ -54,7 +55,7 @@ type NetworkList struct {
 	Members []Network `json:"members"`
 }
 
-// GetNetworks with optional userQuery and sort
+// GetNetworks with optional query
 // leave query blank to get all networks
 // example query: "zoneUri EQ /rest/zones/xxxx"
 func (c *Client) GetNetworks(query string) (NetworkList, error) {
@@ -77,4 +78,28 @@ func (c *Client) GetNetworks(query string) (NetworkList, error) {
 	}
 
 	return networks, err
+}
+
+// GetNetwork returns an Network by id
+func (c *Client) GetNetworkByID(id string) (Network, error) {
+	var (
+		uri     = "/rest/networks/" + id
+		network Network
+	)
+
+	if id == "" {
+		return network, fmt.Errorf("id must not be empty")
+	}
+
+	response, err := c.RestAPICall(rest.GET, uri, nil, nil)
+
+	if err != nil {
+		return network, err
+	}
+
+	if err := json.Unmarshal([]byte(response), &network); err != nil {
+		return network, apiResponseError(response, err)
+	}
+
+	return network, err
 }
