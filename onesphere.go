@@ -398,44 +398,6 @@ func (c *Client) GetRate(rateID string) (string, error) {
 	return c.callHTTPRequest("GET", "/rest/rates/"+rateID, nil, nil)
 }
 
-// Regions APIs
-
-func (c *Client) GetRegions(query, view string) (string, error) {
-	params := map[string]string{"query": query, "view": view}
-	return c.callHTTPRequest("GET", "/rest/regions", params, nil)
-}
-
-func (c *Client) CreateRegion(name, providerUri, locLatitude, locLongitude string) (string, error) {
-	values := map[string]interface{}{
-		"location": map[string]interface{}{
-			"latitude":  locLatitude,
-			"longitude": locLongitude},
-		"name":        name,
-		"providerUri": providerUri}
-	return c.callHTTPRequest("POST", "/rest/regions", nil, values)
-}
-
-func (c *Client) GetRegion(regionID, view string, discover bool) (string, error) {
-	params := map[string]string{"view": view, "discover": strconv.FormatBool(discover)}
-	return c.callHTTPRequest("GET", "/rest/regions/"+regionID, params, nil)
-}
-
-func (c *Client) DeleteRegion(regionID string, force bool) (string, error) {
-	params := map[string]string{"force": strconv.FormatBool(force)}
-	return c.callHTTPRequest("DELETE", "/rest/regions/"+regionID, params, nil)
-}
-
-// infoArray: [{op, path, value}]
-// op: "add|replace"
-// path: "/name|/location"
-func (c *Client) PatchRegion(regionID string, infoArray []string) (string, error) {
-	return c.callHTTPRequest("PUT", "/rest/regions/"+regionID, nil, infoArray)
-}
-
-func (c *Client) UpdateRegion(regionID, region string) (string, error) {
-	return c.callHTTPRequest("PUT", "/rest/regions/"+regionID, nil, region)
-}
-
 func (c *Client) GetRegionConnection(regionID string) (string, error) {
 	return c.callHTTPRequest("GET", "/rest/regions/"+regionID+"/connection", nil, nil)
 }
