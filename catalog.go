@@ -38,6 +38,10 @@ type CatalogRequest struct {
 	ZoneURI        string `json:"zoneUri"`
 }
 
+type CatalogActionResponse struct {
+	Action string `json:"action"`
+}
+
 type Catalog struct {
 	Created          time.Time `json:"created"`
 	ID               string    `json:"id"`
@@ -220,4 +224,27 @@ func (c *Client) UpdateCatalog(catalog Catalog, updates []*PatchOp) (Catalog, er
 // DeleteCatalog Deletes Catalog
 func (c *Client) DeleteCatalog(catalog Catalog) error {
 	return c.notImplementedError(rest.DELETE, "/rest/catalogs/"+catalog.ID, "catalogs")
+}
+
+// ActionCatalog Perform an Action on Catalog
+// example actionType: "refresh"
+func (c *Client) ActionCatalog(catalog Catalog, actionType string) error {
+	if catalog.ID == "" {
+		return fmt.Errorf("Catalog must have a non-empty ID")
+	}
+
+	var (
+		uri    = "/rest/deployments/" + catalog.ID + "/actions"
+		values = createQuery(&map[string]string{
+			"type": actionType,
+		})
+	)
+
+	response, err := c.RestAPICall(rest.POST, uri, nil, values)
+
+	if err != nil {
+		return apiResponseError(response, err)
+	}
+
+	return nil
 }
