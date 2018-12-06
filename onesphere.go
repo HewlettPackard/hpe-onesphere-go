@@ -344,11 +344,6 @@ func (c *Client) GetMetrics(
 
 // Networks APIs
 
-func (c *Client) GetNetworks(query string) (string, error) {
-	params := map[string]string{"query": query}
-	return c.callHTTPRequest("GET", "/rest/networks", params, nil)
-}
-
 func (c *Client) GetNetwork(networkID string) (string, error) {
 	return c.callHTTPRequest("GET", "/rest/networks/"+networkID, nil, nil)
 }
