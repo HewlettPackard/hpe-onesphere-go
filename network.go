@@ -20,6 +20,61 @@
 
 package onesphere
 
+import (
+	"encoding/json"
+	"github.com/HewlettPackard/hpe-onesphere-go/rest"
+)
+
 type Network struct {
-	NetworkURI string `json:"networkUri,omitempty"`
+	Created     string   `json:"created"`
+	ID          string   `json:"id"`
+	IpamType    string   `json:"ipamType"`
+	Modified    string   `json:"modified"`
+	Name        string   `json:"name"`
+	ProjectUris []string `json:"projectUris"`
+	Shared      bool     `json:"shared"`
+	Subnets     []struct {
+		Cidr    string `json:"cidr"`
+		DNS1    string `json:"dns1"`
+		DNS2    string `json:"dns2"`
+		Gateway string `json:"gateway"`
+		IPPools []struct {
+			EndIP   string `json:"endIP"`
+			Purpose string `json:"purpose"`
+			StartIP string `json:"startIP"`
+		} `json:"ipPools"`
+	} `json:"subnets"`
+	URI     string `json:"uri"`
+	Vlan    int    `json:"vlan"`
+	ZoneURI string `json:"zoneUri"`
+}
+
+type NetworkList struct {
+	Total   int       `json:"total"`
+	Members []Network `json:"members"`
+}
+
+// GetNetworks with optional userQuery and sort
+// leave query blank to get all networks
+// example query: "zoneUri EQ /rest/zones/xxxx"
+func (c *Client) GetNetworks(query string) (NetworkList, error) {
+	var (
+		uri         = "/rest/networks"
+		queryParams = createQuery(&map[string]string{
+			"query": query,
+		})
+		networks NetworkList
+	)
+
+	response, err := c.RestAPICall(rest.GET, uri, queryParams, nil)
+
+	if err != nil {
+		return networks, err
+	}
+
+	if err := json.Unmarshal([]byte(response), &networks); err != nil {
+		return networks, apiResponseError(response, err)
+	}
+
+	return networks, err
 }
