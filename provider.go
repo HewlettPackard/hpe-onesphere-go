@@ -26,6 +26,24 @@ import (
 	"time"
 )
 
+type ProviderRequest struct {
+	ID                string `json:"id"`
+	ProviderTypeURI   string `json:"providerTypeUri"`
+	AccessKey         string `json:"accessKey"`
+	SecretKey         string `json:"secretKey"`
+	PaymentProvider   bool   `json:"paymentProvider"`
+	S3CostBucket      string `json:"s3CostBucket"`
+	MasterURI         string `json:"masterUri"`
+	SubscriptionID    string `json:"subscriptionId"`
+	DirectoryURI      string `json:"directoryUri"`
+	TenantID          string `json:"tenantId"`
+	UniqueName        string `json:"uniqueName"`
+	FamilyName        string `json:"familyName"`
+	GivenName         string `json:"givenName"`
+	BillingAccountURI string `json:"billingAccountUri"`
+	State             string `json:"state"`
+}
+
 type Provider struct {
 	ID              string `json:"id"`
 	Name            string `json:"name"`
@@ -585,4 +603,25 @@ func (c *Client) GetProviders(query string) (ProviderList, error) {
 	}
 
 	return providers, err
+}
+
+// CreateProvider Creates a new Master provider or Member provider and returns updated Provider
+// use GetProviderTypes() for ProviderTypeURI
+func (c *Client) CreateProvider(providerRequest ProviderRequest) (Provider, error) {
+	var (
+		uri      = "/rest/providers"
+		provider Provider
+	)
+
+	response, err := c.RestAPICall(rest.POST, uri, nil, providerRequest)
+
+	if err != nil {
+		return provider, err
+	}
+
+	if err := json.Unmarshal([]byte(response), &provider); err != nil {
+		return provider, apiResponseError(response, err)
+	}
+
+	return provider, err
 }
