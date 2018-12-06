@@ -48,6 +48,7 @@ type DeploymentRequest struct {
 type Deployment struct {
 	ID                  string              `json:"id"`
 	Name                string              `json:"name"`
+	URI                 string              `json:"uri"`
 	ZoneURI             string              `json:"zoneUri"`
 	Zone                *NamedUriIdentifier `json:"zone"`
 	RegionURI           string              `json:"regionUri"`
@@ -57,7 +58,6 @@ type Deployment struct {
 	Version             string              `json:"version"`
 	Status              string              `json:"status"`
 	State               string              `json:"state"`
-	URI                 string              `json:"uri"`
 	ProjectURI          string              `json:"projectUri"`
 	DeploymentEndpoints []*AddressWithType  `json:"deploymentEndpoints"`
 	AppDeploymentInfo   string              `json:"appDeploymentInfo"`

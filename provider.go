@@ -76,108 +76,24 @@ type Provider struct {
 	BillingAccountURI string   `json:"billingAccountUri"`
 	ProjectUris       []string `json:"projectUris"`
 	Regions           []struct {
-		ID      string `json:"id"`
-		Metrics []struct {
-			ResourceURI string `json:"resourceUri"`
-			Resource    struct {
-				Value   string `json:"value"`
-				Name    string `json:"name"`
-				URI     string `json:"uri"`
-				Project struct {
-					Name string `json:"name"`
-					URI  string `json:"uri"`
-				} `json:"project"`
-				Zone struct {
-					Name   string `json:"name"`
-					URI    string `json:"uri"`
-					Region struct {
-						Name     string `json:"name"`
-						URI      string `json:"uri"`
-						Provider struct {
-							Name         string `json:"name"`
-							URI          string `json:"uri"`
-							ProviderType struct {
-								Name string `json:"name"`
-								URI  string `json:"uri"`
-							} `json:"providerType"`
-						} `json:"provider"`
-					} `json:"region"`
-				} `json:"zone"`
-			} `json:"resource"`
-			Name        string `json:"name"`
-			Units       string `json:"units"`
-			Description string `json:"description"`
-			Values      []struct {
-				Value int       `json:"value"`
-				Start time.Time `json:"start"`
-				End   time.Time `json:"end"`
-			} `json:"values"`
-			Total        int `json:"total"`
-			Start        int `json:"start"`
-			Count        int `json:"count"`
-			Associations []struct {
-				Category string `json:"category"`
-				Name     string `json:"name"`
-				URI      string `json:"uri"`
-			} `json:"associations"`
-		} `json:"metrics"`
+		ID       string    `json:"id"`
+		Name     string    `json:"name"`
+		URI      string    `json:"uri"`
+		Metrics  []*Metric `json:"metrics"`
 		Created  time.Time `json:"created"`
 		Modified time.Time `json:"modified"`
-		Name     string    `json:"name"`
 		Location struct {
 			Latitude  int `json:"latitude"`
 			Longitude int `json:"longitude"`
 		} `json:"location"`
 		ProviderURI string `json:"providerUri"`
 		Zones       []struct {
-			Created time.Time `json:"created"`
-			ID      string    `json:"id"`
-			Metrics []struct {
-				ResourceURI string `json:"resourceUri"`
-				Resource    struct {
-					Value   string `json:"value"`
-					Name    string `json:"name"`
-					URI     string `json:"uri"`
-					Project struct {
-						Name string `json:"name"`
-						URI  string `json:"uri"`
-					} `json:"project"`
-					Zone struct {
-						Name   string `json:"name"`
-						URI    string `json:"uri"`
-						Region struct {
-							Name     string `json:"name"`
-							URI      string `json:"uri"`
-							Provider struct {
-								Name         string `json:"name"`
-								URI          string `json:"uri"`
-								ProviderType struct {
-									Name string `json:"name"`
-									URI  string `json:"uri"`
-								} `json:"providerType"`
-							} `json:"provider"`
-						} `json:"region"`
-					} `json:"zone"`
-				} `json:"resource"`
-				Name        string `json:"name"`
-				Units       string `json:"units"`
-				Description string `json:"description"`
-				Values      []struct {
-					Value int       `json:"value"`
-					Start time.Time `json:"start"`
-					End   time.Time `json:"end"`
-				} `json:"values"`
-				Total        int `json:"total"`
-				Start        int `json:"start"`
-				Count        int `json:"count"`
-				Associations []struct {
-					Category string `json:"category"`
-					Name     string `json:"name"`
-					URI      string `json:"uri"`
-				} `json:"associations"`
-			} `json:"metrics"`
-			Modified    time.Time `json:"modified"`
+			ID          string    `json:"id"`
 			Name        string    `json:"name"`
+			URI         string    `json:"uri"`
+			Created     time.Time `json:"created"`
+			Metrics     []*Metric `json:"metrics"`
+			Modified    time.Time `json:"modified"`
 			ProviderURI string    `json:"providerUri"`
 			RegionURI   string    `json:"regionUri"`
 			Error       struct {
@@ -343,79 +259,10 @@ type Provider struct {
 				Password  string `json:"password"`
 				Port      int    `json:"port"`
 			} `json:"vcenterSettings"`
-			Managed     bool     `json:"managed"`
-			URI         string   `json:"uri"`
-			ZoneTypeURI string   `json:"zoneTypeUri"`
-			ProjectUris []string `json:"projectUris"`
-			Projects    []struct {
-				Created     time.Time `json:"created"`
-				Deployments struct {
-					Members []struct {
-						ActiveUsers []struct {
-							Email   string `json:"email"`
-							Name    string `json:"name"`
-							Role    string `json:"role"`
-							IsLocal string `json:"isLocal"`
-							URI     string `json:"uri"`
-						} `json:"activeUsers"`
-						ClusterURI string    `json:"clusterUri"`
-						Created    time.Time `json:"created"`
-						Endpoints  []struct {
-							Name        string `json:"name"`
-							Address     string `json:"address"`
-							AddressType string `json:"addressType"`
-						} `json:"endpoints"`
-						HasConsole               bool      `json:"hasConsole"`
-						ID                       string    `json:"id"`
-						Modified                 time.Time `json:"modified"`
-						Name                     string    `json:"name"`
-						ZoneURI                  string    `json:"zoneUri"`
-						ServiceURI               string    `json:"serviceUri"`
-						RegionURI                string    `json:"regionUri"`
-						VirtualMachineProfileURI string    `json:"virtualMachineProfileUri"`
-						Service                  struct {
-							ID      string `json:"id"`
-							Name    string `json:"name"`
-							URI     string `json:"uri"`
-							Version string `json:"version"`
-							Icon    string `json:"icon"`
-						} `json:"service"`
-						Region struct {
-							ID   string `json:"id"`
-							Name string `json:"name"`
-							URI  string `json:"uri"`
-						} `json:"region"`
-						Status       string   `json:"status"`
-						State        string   `json:"state"`
-						MemorySizeGB int      `json:"memorySizeGB"`
-						CPUCount     int      `json:"cpuCount"`
-						CPUGhz       int      `json:"cpuGhz"`
-						DiskSizeGB   int      `json:"diskSizeGB"`
-						URI          string   `json:"uri"`
-						ProjectURI   string   `json:"projectUri"`
-						VolumeURIs   []string `json:"volumeURIs"`
-						Firewall     []struct {
-							AllowedIPs string `json:"allowedIPs"`
-							Ports      []int  `json:"ports"`
-						} `json:"firewall"`
-						Volumes []struct {
-							ID      string `json:"id"`
-							Name    string `json:"name"`
-							URI     string `json:"uri"`
-							Status  string `json:"status"`
-							SizeGiB int    `json:"sizeGiB"`
-						} `json:"volumes"`
-						ErrorMessage string `json:"errorMessage"`
-					} `json:"members"`
-					Total int `json:"total"`
-				} `json:"deployments"`
-				ID        string    `json:"id"`
-				Modified  time.Time `json:"modified"`
-				Name      string    `json:"name"`
-				Protected bool      `json:"protected"`
-				URI       string    `json:"uri"`
-				TagUris   []string  `json:"tagUris"`
-			} `json:"projects"`
+			Managed         bool      `json:"managed"`
+			ZoneTypeURI     string    `json:"zoneTypeUri"`
+			ProjectUris     []string  `json:"projectUris"`
+			Projects        []Project `json:"projects"`
 			ResourceProfile struct {
 				ID          string `json:"id"`
 				Name        string `json:"name"`
@@ -526,52 +373,8 @@ type Provider struct {
 		} `json:"zones"`
 		Status string `json:"status"`
 		State  string `json:"state"`
-		URI    string `json:"uri"`
 	} `json:"regions"`
-	Metrics []struct {
-		ResourceURI string `json:"resourceUri"`
-		Resource    struct {
-			Value   string `json:"value"`
-			Name    string `json:"name"`
-			URI     string `json:"uri"`
-			Project struct {
-				Name string `json:"name"`
-				URI  string `json:"uri"`
-			} `json:"project"`
-			Zone struct {
-				Name   string `json:"name"`
-				URI    string `json:"uri"`
-				Region struct {
-					Name     string `json:"name"`
-					URI      string `json:"uri"`
-					Provider struct {
-						Name         string `json:"name"`
-						URI          string `json:"uri"`
-						ProviderType struct {
-							Name string `json:"name"`
-							URI  string `json:"uri"`
-						} `json:"providerType"`
-					} `json:"provider"`
-				} `json:"region"`
-			} `json:"zone"`
-		} `json:"resource"`
-		Name        string `json:"name"`
-		Units       string `json:"units"`
-		Description string `json:"description"`
-		Values      []struct {
-			Value int       `json:"value"`
-			Start time.Time `json:"start"`
-			End   time.Time `json:"end"`
-		} `json:"values"`
-		Total        int `json:"total"`
-		Start        int `json:"start"`
-		Count        int `json:"count"`
-		Associations []struct {
-			Category string `json:"category"`
-			Name     string `json:"name"`
-			URI      string `json:"uri"`
-		} `json:"associations"`
-	} `json:"metrics"`
+	Metrics  []*Metric `json:"metrics"`
 	Created  time.Time `json:"created"`
 	Modified time.Time `json:"modified"`
 }

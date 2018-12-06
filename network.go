@@ -27,11 +27,12 @@ import (
 )
 
 type Network struct {
-	Created     string   `json:"created"`
 	ID          string   `json:"id"`
+	Name        string   `json:"name"`
+	URI         string   `json:"uri"`
+	Created     string   `json:"created"`
 	IpamType    string   `json:"ipamType"`
 	Modified    string   `json:"modified"`
-	Name        string   `json:"name"`
 	ProjectUris []string `json:"projectUris"`
 	Shared      bool     `json:"shared"`
 	Subnets     []struct {
@@ -45,7 +46,6 @@ type Network struct {
 			StartIP string `json:"startIP"`
 		} `json:"ipPools"`
 	} `json:"subnets"`
-	URI     string `json:"uri"`
 	Vlan    int    `json:"vlan"`
 	ZoneURI string `json:"zoneUri"`
 }

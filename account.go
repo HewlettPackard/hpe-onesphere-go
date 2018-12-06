@@ -21,50 +21,38 @@
 package onesphere
 
 import (
-	"encoding/json"
-
 	"github.com/HewlettPackard/hpe-onesphere-go/rest"
 )
 
 type Account struct {
-	Id     string `json:"id"`
+	ID     string `json:"id"`
 	Name   string `json:"name"`
-	Uri    string `json:"uri"`
+	URI    string `json:"uri"`
 	Events []struct {
-		Id          string `json:"id"`
-		Name        string `json:"name"`
+		NamedUriIdentifier
 		ResourceUri string `json:"resourceUri"`
-		Uri         string `json:"uri"`
 		UserId      string `json:"userId"`
 		Created     string `json:"created"`
 		Modified    string `json:"modified"`
 	} `json:"events"`
 	Metrics []struct {
 		Associations []struct {
+			NamedUri
 			Category string `json:"category"`
-			Name     string `json:"name"`
-			Uri      string `json:"uri"`
 		} `json:"associations"`
 		Count       string `json:"count"`
 		Description string `json:"description"`
 		Name        string `json:"name"`
 		Resource    struct {
-			Name    string `json:"name"`
-			Uri     string `json:"uri"`
-			Value   string `json:"value"`
-			Project struct {
-				Name string `json:"name"`
-				Uri  string `json:"uri"`
-			} `json:"project"`
-			Zone struct {
-				Name   string `json:"name"`
-				Uri    string `json:"uri"`
+			NamedUri
+			Value   string   `json:"value"`
+			Project NamedUri `json:"project"`
+			Zone    struct {
+				NamedUri
 				Region struct {
-					Name     string `json:"name"`
-					Uri      string `json:"uri"`
+					NamedUri
 					Provider struct {
-						Name         string `json:"name"`
-						Uri          string `json:"uri"`
+						NamedUri
 						ProviderType struct {
 							Name string `json:"name"`
 							Uri  string `json:"uri"`
@@ -92,24 +80,24 @@ type Account struct {
 func (c *Client) GetAccount(view string) (Account, error) {
 
 	var (
-		uri         = "/rest/account"
-		account     Account
-		queryParams = createQuery(&map[string]string{
-			"view": view,
-		})
+		uri     = "/rest/account"
+		account Account
+		//queryParams = createQuery(&map[string]string{
+		//	"view": view,
+		//})
 	)
 
 	return account, c.notImplementedError(rest.GET, uri, "account")
 
-	response, err := c.RestAPICall(rest.GET, uri, queryParams, nil)
-
-	if err != nil {
-		return account, err
-	}
-
-	if err := json.Unmarshal([]byte(response), &account); err != nil {
-		return account, apiResponseError(response, err)
-	}
-
-	return account, err
+	//response, err := c.RestAPICall(rest.GET, uri, queryParams, nil)
+	//
+	//if err != nil {
+	//	return account, err
+	//}
+	//
+	//if err := json.Unmarshal([]byte(response), &account); err != nil {
+	//	return account, apiResponseError(response, err)
+	//}
+	//
+	//return account, err
 }
