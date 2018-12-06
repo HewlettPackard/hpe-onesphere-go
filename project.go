@@ -33,9 +33,13 @@ type ProjectRequest struct {
 }
 
 type Project struct {
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	URI         string `json:"uri"`
 	Created     string `json:"created"`
 	Deployments struct {
 		Members []struct {
+			NamedUriIdentifier
 			ActiveUsers []struct {
 				Email   string `json:"email"`
 				IsLocal string `json:"isLocal"`
@@ -49,57 +53,42 @@ type Project struct {
 			Created    string `json:"created"`
 			DiskSizeGB int    `json:"diskSizeGB"`
 			Endpoints  []struct {
-				Address     string `json:"address"`
-				AddressType string `json:"addressType"`
-				Name        string `json:"name"`
+				AddressWithType
+				Name string `json:"name"`
 			} `json:"endpoints"`
 			ErrorMessage string `json:"errorMessage"`
 			Firewall     []struct {
 				AllowedIPs string `json:"allowedIPs"`
 				Ports      []int  `json:"ports"`
 			} `json:"firewall"`
-			HasConsole   bool   `json:"hasConsole"`
-			ID           string `json:"id"`
-			MemorySizeGB int    `json:"memorySizeGB"`
-			Modified     string `json:"modified"`
-			Name         string `json:"name"`
-			ProjectURI   string `json:"projectUri"`
-			Region       struct {
-				ID   string `json:"id"`
-				Name string `json:"name"`
-				URI  string `json:"uri"`
-			} `json:"region"`
-			RegionURI string `json:"regionUri"`
-			Service   struct {
+			HasConsole   bool                `json:"hasConsole"`
+			MemorySizeGB int                 `json:"memorySizeGB"`
+			Modified     string              `json:"modified"`
+			ProjectURI   string              `json:"projectUri"`
+			Region       *NamedUriIdentifier `json:"region"`
+			RegionURI    string              `json:"regionUri"`
+			Service      struct {
+				NamedUriIdentifier
 				Icon    string `json:"icon"`
-				ID      string `json:"id"`
-				Name    string `json:"name"`
-				URI     string `json:"uri"`
 				Version string `json:"version"`
 			} `json:"service"`
 			ServiceURI               string   `json:"serviceUri"`
 			State                    string   `json:"state"`
 			Status                   string   `json:"status"`
-			URI                      string   `json:"uri"`
 			VirtualMachineProfileURI string   `json:"virtualMachineProfileUri"`
 			VolumeURIs               []string `json:"volumeURIs"`
 			Volumes                  []struct {
-				ID      string `json:"id"`
-				Name    string `json:"name"`
+				NamedUriIdentifier
 				SizeGiB string `json:"sizeGiB"`
 				Status  string `json:"status"`
-				URI     string `json:"uri"`
 			} `json:"volumes"`
 			ZoneURI string `json:"zoneUri"`
 		} `json:"members"`
 		Total int `json:"total"`
 	} `json:"deployments"`
-	ID        string   `json:"id"`
 	Modified  string   `json:"modified"`
-	Name      string   `json:"name"`
 	Protected bool     `json:"protected"`
 	TagUris   []string `json:"tagUris"`
-	URI       string   `json:"uri"`
 }
 
 type ProjectList struct {

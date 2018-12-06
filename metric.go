@@ -20,39 +20,38 @@
 
 package onesphere
 
-import (
-	"encoding/json"
-	"github.com/HewlettPackard/hpe-onesphere-go/rest"
-)
+import "time"
 
-type CatalogType struct {
-	ID          string `json:"id"`
+type Metric struct {
+	ResourceURI string `json:"resourceUri"`
+	Resource    struct {
+		NamedUri
+		Value   string   `json:"value"`
+		Project NamedUri `json:"project"`
+		Zone    struct {
+			NamedUri
+			Region struct {
+				NamedUri
+				Provider struct {
+					NamedUri
+					ProviderType NamedUri `json:"providerType"`
+				} `json:"provider"`
+			} `json:"region"`
+		} `json:"zone"`
+	} `json:"resource"`
 	Name        string `json:"name"`
-	URI         string `json:"uri"`
-	CanUseZones bool   `json:"canUseZones"`
-}
-
-type CatalogTypeList struct {
-	Total   int           `json:"total"`
-	Members []CatalogType `json:"members"`
-}
-
-// GetCatalogTypes returns a list of all Catalog Types
-func (c *Client) GetCatalogTypes() (CatalogTypeList, error) {
-	var (
-		uri          = "/rest/catalog-types"
-		catalogTypes CatalogTypeList
-	)
-
-	response, err := c.RestAPICall(rest.GET, uri, nil, nil)
-
-	if err != nil {
-		return catalogTypes, err
-	}
-
-	if err := json.Unmarshal([]byte(response), &catalogTypes); err != nil {
-		return catalogTypes, apiResponseError(response, err)
-	}
-
-	return catalogTypes, err
+	Units       string `json:"units"`
+	Description string `json:"description"`
+	Values      []struct {
+		Value int       `json:"value"`
+		Start time.Time `json:"start"`
+		End   time.Time `json:"end"`
+	} `json:"values"`
+	Total        int `json:"total"`
+	Start        int `json:"start"`
+	Count        int `json:"count"`
+	Associations []struct {
+		NamedUri
+		Category string `json:"category"`
+	} `json:"associations"`
 }

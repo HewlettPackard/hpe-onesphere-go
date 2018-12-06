@@ -45,14 +45,20 @@ type Auth struct {
 	HostURL string
 }
 
-// NamedUriIdentifier defines JSON Struct for { id, name, uri }
-type NamedUriIdentifier struct {
-	Id   string `json:"id"`
+// NamedUri defines JSON struct for { name, uri }
+type NamedUri struct {
 	Name string `json:"name"`
-	Uri  string `json:"uri"`
+	URI  string `json:"uri"`
 }
 
-// AddressWithType defines JSON Struct for { address, addressType }
+// NamedUriIdentifier defines JSON struct for { id, name, uri }
+type NamedUriIdentifier struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+	URI  string `json:"uri"`
+}
+
+// AddressWithType defines JSON struct for { address, addressType }
 type AddressWithType struct {
 	Address     string `json:"address"`
 	AddressType string `json:"addressType"`

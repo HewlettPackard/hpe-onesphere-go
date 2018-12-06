@@ -43,12 +43,12 @@ type CatalogActionResponse struct {
 }
 
 type Catalog struct {
-	Created          time.Time `json:"created"`
 	ID               string    `json:"id"`
-	Modified         time.Time `json:"modified"`
 	Name             string    `json:"name"`
-	Status           string    `json:"status"`
 	URI              string    `json:"uri"`
+	Created          time.Time `json:"created"`
+	Modified         time.Time `json:"modified"`
+	Status           string    `json:"status"`
 	URL              string    `json:"url"`
 	ServiceTypeURI   string    `json:"serviceTypeUri"`
 	CatalogTypeURI   string    `json:"catalogTypeUri"`
