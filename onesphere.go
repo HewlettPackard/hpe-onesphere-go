@@ -396,48 +396,6 @@ func (c *Client) ChangePassword(password, token string) (string, error) {
 	return c.callHTTPRequest("POST", "/rest/password-reset/change", nil, values)
 }
 
-// Providers APIs
-
-func (c *Client) GetProviders(query string) (string, error) {
-	params := map[string]string{"query": query}
-	return c.callHTTPRequest("GET", "/rest/providers", params, nil)
-}
-
-// state: "Enabled|Disabled"
-func (c *Client) CreateProvider(providerID, providerTypeUri, accessKey, secretKey string,
-	paymentProvider bool,
-	s3CostBucket, masterUri, state string) (string, error) {
-	values := map[string]interface{}{
-		"id":              providerID,
-		"providerTypeUri": providerTypeUri,
-		"accessKey":       accessKey,
-		"secretKey":       secretKey,
-		"paymentProvider": paymentProvider,
-		"s3CostBucket":    s3CostBucket,
-		"masterUri":       masterUri,
-		"state":           state}
-	return c.callHTTPRequest("POST", "/rest/providers", nil, values)
-}
-
-// view="full"
-// discover: boolean
-func (c *Client) GetProvider(providerID, view string, discover bool) (string, error) {
-	params := map[string]string{
-		"view":     view,
-		"discover": strconv.FormatBool(discover)}
-	return c.callHTTPRequest("GET", "/rest/providers/"+providerID, params, nil)
-}
-
-func (c *Client) DeleteProvider(providerID string) (string, error) {
-	return c.callHTTPRequest("DELETE", "/rest/providers/"+providerID, nil, nil)
-}
-
-// infoArray: [{op, path, value}]
-// op: "add|replace|remove"
-func (c *Client) UpdateProvider(providerID, infoArray string) (string, error) {
-	return c.callHTTPRequest("PUT", "/rest/providers/"+providerID, nil, infoArray)
-}
-
 // Rates APIs
 
 func (c *Client) GetRates(resourceUri, effectiveForDate, effectiveDate, metricName string,
