@@ -19,3 +19,12 @@ func TestGetMembershipsByProject(t *testing.T) {
 		t.Error(err)
 	}
 }
+
+func TestGetMembershipByUser(t *testing.T) {
+	setup()
+
+	_, err := client.GetMembershipsByUser("2")
+	if err != nil {
+		t.Error(err)
+	}
+}
