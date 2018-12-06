@@ -22,6 +22,7 @@ package onesphere
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/HewlettPackard/hpe-onesphere-go/rest"
 )
 
@@ -63,4 +64,12 @@ func (c *Client) GetMemberships(query string) (MembershipList, error) {
 	}
 
 	return memberships, err
+}
+
+// GetMembershipByProject filters Memberships by projectUri
+func (c *Client) GetMembershipsByProject(projectUri string) (MembershipList, error) {
+	if projectUri == "" {
+		return MembershipList{}, fmt.Errorf("projectUri must be a non-empty value")
+	}
+	return c.GetMemberships("projectUri EQ " + projectUri)
 }
