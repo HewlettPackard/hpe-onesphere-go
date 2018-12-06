@@ -266,36 +266,6 @@ func (c *Client) DeleteCatalog(catalogID string) (string, error) {
 	return "", c.notImplementedError(rest.DELETE, "/rest/catalogs/"+catalogID, "catalogs")
 }
 
-/* UpdateCatalog allowed fields to update:
-	[Op] => Field
-  - add => /name, /password, /accessKey, /secretKey, /state
-	- replace => /name, /state
-*/
-func (c *Client) UpdateCatalog(catalogID string, patchPayload []*PatchOp) (string, error) {
-	allowedFields := map[string][]string{
-		"add":     {"/name", "/password", "/accessKey", "/secretKey", "/state"},
-		"replace": {"/name", "/state"},
-	}
-
-	for _, pb := range patchPayload {
-		fieldIsValid := false
-
-		if allowedPaths, ok := allowedFields[pb.Op]; ok {
-			for _, allowedPath := range allowedPaths {
-				if pb.Path == allowedPath {
-					fieldIsValid = true
-				}
-			}
-		}
-
-		if !fieldIsValid {
-			return "", fmt.Errorf("UpdateCatalog received invalid Field for update.\nReceived Op: %s\nReceived Path: %s\nValid Fields: %v\n", pb.Op, pb.Path, allowedFields)
-		}
-	}
-
-	return c.callHTTPRequest("PATCH", "/rest/catalogs/"+catalogID, nil, patchPayload)
-}
-
 // Connect App APIs
 
 // GetConnectApp allowed operating systems: ["windows", "mac"]
