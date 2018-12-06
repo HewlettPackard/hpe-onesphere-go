@@ -33,3 +33,13 @@ func TestGetProjectByID(t *testing.T) {
 		t.Errorf("TestGetProjectByID Failed to get project: ID is ''")
 	}
 }
+
+func TestCreateProject(t *testing.T) {
+	setup()
+
+	projectRequest := ProjectRequest{}
+
+	if _, err := client.CreateProject(projectRequest); err != nil {
+		t.Error(err)
+	}
+}
