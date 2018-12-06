@@ -396,12 +396,6 @@ func (c *Client) ChangePassword(password, token string) (string, error) {
 	return c.callHTTPRequest("POST", "/rest/password-reset/change", nil, values)
 }
 
-// Provider Types APIs
-
-func (c *Client) GetProviderTypes() (string, error) {
-	return c.callHTTPRequest("GET", "/rest/provider-types", nil, nil)
-}
-
 // Providers APIs
 
 func (c *Client) GetProviders(query string) (string, error) {
