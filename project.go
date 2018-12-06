@@ -206,3 +206,8 @@ func (c *Client) UpdateProject(project Project, updates ProjectRequest) (Project
 
 	return updatedProject, err
 }
+
+// DeleteProject Deletes Project
+func (c *Client) DeleteProject(project Project) error {
+	return c.notImplementedError(rest.DELETE, "/rest/projects/"+project.ID, "projects")
+}
