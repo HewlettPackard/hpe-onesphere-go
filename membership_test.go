@@ -46,3 +46,13 @@ func TestGetMembershipsByRole(t *testing.T) {
 		t.Error(err)
 	}
 }
+
+func TestCreateMembership(t *testing.T) {
+	setup()
+
+	membershipRequest := MembershipRequest{}
+
+	if _, err := client.CreateMembership(membershipRequest); err != nil {
+		t.Error(err)
+	}
+}
