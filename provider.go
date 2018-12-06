@@ -217,7 +217,7 @@ func (c *Client) UpdateProvider(provider Provider, updates []*PatchOp) (Provider
 // DeleteProvider Deletes Provider
 func (c *Client) DeleteProvider(provider Provider) error {
 	if provider.ID == "" {
-		return fmt.Errorf("Deployment must have a non-empty ID")
+		return fmt.Errorf("Provider must have a non-empty ID")
 	}
 
 	var uri = "/rest/providers/" + provider.ID
