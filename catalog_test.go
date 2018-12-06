@@ -64,3 +64,14 @@ func TestDeleteCatalog(t *testing.T) {
 		t.Skip(err)
 	}
 }
+
+func TestActionCatalog(t *testing.T) {
+	setup()
+
+	catalog := Catalog{ID: "2"}
+	actionType := "refresh"
+
+	if err := client.ActionCatalog(catalog, actionType); err != nil {
+		t.Error(err)
+	}
+}
