@@ -28,3 +28,12 @@ func TestGetMembershipByUser(t *testing.T) {
 		t.Error(err)
 	}
 }
+
+func TestGetMembershipsByUserGroup(t *testing.T) {
+	setup()
+
+	_, err := client.GetMembershipsByUserGroup("2")
+	if err != nil {
+		t.Error(err)
+	}
+}
