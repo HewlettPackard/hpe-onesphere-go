@@ -103,3 +103,53 @@ func (c *Client) GetNetworkByID(id string) (Network, error) {
 
 	return network, err
 }
+
+/* UpdateNetwork using []*PatchOp returns updated network on success
+
+Allowed Ops for PATCH of networks: add | replace | remove
+
+example:
+
+Op: add
+Path: projectUris
+Value: /rest/projects/abc
+
+*/
+func (c *Client) UpdateNetwork(network Network, updates []*PatchOp) (Network, error) {
+	if network.ID == "" {
+		return network, fmt.Errorf("Network must have a non-empty ID")
+	}
+
+	allowedOps := []string{"add", "replace", "remove"}
+
+	for _, pb := range updates {
+		fieldIsValid := false
+
+		for _, allowedOp := range allowedOps {
+			if pb.Op == allowedOp {
+				fieldIsValid = true
+			}
+		}
+
+		if !fieldIsValid {
+			return network, fmt.Errorf("UpdateNetwork received invalid Op for update.\nReceived Op: %s\nValid Ops: %v\n", pb.Op, allowedOps)
+		}
+	}
+
+	var (
+		uri            = "/rest/networks/" + network.ID
+		updatedNetwork Network
+	)
+
+	response, err := c.RestAPICall(rest.PATCH, uri, nil, updates)
+
+	if err != nil {
+		return network, err
+	}
+
+	if err := json.Unmarshal([]byte(response), &updatedNetwork); err != nil {
+		return network, apiResponseError(response, err)
+	}
+
+	return updatedNetwork, err
+}
