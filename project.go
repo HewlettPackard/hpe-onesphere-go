@@ -182,3 +182,27 @@ func (c *Client) CreateProject(projectRequest ProjectRequest) (Project, error) {
 
 	return project, err
 }
+
+// UpdateProject using ProjectRequest returns updated project on success
+func (c *Client) UpdateProject(project Project, updates ProjectRequest) (Project, error) {
+	if project.ID == "" {
+		return project, fmt.Errorf("Project must have a non-empty ID")
+	}
+
+	var (
+		uri            = "/rest/projects/" + project.ID
+		updatedProject Project
+	)
+
+	response, err := c.RestAPICall(rest.PATCH, uri, nil, updates)
+
+	if err != nil {
+		return project, err
+	}
+
+	if err := json.Unmarshal([]byte(response), &updatedProject); err != nil {
+		return project, apiResponseError(response, err)
+	}
+
+	return updatedProject, err
+}

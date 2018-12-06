@@ -43,3 +43,14 @@ func TestCreateProject(t *testing.T) {
 		t.Error(err)
 	}
 }
+
+func TestUpdateProject(t *testing.T) {
+	setup()
+
+	project := Project{ID: "2"}
+	updates := ProjectRequest{}
+
+	if _, err := client.UpdateProject(project, updates); err != nil {
+		t.Error(err)
+	}
+}
