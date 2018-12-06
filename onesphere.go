@@ -398,23 +398,6 @@ func (c *Client) GetRate(rateID string) (string, error) {
 	return c.callHTTPRequest("GET", "/rest/rates/"+rateID, nil, nil)
 }
 
-// state: "Enabling|Enabled|Disabling|Disabled"
-func (c *Client) CreateRegionConnection(regionID, endpointUuid, name, ipAddress, username, password string,
-	port int,
-	state, uri string) (string, error) {
-	values := map[string]interface{}{
-		"endpointUuid": endpointUuid,
-		"name":         name,
-		"location": map[string]interface{}{
-			"ipAddress": ipAddress,
-			"username":  username,
-			"password":  password,
-			"port":      strconv.Itoa(port)},
-		"state": state,
-		"uri":   uri}
-	return c.callHTTPRequest("POST", "/rest/regions/"+regionID+"/connection", nil, values)
-}
-
 func (c *Client) DeleteRegionConnection(regionID string) (string, error) {
 	return c.callHTTPRequest("DELETE", "/rest/regions/"+regionID+"/connection", nil, nil)
 }
