@@ -221,7 +221,7 @@ func (c *Client) UpdateRegion(region Region, updates []*PatchOp) (Region, error)
 // DeleteRegion Deletes Region
 func (c *Client) DeleteRegion(region Region) error {
 	if region.ID == "" {
-		return fmt.Errorf("Deployment must have a non-empty ID")
+		return fmt.Errorf("Region must have a non-empty ID")
 	}
 
 	var uri = "/rest/regions/" + region.ID
@@ -259,14 +259,14 @@ func (c *Client) GetRegionConnection(regionId string) (RegionConnection, error) 
 }
 
 // CreateRegionConnection Creates RegionConnection and returns updated RegionConnection
-func (c *Client) CreateRegionConnection(regionId string, regionConnectionRequest RegionConnectionRequest) (RegionConnection, error) {
+func (c *Client) CreateRegionConnection(region Region, regionConnectionRequest RegionConnectionRequest) (RegionConnection, error) {
 	var (
-		uri        = "/rest/regions/" + regionId + "/connection"
+		uri        = "/rest/regions/" + region.ID + "/connection"
 		regionConn RegionConnection
 	)
 
-	if regionId == "" {
-		return regionConn, fmt.Errorf("regionId must not be empty")
+	if region.ID == "" {
+		return regionConn, fmt.Errorf("Region.ID must not be empty")
 	}
 
 	response, err := c.RestAPICall(rest.POST, uri, nil, regionConnectionRequest)
@@ -280,4 +280,21 @@ func (c *Client) CreateRegionConnection(regionId string, regionConnectionRequest
 	}
 
 	return regionConn, err
+}
+
+// DeleteRegionConnection Deletes RegionConnection
+func (c *Client) DeleteRegionConnection(region Region) error {
+	if region.ID == "" {
+		return fmt.Errorf("Region must have a non-empty ID")
+	}
+
+	var uri = "/rest/regions/" + region.ID + "/connection"
+
+	response, err := c.RestAPICall(rest.DELETE, uri, nil, nil)
+
+	if err != nil {
+		return apiResponseError(response, err)
+	}
+
+	return nil
 }
