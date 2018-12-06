@@ -302,23 +302,6 @@ func (c *Client) GetKeyPair(regionUri, projectUri string) (string, error) {
 	return c.callHTTPRequest("GET", "/rest/keypairs", params, nil)
 }
 
-// Memberships APIs
-
-func (c *Client) GetMemberships(query string) (string, error) {
-	params := map[string]string{"query": query}
-	return c.callHTTPRequest("GET", "/rest/memberships", params, nil)
-}
-
-func (c *Client) CreateMembership(userUri, roleUri, projectUri string) (string, error) {
-	values := map[string]string{"userUri": userUri, "membershipRoleUri": roleUri, "projectUri": projectUri}
-	return c.callHTTPRequest("POST", "/rest/memberships", nil, values)
-}
-
-func (c *Client) DeleteMembership(userUri, roleUri, projectUri string) (string, error) {
-	values := map[string]string{"userUri": userUri, "membershipRoleUri": roleUri, "projectUri": projectUri}
-	return c.callHTTPRequest("DELETE", "/rest/memberships", nil, values)
-}
-
 // Metrics APIs
 
 func (c *Client) GetMetrics(
