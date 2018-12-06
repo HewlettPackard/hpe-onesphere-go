@@ -89,3 +89,13 @@ func TestGetRegionConnection(t *testing.T) {
 		t.Skipf("TestGetRegionConnection returned empty response ''")
 	}
 }
+
+func TestCreateRegionConnection(t *testing.T) {
+	setup()
+
+	regionConnectionRequest := RegionConnectionRequest{}
+
+	if _, err := client.CreateRegionConnection("2", regionConnectionRequest); err != nil {
+		t.Error(err)
+	}
+}

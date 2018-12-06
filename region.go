@@ -60,6 +60,18 @@ type RegionList struct {
 	Members []Region `json:"members"`
 }
 
+type RegionConnectionRequest struct {
+	EndpointUUID string `json:"endpointUuid"`
+	Name         string `json:"name"`
+	Location     struct {
+		IPAddress string `json:"ipAddress"`
+		Username  string `json:"username"`
+		Password  string `json:"password"`
+		Port      int    `json:"port"`
+	} `json:"location"`
+	State string `json:"state"`
+}
+
 type RegionConnection struct {
 	EndpointUUID string `json:"endpointUuid"`
 	Name         string `json:"name"`
@@ -223,17 +235,41 @@ func (c *Client) DeleteRegion(region Region) error {
 	return nil
 }
 
-func (c *Client) GetRegionConnection(id string) (RegionConnection, error) {
+func (c *Client) GetRegionConnection(regionId string) (RegionConnection, error) {
 	var (
-		uri        = "/rest/regions/" + id + "/connection"
+		uri        = "/rest/regions/" + regionId + "/connection"
 		regionConn RegionConnection
 	)
 
-	if id == "" {
-		return regionConn, fmt.Errorf("id must not be empty")
+	if regionId == "" {
+		return regionConn, fmt.Errorf("regionId must not be empty")
 	}
 
 	response, err := c.RestAPICall(rest.GET, uri, nil, nil)
+
+	if err != nil {
+		return regionConn, err
+	}
+
+	if err := json.Unmarshal([]byte(response), &regionConn); err != nil {
+		return regionConn, apiResponseError(response, err)
+	}
+
+	return regionConn, err
+}
+
+// CreateRegionConnection Creates RegionConnection and returns updated RegionConnection
+func (c *Client) CreateRegionConnection(regionId string, regionConnectionRequest RegionConnectionRequest) (RegionConnection, error) {
+	var (
+		uri        = "/rest/regions/" + regionId + "/connection"
+		regionConn RegionConnection
+	)
+
+	if regionId == "" {
+		return regionConn, fmt.Errorf("regionId must not be empty")
+	}
+
+	response, err := c.RestAPICall(rest.POST, uri, nil, regionConnectionRequest)
 
 	if err != nil {
 		return regionConn, err
