@@ -1,6 +1,8 @@
 package onesphere
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestGetRegions(t *testing.T) {
 	setup()
@@ -62,5 +64,28 @@ func TestDeleteRegion(t *testing.T) {
 
 	if err := client.DeleteRegion(region); err != nil {
 		t.Skip(err)
+	}
+}
+
+func TestGetRegionConnection(t *testing.T) {
+	setup()
+
+	regionList, err := client.GetRegions("", "")
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	if len(regionList.Members) == 0 {
+		t.Error("TestGetRegionByID Could not find any Regions")
+		return
+	}
+
+	testId := regionList.Members[0].ID
+	regionConn, err := client.GetRegionConnection(testId)
+	if err != nil {
+		t.Error(err)
+	}
+	if regionConn.Name == "" {
+		t.Skipf("TestGetRegionConnection returned empty response ''")
 	}
 }
