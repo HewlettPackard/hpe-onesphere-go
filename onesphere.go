@@ -396,34 +396,6 @@ func (c *Client) ChangePassword(password, token string) (string, error) {
 	return c.callHTTPRequest("POST", "/rest/password-reset/change", nil, values)
 }
 
-// Projects APIs
-
-func (c *Client) CreateProject(name, description string, tagUris []string) (string, error) {
-	values := map[string]interface{}{
-		"name":        name,
-		"description": description,
-		"tagUris":     tagUris}
-	return c.callHTTPRequest("POST", "/rest/projects", nil, values)
-}
-
-func (c *Client) GetProject(projectID, view string) (string, error) {
-	params := map[string]string{"view": view}
-	return c.callHTTPRequest("GET", "/rest/projects/"+projectID, params, nil)
-}
-
-func (c *Client) DeleteProject(projectID string) (string, error) {
-	// return c.callHTTPRequest("DELETE", "/rest/projects/"+projectID, nil, nil)
-	return "", c.notImplementedError(rest.DELETE, "/rest/projects", "projects")
-}
-
-func (c *Client) UpdateProject(projectID, name, description string, tagUris []string) (string, error) {
-	values := map[string]interface{}{
-		"name":        name,
-		"description": description,
-		"tagUris":     tagUris}
-	return c.callHTTPRequest("PUT", "/rest/projects/"+projectID, nil, values)
-}
-
 // Provider Types APIs
 
 func (c *Client) GetProviderTypes() (string, error) {

@@ -22,6 +22,7 @@ package onesphere
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/HewlettPackard/hpe-onesphere-go/rest"
 )
 
@@ -125,4 +126,33 @@ func (c *Client) GetProjects(userQuery, view string) (ProjectList, error) {
 	}
 
 	return projects, err
+}
+
+// GetProjectByID returns an Project by id
+// example view: "full"
+func (c *Client) GetProjectByID(id, view string) (Project, error) {
+	var (
+		uri         = "/rest/projects/" + id
+		queryParams = createQuery(&map[string]string{
+			"id":   id,
+			"view": view,
+		})
+		project Project
+	)
+
+	if id == "" {
+		return project, fmt.Errorf("id must not be empty")
+	}
+
+	response, err := c.RestAPICall(rest.GET, uri, queryParams, nil)
+
+	if err != nil {
+		return project, err
+	}
+
+	if err := json.Unmarshal([]byte(response), &project); err != nil {
+		return project, apiResponseError(response, err)
+	}
+
+	return project, err
 }
