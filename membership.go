@@ -73,3 +73,11 @@ func (c *Client) GetMembershipsByProject(projectUri string) (MembershipList, err
 	}
 	return c.GetMemberships("projectUri EQ " + projectUri)
 }
+
+// GetMembershipByUser filters Memberships by userUri
+func (c *Client) GetMembershipsByUser(userUri string) (MembershipList, error) {
+	if userUri == "" {
+		return MembershipList{}, fmt.Errorf("userUri must be a non-empty value")
+	}
+	return c.GetMemberships("userUri EQ " + userUri)
+}
