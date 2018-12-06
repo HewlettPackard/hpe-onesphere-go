@@ -342,12 +342,6 @@ func (c *Client) GetMetrics(
 	return c.callHTTPRequest("GET", "/rest/metrics", params, nil)
 }
 
-// Networks APIs
-
-func (c *Client) GetNetwork(networkID string) (string, error) {
-	return c.callHTTPRequest("GET", "/rest/networks/"+networkID, nil, nil)
-}
-
 // Onboarding APIs
 
 func (c *Client) GetAzureLoginProperties() (string, error) {
@@ -403,17 +397,6 @@ func (c *Client) ChangePassword(password, token string) (string, error) {
 }
 
 // Projects APIs
-
-func (c *Client) GetProjects(userQuery, view string) (string, error) {
-	params := map[string]string{}
-	if strings.TrimSpace(userQuery) != "" {
-		params["userQuery"] = userQuery
-	}
-	if strings.TrimSpace(view) != "" {
-		params["view"] = view
-	}
-	return c.callHTTPRequest("GET", "/rest/projects", params, nil)
-}
 
 func (c *Client) CreateProject(name, description string, tagUris []string) (string, error) {
 	values := map[string]interface{}{
