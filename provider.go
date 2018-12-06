@@ -658,3 +658,53 @@ func (c *Client) CreateProvider(providerRequest ProviderRequest) (Provider, erro
 
 	return provider, err
 }
+
+/* UpdateProvider using []*PatchOp returns updated provider on success
+
+Allowed Ops for PATCH of providers: add | replace | remove
+
+example:
+
+Op: replace
+Path: /name
+Value: new name
+
+*/
+func (c *Client) UpdateProvider(provider Provider, updates []*PatchOp) (Provider, error) {
+	if provider.ID == "" {
+		return provider, fmt.Errorf("Provider must have a non-empty ID")
+	}
+
+	allowedOps := []string{"add", "replace", "remove"}
+
+	for _, pb := range updates {
+		fieldIsValid := false
+
+		for _, allowedOp := range allowedOps {
+			if pb.Op == allowedOp {
+				fieldIsValid = true
+			}
+		}
+
+		if !fieldIsValid {
+			return provider, fmt.Errorf("UpdateProvider received invalid Op for update.\nReceived Op: %s\nValid Ops: %v\n", pb.Op, allowedOps)
+		}
+	}
+
+	var (
+		uri             = "/rest/providers/" + provider.ID
+		updatedProvider Provider
+	)
+
+	response, err := c.RestAPICall(rest.PATCH, uri, nil, updates)
+
+	if err != nil {
+		return provider, err
+	}
+
+	if err := json.Unmarshal([]byte(response), &updatedProvider); err != nil {
+		return provider, apiResponseError(response, err)
+	}
+
+	return updatedProvider, err
+}
