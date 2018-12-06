@@ -89,3 +89,11 @@ func (c *Client) GetMembershipsByUserGroup(userGroupUri string) (MembershipList,
 	}
 	return c.GetMemberships("userGroupUri EQ " + userGroupUri)
 }
+
+// GetMembershipByRole filters Memberships by roleUri
+func (c *Client) GetMembershipsByRole(roleUri string) (MembershipList, error) {
+	if roleUri == "" {
+		return MembershipList{}, fmt.Errorf("roleUri must be a non-empty value")
+	}
+	return c.GetMemberships("roleUri EQ " + roleUri)
+}
