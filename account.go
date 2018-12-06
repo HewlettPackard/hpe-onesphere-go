@@ -40,31 +40,14 @@ type Account struct {
 			NamedUri
 			Category string `json:"category"`
 		} `json:"associations"`
-		Count       string `json:"count"`
-		Description string `json:"description"`
-		Name        string `json:"name"`
-		Resource    struct {
-			NamedUri
-			Value   string   `json:"value"`
-			Project NamedUri `json:"project"`
-			Zone    struct {
-				NamedUri
-				Region struct {
-					NamedUri
-					Provider struct {
-						NamedUri
-						ProviderType struct {
-							Name string `json:"name"`
-							Uri  string `json:"uri"`
-						} `json:"providerType"`
-					} `json:"provider"`
-				} `json:"region"`
-			} `json:"zone"`
-		} `json:"resource"`
-		ResourceUri string `json:"resourceUri"`
-		Start       int    `json:"start"`
-		Total       int    `json:"total"`
-		Units       string `json:"units"`
+		Count       string    `json:"count"`
+		Description string    `json:"description"`
+		Name        string    `json:"name"`
+		Resource    *Resource `json:"resource"`
+		ResourceUri string    `json:"resourceUri"`
+		Start       int       `json:"start"`
+		Total       int       `json:"total"`
+		Units       string    `json:"units"`
 		Values      []struct {
 			End   string `json:"end"`
 			Start string `json:"start"`

@@ -31,35 +31,11 @@ type ProviderType struct {
 	ID      string    `json:"id"`
 	Logo    string    `json:"logo"`
 	Metrics []struct {
-		ResourceURI string `json:"resourceUri"`
-		Resource    struct {
-			Value   string `json:"value"`
-			Name    string `json:"name"`
-			URI     string `json:"uri"`
-			Project struct {
-				Name string `json:"name"`
-				URI  string `json:"uri"`
-			} `json:"project"`
-			Zone struct {
-				Name   string `json:"name"`
-				URI    string `json:"uri"`
-				Region struct {
-					Name     string `json:"name"`
-					URI      string `json:"uri"`
-					Provider struct {
-						Name         string `json:"name"`
-						URI          string `json:"uri"`
-						ProviderType struct {
-							Name string `json:"name"`
-							URI  string `json:"uri"`
-						} `json:"providerType"`
-					} `json:"provider"`
-				} `json:"region"`
-			} `json:"zone"`
-		} `json:"resource"`
-		Name        string `json:"name"`
-		Units       string `json:"units"`
-		Description string `json:"description"`
+		ResourceURI string    `json:"resourceUri"`
+		Resource    *Resource `json:"resource"`
+		Name        string    `json:"name"`
+		Units       string    `json:"units"`
+		Description string    `json:"description"`
 		Values      []struct {
 			Value int       `json:"value"`
 			Start time.Time `json:"start"`

@@ -20,24 +20,21 @@
 
 package onesphere
 
-import "time"
-
-type Metric struct {
-	ResourceURI string    `json:"resourceUri"`
-	Resource    *Resource `json:"resource"`
-	Name        string    `json:"name"`
-	Units       string    `json:"units"`
-	Description string    `json:"description"`
-	Values      []struct {
-		Value int       `json:"value"`
-		Start time.Time `json:"start"`
-		End   time.Time `json:"end"`
-	} `json:"values"`
-	Total        int `json:"total"`
-	Start        int `json:"start"`
-	Count        int `json:"count"`
-	Associations []struct {
+type Resource struct {
+	NamedUri
+	Value   string   `json:"value"`
+	Project NamedUri `json:"project"`
+	Zone    struct {
 		NamedUri
-		Category string `json:"category"`
-	} `json:"associations"`
+		Region struct {
+			NamedUri
+			Provider struct {
+				NamedUri
+				ProviderType struct {
+					Name string `json:"name"`
+					Uri  string `json:"uri"`
+				} `json:"providerType"`
+			} `json:"provider"`
+		} `json:"region"`
+	} `json:"zone"`
 }
