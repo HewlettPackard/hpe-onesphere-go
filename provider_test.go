@@ -43,3 +43,14 @@ func TestCreateProvider(t *testing.T) {
 		t.Error(err)
 	}
 }
+
+func TestUpdateProvider(t *testing.T) {
+	setup()
+
+	provider := Provider{ID: "2"}
+	updates := []*PatchOp{}
+
+	if _, err := client.UpdateProvider(provider, updates); err != nil {
+		t.Error(err)
+	}
+}
