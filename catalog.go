@@ -64,7 +64,7 @@ type CatalogList struct {
 	Members []Catalog `json:"members"`
 }
 
-// GetCatalogs with optional userQuery and sort
+// GetCatalogs with optional userQuery and view
 // leave filter blank to get all catalogs
 // example userQuery: "dock"
 // example view: "full"
@@ -97,7 +97,6 @@ func (c *Client) GetCatalogByID(id, view string) (Catalog, error) {
 	var (
 		uri         = "/rest/catalogs/" + id
 		queryParams = createQuery(&map[string]string{
-			"id":   id,
 			"view": view,
 		})
 		catalog Catalog
