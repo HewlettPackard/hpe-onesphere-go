@@ -10,3 +10,13 @@ func TestGetProviders(t *testing.T) {
 		t.Error(err)
 	}
 }
+
+func TestCreateProvider(t *testing.T) {
+	setup()
+
+	providerRequest := ProviderRequest{}
+
+	if _, err := client.CreateProvider(providerRequest); err != nil {
+		t.Error(err)
+	}
+}
