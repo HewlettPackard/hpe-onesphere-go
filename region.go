@@ -22,7 +22,9 @@ package onesphere
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/HewlettPackard/hpe-onesphere-go/rest"
+	"strconv"
 	"time"
 )
 
@@ -74,4 +76,34 @@ func (c *Client) GetRegions(query, view string) (RegionList, error) {
 	}
 
 	return regions, err
+}
+
+// GetRegionByID returns a Provider by id
+// example view: "full"
+// discover: Will return child providers from aws.
+func (c *Client) GetRegionByID(id, view string, discover bool) (Region, error) {
+	var (
+		uri         = "/rest/regions/" + id
+		queryParams = createQuery(&map[string]string{
+			"view":     view,
+			"discover": strconv.FormatBool(discover),
+		})
+		region Region
+	)
+
+	if id == "" {
+		return region, fmt.Errorf("id must not be empty")
+	}
+
+	response, err := c.RestAPICall(rest.GET, uri, queryParams, nil)
+
+	if err != nil {
+		return region, err
+	}
+
+	if err := json.Unmarshal([]byte(response), &region); err != nil {
+		return region, apiResponseError(response, err)
+	}
+
+	return region, err
 }
