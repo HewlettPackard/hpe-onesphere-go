@@ -26,6 +26,8 @@ import (
 	"github.com/HewlettPackard/hpe-onesphere-go/rest"
 )
 
+type MembershipRequest = Membership
+
 type Membership struct {
 	GroupURI          string `json:"groupUri"`
 	MembershipRoleURI string `json:"membershipRoleUri"`
@@ -96,4 +98,24 @@ func (c *Client) GetMembershipsByRole(roleUri string) (MembershipList, error) {
 		return MembershipList{}, fmt.Errorf("roleUri must be a non-empty value")
 	}
 	return c.GetMemberships("roleUri EQ " + roleUri)
+}
+
+// CreateMembership Creates Membership and returns updated Membership
+func (c *Client) CreateMembership(membershipRequest MembershipRequest) (Membership, error) {
+	var (
+		uri        = "/rest/memberships"
+		membership Membership
+	)
+
+	response, err := c.RestAPICall(rest.POST, uri, nil, membershipRequest)
+
+	if err != nil {
+		return membership, err
+	}
+
+	if err := json.Unmarshal([]byte(response), &membership); err != nil {
+		return membership, apiResponseError(response, err)
+	}
+
+	return membership, err
 }
