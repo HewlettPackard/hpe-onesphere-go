@@ -33,3 +33,13 @@ func TestGetRegionByID(t *testing.T) {
 		t.Errorf("TestGetRegionByID Failed to get region: ID is ''")
 	}
 }
+
+func TestCreateRegion(t *testing.T) {
+	setup()
+
+	regionRequest := RegionRequest{}
+
+	if _, err := client.CreateRegion(regionRequest); err != nil {
+		t.Error(err)
+	}
+}

@@ -28,6 +28,15 @@ import (
 	"time"
 )
 
+type RegionRequest struct {
+	Location struct {
+		Latitude  float32 `json:"latitude"`
+		Longitude float32 `json:"longitude"`
+	} `json:"location"`
+	Name        string `json:"name"`
+	ProviderURI string `json:"providerUri"`
+}
+
 type Region struct {
 	ID       string    `json:"id"`
 	Metrics  []*Metric `json:"metrics"`
@@ -96,6 +105,26 @@ func (c *Client) GetRegionByID(id, view string, discover bool) (Region, error) {
 	}
 
 	response, err := c.RestAPICall(rest.GET, uri, queryParams, nil)
+
+	if err != nil {
+		return region, err
+	}
+
+	if err := json.Unmarshal([]byte(response), &region); err != nil {
+		return region, apiResponseError(response, err)
+	}
+
+	return region, err
+}
+
+// CreateRegion Creates Region and returns updated Region
+func (c *Client) CreateRegion(regionRequest RegionRequest) (Region, error) {
+	var (
+		uri    = "/rest/regions"
+		region Region
+	)
+
+	response, err := c.RestAPICall(rest.POST, uri, nil, regionRequest)
 
 	if err != nil {
 		return region, err
