@@ -398,10 +398,6 @@ func (c *Client) GetRate(rateID string) (string, error) {
 	return c.callHTTPRequest("GET", "/rest/rates/"+rateID, nil, nil)
 }
 
-func (c *Client) GetRegionConnection(regionID string) (string, error) {
-	return c.callHTTPRequest("GET", "/rest/regions/"+regionID+"/connection", nil, nil)
-}
-
 // state: "Enabling|Enabled|Disabling|Disabled"
 func (c *Client) CreateRegionConnection(regionID, endpointUuid, name, ipAddress, username, password string,
 	port int,

@@ -60,6 +60,19 @@ type RegionList struct {
 	Members []Region `json:"members"`
 }
 
+type RegionConnection struct {
+	EndpointUUID string `json:"endpointUuid"`
+	Name         string `json:"name"`
+	Location     struct {
+		IPAddress string `json:"ipAddress"`
+		Username  string `json:"username"`
+		Password  string `json:"password"`
+		Port      int    `json:"port"`
+	} `json:"location"`
+	State string `json:"state"`
+	URI   string `json:"uri"`
+}
+
 // GetRegions returns RegionList with optional query and view
 // leave query blank to get all regions
 // example query: "providerUri EQ /rest/providers/xxxx"
@@ -208,4 +221,27 @@ func (c *Client) DeleteRegion(region Region) error {
 	}
 
 	return nil
+}
+
+func (c *Client) GetRegionConnection(id string) (RegionConnection, error) {
+	var (
+		uri        = "/rest/regions/" + id + "/connection"
+		regionConn RegionConnection
+	)
+
+	if id == "" {
+		return regionConn, fmt.Errorf("id must not be empty")
+	}
+
+	response, err := c.RestAPICall(rest.GET, uri, nil, nil)
+
+	if err != nil {
+		return regionConn, err
+	}
+
+	if err := json.Unmarshal([]byte(response), &regionConn); err != nil {
+		return regionConn, apiResponseError(response, err)
+	}
+
+	return regionConn, err
 }
