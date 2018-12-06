@@ -26,6 +26,12 @@ import (
 	"github.com/HewlettPackard/hpe-onesphere-go/rest"
 )
 
+type ProjectRequest struct {
+	Description string   `json:"description"`
+	Name        string   `json:"name"`
+	TagUris     []string `json:"tagUris"`
+}
+
 type Project struct {
 	Created     string `json:"created"`
 	Deployments struct {
@@ -145,6 +151,26 @@ func (c *Client) GetProjectByID(id, view string) (Project, error) {
 	}
 
 	response, err := c.RestAPICall(rest.GET, uri, queryParams, nil)
+
+	if err != nil {
+		return project, err
+	}
+
+	if err := json.Unmarshal([]byte(response), &project); err != nil {
+		return project, apiResponseError(response, err)
+	}
+
+	return project, err
+}
+
+// CreateProject Creates Project and returns updated Project
+func (c *Client) CreateProject(projectRequest ProjectRequest) (Project, error) {
+	var (
+		uri     = "/rest/projects"
+		project Project
+	)
+
+	response, err := c.RestAPICall(rest.POST, uri, nil, projectRequest)
 
 	if err != nil {
 		return project, err
