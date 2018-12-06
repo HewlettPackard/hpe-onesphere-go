@@ -296,12 +296,6 @@ func (c *Client) GetKeyPair(regionUri, projectUri string) (string, error) {
 	return c.callHTTPRequest("GET", "/rest/keypairs", params, nil)
 }
 
-// Membership Roles APIs
-
-func (c *Client) GetMembershipRoles() (string, error) {
-	return c.callHTTPRequest("GET", "/rest/membership-roles", nil, nil)
-}
-
 // Memberships APIs
 
 func (c *Client) GetMemberships(query string) (string, error) {
