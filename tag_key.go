@@ -26,6 +26,10 @@ import (
 	"github.com/HewlettPackard/hpe-onesphere-go/rest"
 )
 
+type TagKeyRequest struct {
+	Name string `json:"name"`
+}
+
 type TagKey struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
@@ -84,6 +88,26 @@ func (c *Client) GetTagKeyByID(id, view string) (TagKey, error) {
 	}
 
 	response, err := c.RestAPICall(rest.GET, uri, queryParams, nil)
+
+	if err != nil {
+		return tagKey, err
+	}
+
+	if err := json.Unmarshal([]byte(response), &tagKey); err != nil {
+		return tagKey, apiResponseError(response, err)
+	}
+
+	return tagKey, err
+}
+
+// CreateTagKey Creates TagKey and returns updated TagKey
+func (c *Client) CreateTagKey(tagKeyRequest TagKeyRequest) (TagKey, error) {
+	var (
+		uri    = "/rest/tag-keys"
+		tagKey TagKey
+	)
+
+	response, err := c.RestAPICall(rest.POST, uri, nil, tagKeyRequest)
 
 	if err != nil {
 		return tagKey, err
