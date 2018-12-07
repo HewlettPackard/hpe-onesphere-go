@@ -20,7 +20,11 @@
 
 package onesphere
 
-import "time"
+import (
+	"encoding/json"
+	"github.com/HewlettPackard/hpe-onesphere-go/rest"
+	"time"
+)
 
 type Zone struct {
 	Created     time.Time `json:"created"`
@@ -215,4 +219,46 @@ type Zone struct {
 		Roles []string `json:"roles"`
 		Error *Error `json:"error"`
 	} `json:"inTransitKvmServers"`
+}
+
+type ZoneList struct {
+	Total       int           `json:"total"`
+	Members     []Zone  `json:"members"`
+}
+
+/* GetZones with optional query, and filters by regionUri, providerUri, applianceUri
+leave query and filter blank to get all zones
+
+query supports equality comparison against one or more properties using a
+"name EQ value" syntax. Multiple comparisons can be combined
+using a "name1 EQ value1 AND name2 EQ value2" syntax.
+
+example query: "providerUri EQ /rest/providers/xxxx"
+
+example view: "full"
+*/
+func (c *Client) GetZones(query, regionUri, providerUri, applianceUri, view string) (ZoneList, error) {
+	var (
+		uri         = "/rest/zones"
+		queryParams = createQuery(&map[string]string{
+			query: "query",
+			regionUri: "regionUri",
+			providerUri: "providerUri",
+			applianceUri: "applianceUri",
+			view: "view",
+		})
+		zones ZoneList
+	)
+
+	response, err := c.RestAPICall(rest.GET, uri, queryParams, nil)
+
+	if err != nil {
+		return zones, err
+	}
+
+	if err := json.Unmarshal([]byte(response), &zones); err != nil {
+		return zones, apiResponseError(response, err)
+	}
+
+	return zones, nil
 }

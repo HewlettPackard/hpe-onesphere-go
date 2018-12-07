@@ -531,45 +531,6 @@ func (c *Client) GetZoneTypeResourceProfiles(zoneTypeID string) (string, error) 
 	return c.callHTTPRequest("GET", "/rest/zone-types/"+zoneTypeID+"/resource-profiles", nil, nil)
 }
 
-// Zones APIs
-
-func (c *Client) GetZones(query, regionUri, applianceUri string) (string, error) {
-	params := map[string]string{"query": query, "regionUri": regionUri, "applianceUri": applianceUri}
-	return c.callHTTPRequest("GET", "/rest/zones", params, nil)
-}
-
-func (c *Client) CreateZone(zoneData string) (string, error) {
-	return c.callHTTPRequest("POST", "/rest/zones", nil, zoneData)
-}
-
-// view: "full"
-func (c *Client) GetZone(zoneID, view string) (string, error) {
-	params := map[string]string{"view": view}
-	return c.callHTTPRequest("GET", "/rest/zones/"+zoneID, params, nil)
-}
-
-// op: "add|replace|remove"
-func (c *Client) UpdateZone(zoneID, op, path string, value interface{}) (string, error) {
-	values := map[string]interface{}{"op": op, "path": path, "value": value}
-	return c.callHTTPRequest("PUT", "/rest/zones/"+zoneID, nil, values)
-}
-
-func (c *Client) DeleteZone(zoneID string, force bool) (string, error) {
-	params := map[string]string{"force": strconv.FormatBool(force)}
-	return c.callHTTPRequest("DELETE", "/rest/zones/"+zoneID, params, nil)
-}
-
-// actionType: "reset|add-capacity|reduce-capacity"
-// resourceType: "compute|storage"
-func (c *Client) ActionOnZone(zoneID, actionType, resourceType string, resourceCapacity int) (string, error) {
-	values := map[string]interface{}{
-		"type": actionType,
-		"resourceOp": map[string]interface{}{
-			"resourceType":     resourceType,
-			"resourceCapacity": resourceCapacity}}
-	return c.callHTTPRequest("POST", "/rest/zones/"+zoneID+"/actions", nil, values)
-}
-
 func (c *Client) GetZoneApplianceImage(zoneID string) (string, error) {
 	return c.callHTTPRequest("GET", "/rest/zones/"+zoneID+"/appliance-image", nil, nil)
 }
