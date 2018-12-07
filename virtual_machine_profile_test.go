@@ -28,3 +28,12 @@ func TestGetVirtualMachineProfilesByZoneURI(t *testing.T) {
 		t.Error(err)
 	}
 }
+
+func TestGetVirtualMachineProfilesByServiceAndZoneURI(t *testing.T) {
+	setup()
+
+	_, err := client.GetVirtualMachineProfilesByServiceAndZoneURI("", "")
+	if err != nil {
+		t.Error(err)
+	}
+}
