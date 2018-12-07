@@ -42,68 +42,8 @@ type Zone struct {
 		TaskState  string `json:"taskState"`
 		TaskStatus string `json:"taskStatus"`
 	} `json:"currentTasks"`
-	Clusters []struct {
-		Created  time.Time `json:"created"`
-		ID       string    `json:"id"`
-		Name     string    `json:"name"`
-		Modified time.Time `json:"modified"`
-		Status   string    `json:"status"`
-		State    string    `json:"state"`
-		Error    *Error `json:"error"`
-		Hosts []struct {
-			ID            string   `json:"id"`
-			Name          string   `json:"name"`
-			OsName        string   `json:"osName"`
-			OsVersion     string   `json:"osVersion"`
-			TotalMemoryGb int      `json:"totalMemoryGb"`
-			FreeMemoryGb  int      `json:"freeMemoryGb"`
-			TotalCPUGhz   int      `json:"totalCpuGhz"`
-			FreeCPUGhz    int      `json:"freeCpuGhz"`
-			Datastores    []string `json:"datastores"`
-		} `json:"hosts"`
-		Datastores []struct {
-			Created  time.Time `json:"created"`
-			ID       string    `json:"id"`
-			Name     string    `json:"name"`
-			SizeGiB  int       `json:"sizeGiB"`
-			Type     string    `json:"type"`
-			Modified time.Time `json:"modified"`
-			Status   string    `json:"status"`
-			State    string    `json:"state"`
-			Error    *Error `json:"error"`
-		} `json:"datastores"`
-	} `json:"clusters"`
-	InTransitClusters []struct {
-		Created  time.Time `json:"created"`
-		ID       string    `json:"id"`
-		Name     string    `json:"name"`
-		Modified time.Time `json:"modified"`
-		Status   string    `json:"status"`
-		State    string    `json:"state"`
-		Error    *Error `json:"error"`
-		Hosts []struct {
-			ID            string   `json:"id"`
-			Name          string   `json:"name"`
-			OsName        string   `json:"osName"`
-			OsVersion     string   `json:"osVersion"`
-			TotalMemoryGb int      `json:"totalMemoryGb"`
-			FreeMemoryGb  int      `json:"freeMemoryGb"`
-			TotalCPUGhz   int      `json:"totalCpuGhz"`
-			FreeCPUGhz    int      `json:"freeCpuGhz"`
-			Datastores    []string `json:"datastores"`
-		} `json:"hosts"`
-		Datastores []struct {
-			Created  time.Time `json:"created"`
-			ID       string    `json:"id"`
-			Name     string    `json:"name"`
-			SizeGiB  int       `json:"sizeGiB"`
-			Type     string    `json:"type"`
-			Modified time.Time `json:"modified"`
-			Status   string    `json:"status"`
-			State    string    `json:"state"`
-			Error    *Error `json:"error"`
-		} `json:"datastores"`
-	} `json:"inTransitClusters"`
+	Clusters []*Cluster `json:"clusters"`
+	InTransitClusters []*Cluster `json:"inTransitClusters"`
 	EsxLcmTask struct {
 		URI             string   `json:"uri"`
 		Name            string   `json:"name"`
@@ -155,70 +95,8 @@ type Zone struct {
 	} `json:"resourceProfile"`
 	Default      bool   `json:"default"`
 	ApplianceURI string `json:"applianceUri"`
-	KvmServers   []struct {
-		ServerURI  string    `json:"serverUri"`
-		Name       string    `json:"name"`
-		Created    time.Time `json:"created"`
-		Modified   time.Time `json:"modified"`
-		Status     string    `json:"status"`
-		State      string    `json:"state"`
-		Datastores []struct {
-			Created  time.Time `json:"created"`
-			ID       string    `json:"id"`
-			Name     string    `json:"name"`
-			SizeGiB  int       `json:"sizeGiB"`
-			Type     string    `json:"type"`
-			Modified time.Time `json:"modified"`
-			Status   string    `json:"status"`
-			State    string    `json:"state"`
-			Error    *Error `json:"error"`
-		} `json:"datastores"`
-		Host struct {
-			ID            string   `json:"id"`
-			Name          string   `json:"name"`
-			OsName        string   `json:"osName"`
-			OsVersion     string   `json:"osVersion"`
-			TotalMemoryGb int      `json:"totalMemoryGb"`
-			FreeMemoryGb  int      `json:"freeMemoryGb"`
-			TotalCPUGhz   int      `json:"totalCpuGhz"`
-			FreeCPUGhz    int      `json:"freeCpuGhz"`
-			Datastores    []string `json:"datastores"`
-		} `json:"host"`
-		Roles []string `json:"roles"`
-		Error *Error `json:"error"`
-	} `json:"kvmServers"`
-	InTransitKvmServers []struct {
-		ServerURI  string    `json:"serverUri"`
-		Name       string    `json:"name"`
-		Created    time.Time `json:"created"`
-		Modified   time.Time `json:"modified"`
-		Status     string    `json:"status"`
-		State      string    `json:"state"`
-		Datastores []struct {
-			Created  time.Time `json:"created"`
-			ID       string    `json:"id"`
-			Name     string    `json:"name"`
-			SizeGiB  int       `json:"sizeGiB"`
-			Type     string    `json:"type"`
-			Modified time.Time `json:"modified"`
-			Status   string    `json:"status"`
-			State    string    `json:"state"`
-			Error    *Error `json:"error"`
-		} `json:"datastores"`
-		Host struct {
-			ID            string   `json:"id"`
-			Name          string   `json:"name"`
-			OsName        string   `json:"osName"`
-			OsVersion     string   `json:"osVersion"`
-			TotalMemoryGb int      `json:"totalMemoryGb"`
-			FreeMemoryGb  int      `json:"freeMemoryGb"`
-			TotalCPUGhz   int      `json:"totalCpuGhz"`
-			FreeCPUGhz    int      `json:"freeCpuGhz"`
-			Datastores    []string `json:"datastores"`
-		} `json:"host"`
-		Roles []string `json:"roles"`
-		Error *Error `json:"error"`
-	} `json:"inTransitKvmServers"`
+	KvmServers   []*KvmServer `json:"kvmServers"`
+	InTransitKvmServers []KvmServer `json:"inTransitKvmServers"`
 }
 
 type ZoneList struct {
