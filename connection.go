@@ -20,6 +20,18 @@
 
 package onesphere
 
+type ConnectionRequest struct {
+	UUID     string `json:"uuid"`
+	Name     string `json:"name"`
+	Location struct {
+		IPAddress string `json:"ipAddress"`
+		Username  string `json:"username"`
+		Password  string `json:"password"`
+		Port      int    `json:"port"`
+	} `json:"location"`
+	State string `json:"state"`
+}
+
 type Connection struct {
 	ID       string `json:"id"`
 	UUID     string `json:"uuid"`
