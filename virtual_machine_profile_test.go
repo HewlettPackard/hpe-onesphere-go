@@ -10,3 +10,12 @@ func TestGetVirtualMachineProfiles(t *testing.T) {
 		t.Error(err)
 	}
 }
+
+func TestGetVirtualMachineProfilesByServiceURI(t *testing.T) {
+	setup()
+
+	_, err := client.GetVirtualMachineProfilesByServiceURI("")
+	if err != nil {
+		t.Error(err)
+	}
+}

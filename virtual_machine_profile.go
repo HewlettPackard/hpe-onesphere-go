@@ -67,3 +67,8 @@ func (c *Client) GetVirtualMachineProfiles(query string) (VirtualMachineProfileL
 	return virtualMachineProfiles, err
 }
 
+// GetVirtualMachineProfilesByServiceURI returns VirtualMachineProfileList by serviceUri
+// example: client.GetVirtualMachineProfilesByServiceURI("/rest/services/2F8bbc7abe-2ae1-a366-a4dd-f065618063a6")
+func (c *Client) GetVirtualMachineProfilesByServiceURI(serviceURI string) (VirtualMachineProfileList, error) {
+	return c.GetVirtualMachineProfiles("serviceUri EQ "+serviceURI)
+}
