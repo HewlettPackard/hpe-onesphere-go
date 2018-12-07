@@ -33,3 +33,14 @@ func TestGetTagKeyByID(t *testing.T) {
 		t.Errorf("TestGetTagKeyByID Failed to get tagKey: ID is ''")
 	}
 }
+
+func TestCreateTagKey(t *testing.T) {
+	setup()
+
+	tagKeyRequest := TagKeyRequest{}
+
+	if _, err := client.CreateTagKey(tagKeyRequest); err != nil {
+		t.Error(err)
+	}
+}
+
