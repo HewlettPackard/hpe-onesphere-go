@@ -26,6 +26,19 @@ import (
 	"time"
 )
 
+type VirtualMachineProfile struct {
+	ID           string    `json:"id"`
+	Name         string    `json:"name"`
+	URI          string    `json:"uri"`
+	RegionURI    string    `json:"regionUri"`
+	ZoneURI      string    `json:"zoneUri"`
+	CPUCount     int       `json:"cpuCount"`
+	MemorySizeGB int       `json:"memorySizeGB"`
+	DiskSizeGB   int       `json:"diskSizeGB"`
+	Created      time.Time `json:"created"`
+	Modified     time.Time `json:"modified"`
+}
+
 type VirtualMachineProfileList struct {
 	ID           string    `json:"id"`
 	Name         string    `json:"name"`
@@ -41,7 +54,7 @@ type VirtualMachineProfileList struct {
 }
 
 // GetVirtualMachineProfiles returns VirtualMachineProfileList with optional query for zoneUri and serviceUri
-// leave query blank to get all virtualMachineProfiles
+// leaving the query blank will return an empty VirtualMachineProfileList
 // example query for serviceUri: "serviceUri EQ /rest/services/2F8bbc7abe-2ae1-a366-a4dd-f065618063a6"
 // example query for zoneUri: "zoneUri EQ /rest/zones/b1d0b94b-b3e2-459f-95ed-a1b4d4645338"
 // example query for both: "serviceUri EQ /rest/services/2F8bbc7abe-2ae1-a366-a4dd-f065618063a6 AND zoneUri EQ /rest/zones/b1d0b94b-b3e2-459f-95ed-a1b4d4645338"
@@ -83,4 +96,24 @@ func (c *Client) GetVirtualMachineProfilesByZoneURI(zoneURI string) (VirtualMach
 // example: client.GetVirtualMachineProfilesByServiceAndZoneURI("/rest/services/2F8bbc7abe-2ae1-a366-a4dd-f065618063a6", "/rest/zones/b1d0b94b-b3e2-459f-95ed-a1b4d4645338")
 func (c *Client) GetVirtualMachineProfilesByServiceAndZoneURI(serviceURI, zoneURI string) (VirtualMachineProfileList, error) {
 	return c.GetVirtualMachineProfiles("serviceUri EQ " + serviceURI + " AND zoneUri EQ " + zoneURI)
+}
+
+// GetVirtualMachineProfileByID returns a VirtualMachineProfile by ID
+func (c *Client) GetVirtualMachineProfileByID(id string) (VirtualMachineProfile, error) {
+	var (
+		uri                   = "/rest/virtual-machine-profiles/" + id
+		virtualMachineProfile VirtualMachineProfile
+	)
+
+	response, err := c.RestAPICall(rest.GET, uri, nil, nil)
+
+	if err != nil {
+		return virtualMachineProfile, err
+	}
+
+	if err := json.Unmarshal([]byte(response), &virtualMachineProfile); err != nil {
+		return virtualMachineProfile, apiResponseError(response, err)
+	}
+
+	return virtualMachineProfile, err
 }

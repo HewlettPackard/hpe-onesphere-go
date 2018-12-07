@@ -1,6 +1,8 @@
 package onesphere
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestGetVirtualMachineProfiles(t *testing.T) {
 	setup()
@@ -33,6 +35,15 @@ func TestGetVirtualMachineProfilesByServiceAndZoneURI(t *testing.T) {
 	setup()
 
 	_, err := client.GetVirtualMachineProfilesByServiceAndZoneURI("", "")
+	if err != nil {
+		t.Error(err)
+	}
+}
+
+func TestGetVirtualMachineProfileByID(t *testing.T) {
+	setup()
+
+	_, err := client.GetVirtualMachineProfileByID("")
 	if err != nil {
 		t.Error(err)
 	}
