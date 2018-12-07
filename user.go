@@ -144,3 +144,20 @@ func (c *Client) UpdateUser(user User, updates UserRequest) (User, error) {
 
 	return updatedUser, err
 }
+
+// DeleteUser Deletes User
+func (c *Client) DeleteUser(user User) error {
+	if user.ID == "" {
+		return fmt.Errorf("User must have a non-empty ID")
+	}
+
+	var uri = "/rest/users/" + user.ID
+
+	response, err := c.RestAPICall(rest.DELETE, uri, nil, nil)
+
+	if err != nil {
+		return apiResponseError(response, err)
+	}
+
+	return nil
+}
