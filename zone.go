@@ -276,3 +276,23 @@ func (c *Client) CreateZone(zoneRequest ZoneRequest) (Zone, error) {
 
 	return zone, err
 }
+
+// CreateZoneConnection Creates Connection and returns updated connection
+func (c *Client) CreateZoneConnection(id string, connectionRequest ConnectionRequest) (Connection, error) {
+	var (
+		uri        = "/rest/zones/"+id+"/connections"
+		connection Connection
+	)
+
+	response, err := c.RestAPICall(rest.POST, uri, nil, connectionRequest)
+
+	if err != nil {
+		return connection, err
+	}
+
+	if err := json.Unmarshal([]byte(response), &connection); err != nil {
+		return connection, apiResponseError(response, err)
+	}
+
+	return connection, err
+}

@@ -87,3 +87,13 @@ func TestCreateZone(t *testing.T) {
 		t.Error(err)
 	}
 }
+
+func TestCreateZoneConnection(t *testing.T) {
+	setup()
+
+	connectionRequest := ConnectionRequest{}
+
+	if _, err := client.CreateZoneConnection("2", connectionRequest); err != nil {
+		t.Error(err)
+	}
+}
