@@ -32,11 +32,11 @@ type TagRequest struct {
 }
 
 type Tag struct {
-	ID        string `json:"id"`
-	Name      string `json:"name"`
-	TagKey    string `json:"tagKey"`
-	TagKeyURI string `json:"tagKeyUri"`
-	URI       string `json:"uri"`
+	ID        string  `json:"id"`
+	Name      string  `json:"name"`
+	TagKey    *TagKey `json:"tagKey"`
+	TagKeyURI string  `json:"tagKeyUri"`
+	URI       string  `json:"uri"`
 }
 
 type TagList struct {
