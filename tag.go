@@ -22,6 +22,7 @@ package onesphere
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/HewlettPackard/hpe-onesphere-go/rest"
 )
 
@@ -60,4 +61,32 @@ func (c *Client) GetTags(view string) (TagList, error) {
 	}
 
 	return tags, err
+}
+
+// GetTagByID returns an Tag by id
+// example view: "full"
+func (c *Client) GetTagByID(id, view string) (Tag, error) {
+	var (
+		uri         = "/rest/tags/" + id
+		queryParams = createQuery(&map[string]string{
+			"view": view,
+		})
+		tag Tag
+	)
+
+	if id == "" {
+		return tag, fmt.Errorf("id must not be empty")
+	}
+
+	response, err := c.RestAPICall(rest.GET, uri, queryParams, nil)
+
+	if err != nil {
+		return tag, err
+	}
+
+	if err := json.Unmarshal([]byte(response), &tag); err != nil {
+		return tag, apiResponseError(response, err)
+	}
+
+	return tag, err
 }
