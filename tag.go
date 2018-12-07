@@ -27,7 +27,7 @@ import (
 )
 
 type TagRequest struct {
-	Name string `json:"name"`
+	Name      string `json:"name"`
 	TagKeyURI string `json:"tagKeyUri"`
 }
 
@@ -40,7 +40,7 @@ type Tag struct {
 }
 
 type TagList struct {
-	Total   int      `json:"total"`
+	Total   int   `json:"total"`
 	Members []Tag `json:"members"`
 }
 
@@ -50,7 +50,7 @@ func (c *Client) GetTags(view string) (TagList, error) {
 	var (
 		uri         = "/rest/tags"
 		queryParams = createQuery(&map[string]string{
-			"view":      view,
+			"view": view,
 		})
 		tags TagList
 	)
@@ -99,7 +99,7 @@ func (c *Client) GetTagByID(id, view string) (Tag, error) {
 // CreateTag Creates Tag and returns updated Tag
 func (c *Client) CreateTag(tagRequest TagRequest) (Tag, error) {
 	var (
-		uri    = "/rest/tags"
+		uri = "/rest/tags"
 		tag Tag
 	)
 
@@ -114,4 +114,21 @@ func (c *Client) CreateTag(tagRequest TagRequest) (Tag, error) {
 	}
 
 	return tag, err
+}
+
+// DeleteTag Deletes Tag
+func (c *Client) DeleteTag(tag Tag) error {
+	if tag.ID == "" {
+		return fmt.Errorf("Tag must have a non-empty ID")
+	}
+
+	var uri = "/rest/tags/" + tag.ID
+
+	response, err := c.RestAPICall(rest.DELETE, uri, nil, nil)
+
+	if err != nil {
+		return apiResponseError(response, err)
+	}
+
+	return nil
 }
