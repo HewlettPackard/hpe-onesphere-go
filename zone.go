@@ -197,3 +197,28 @@ func (c *Client) GetZoneTaskStatus(id string) (string, error) {
 
 	return taskStatus, err
 }
+
+// GetZoneConnections with optional uuid filter
+// leave uuid blank to get all connections
+func (c *Client) GetZoneConnections(id, uuid string) (ConnectionList, error) {
+	var (
+		uri         = "/rest/zones/" + id + "/connections"
+		queryParams = createQuery(&map[string]string{
+			uuid: "uuid",
+		})
+		connections ConnectionList
+	)
+
+	response, err := c.RestAPICall(rest.GET, uri, queryParams, nil)
+
+	if err != nil {
+		return connections, err
+	}
+
+	if err := json.Unmarshal([]byte(response), &connections); err != nil {
+		return connections, apiResponseError(response, err)
+	}
+
+	return connections, nil
+}
+

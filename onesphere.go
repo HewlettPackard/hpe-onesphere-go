@@ -531,11 +531,6 @@ func (c *Client) GetZoneTypeResourceProfiles(zoneTypeID string) (string, error) 
 	return c.callHTTPRequest("GET", "/rest/zone-types/"+zoneTypeID+"/resource-profiles", nil, nil)
 }
 
-func (c *Client) GetZoneConnections(zoneID, uuid string) (string, error) {
-	params := map[string]string{"uuid": uuid}
-	return c.callHTTPRequest("GET", "/rest/zones/"+zoneID+"/connections", params, nil)
-}
-
 // state: "Enabling|Enabled|Disabling|Disabled"
 func (c *Client) CreateZoneConnection(zoneID, uuid, name, ipAddress, username, password string,
 	port int, state string) (string, error) {
