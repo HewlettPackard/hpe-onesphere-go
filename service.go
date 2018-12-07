@@ -54,3 +54,23 @@ func (c *Client) GetServices() (ServiceList, error) {
 
 	return services, err
 }
+
+// GetServiceByID returns a Service by ID
+func (c *Client) GetServiceByID(id string) (Service, error) {
+	var (
+		uri     = "/rest/services/" + id
+		service Service
+	)
+
+	response, err := c.RestAPICall(rest.GET, uri, nil, nil)
+
+	if err != nil {
+		return service, err
+	}
+
+	if err := json.Unmarshal([]byte(response), &service); err != nil {
+		return service, apiResponseError(response, err)
+	}
+
+	return service, err
+}
