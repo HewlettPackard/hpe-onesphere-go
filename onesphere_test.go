@@ -356,25 +356,6 @@ func TestGetStatus(t *testing.T) {
 
 }
 
-func TestGetUsersFull(t *testing.T) {
-	actual, err := client.GetUsers("full")
-	if err != nil {
-		t.Errorf("TestGetUsersFull Error: %v\n", err)
-	}
-
-	expected := `{
-    "total": 0,
-    "start": 0,
-    "count": 0,
-    "members": []
-	}`
-	compareErr := compareFields(t, "onesphere.Client.GetUsers(\"full\")", expected, actual)
-	if compareErr != nil {
-		t.Errorf("TestGetUsersFull Error: %s\n", compareErr)
-	}
-
-}
-
 func TestGetZoneTypes(t *testing.T) {
 	actual, err := client.GetZoneTypes()
 	if err != nil {
