@@ -33,3 +33,15 @@ func TestGetTagByID(t *testing.T) {
 		t.Errorf("TestGetTagByID Failed to get tag: ID is ''")
 	}
 }
+
+func TestCreateTag(t *testing.T) {
+	setup()
+
+	tagRequest := TagRequest{}
+
+	if _, err := client.CreateTag(tagRequest); err != nil {
+		t.Error(err)
+	}
+}
+
+
