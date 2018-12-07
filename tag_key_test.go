@@ -44,3 +44,12 @@ func TestCreateTagKey(t *testing.T) {
 	}
 }
 
+func TestDeleteTagKey(t *testing.T) {
+	setup()
+
+	tagKey := TagKey{ID: "2"}
+
+	if err := client.DeleteTagKey(tagKey); err != nil {
+		t.Skip(err)
+	}
+}
