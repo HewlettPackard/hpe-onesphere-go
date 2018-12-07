@@ -78,3 +78,9 @@ func (c *Client) GetVirtualMachineProfilesByServiceURI(serviceURI string) (Virtu
 func (c *Client) GetVirtualMachineProfilesByZoneURI(zoneURI string) (VirtualMachineProfileList, error) {
 	return c.GetVirtualMachineProfiles("zoneUri EQ "+zoneURI)
 }
+
+// GetVirtualMachineProfilesByServiceAndZoneURI returns VirtualMachineProfileList by zoneUri
+// example: client.GetVirtualMachineProfilesByServiceAndZoneURI("/rest/services/2F8bbc7abe-2ae1-a366-a4dd-f065618063a6", "/rest/zones/b1d0b94b-b3e2-459f-95ed-a1b4d4645338")
+func (c *Client) GetVirtualMachineProfilesByServiceAndZoneURI(serviceURI, zoneURI string) (VirtualMachineProfileList, error) {
+	return c.GetVirtualMachineProfiles("serviceUri EQ " + serviceURI + " AND zoneUri EQ " + zoneURI)
+}
