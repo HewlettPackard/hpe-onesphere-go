@@ -51,3 +51,16 @@ func TestGetZoneApplianceImage(t *testing.T) {
 		t.Errorf("TestGetZoneApplianceImage Failed to get Appliance Image URI: ''")
 	}
 }
+
+func TestGetZoneTaskStatus(t *testing.T) {
+	setup()
+
+	applianceImageURI, err := client.GetZoneTaskStatus("2")
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	if applianceImageURI == "" {
+		t.Errorf("TestGetZoneTaskStatus Failed to get Task Status: ''")
+	}
+}

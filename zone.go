@@ -181,3 +181,19 @@ func (c *Client) GetZoneApplianceImage(id string) (string, error) {
 
 	return applianceImageURI, err
 }
+
+// GetZoneTaskStatus Retrieve Zone Appliance Image URI by Zone.ID
+func (c *Client) GetZoneTaskStatus(id string) (string, error) {
+	var (
+		uri        = "/rest/zones/" + id + "/task-status"
+		taskStatus string
+	)
+
+	if id == "" {
+		return taskStatus, fmt.Errorf("id must not be empty")
+	}
+
+	taskStatus, err := c.RestAPICall(rest.GET, uri, nil, nil)
+
+	return taskStatus, err
+}
