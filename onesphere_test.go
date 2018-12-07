@@ -318,31 +318,6 @@ func TestGetRoles(t *testing.T) {
 
 }
 
-func TestServiceTypes(t *testing.T) {
-	actual, err := client.GetServiceTypes()
-	if err != nil {
-		t.Errorf("TestServiceTypes Error: %v\n", err)
-	}
-
-	expected := `{
-    "total": 0,
-    "start": 0,
-    "count": 0,
-    "members": [
-        {
-            "id": "abc",
-            "name": "",
-            "uri": "/rest/service-types/abc"
-        }
-    ]
-	}`
-	compareErr := compareFields(t, "onesphere.Client.ServiceTypes", expected, actual)
-	if compareErr != nil {
-		t.Errorf("TestServiceTypes Error: %s\n", compareErr)
-	}
-
-}
-
 func TestGetSessionFull(t *testing.T) {
 	actual, err := client.GetSession("full")
 	if err != nil {
