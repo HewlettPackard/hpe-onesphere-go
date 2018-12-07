@@ -22,6 +22,7 @@ package onesphere
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/HewlettPackard/hpe-onesphere-go/rest"
 )
 
@@ -64,4 +65,31 @@ func (c *Client) GetUsers(userQuery string) (UserList, error) {
 	}
 
 	return users, err
+}
+
+// GetUserByID returns an User by id
+func (c *Client) GetUserByID(id string) (User, error) {
+	var (
+		uri         = "/rest/users/" + id
+		queryParams = createQuery(&map[string]string{
+			"id":   id,
+		})
+		user User
+	)
+
+	if id == "" {
+		return user, fmt.Errorf("id must not be empty")
+	}
+
+	response, err := c.RestAPICall(rest.GET, uri, queryParams, nil)
+
+	if err != nil {
+		return user, err
+	}
+
+	if err := json.Unmarshal([]byte(response), &user); err != nil {
+		return user, apiResponseError(response, err)
+	}
+
+	return user, err
 }
