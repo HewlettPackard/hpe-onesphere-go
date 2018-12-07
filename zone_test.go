@@ -15,3 +15,26 @@ func TestGetZones(t *testing.T) {
 		t.Error("TestGetZones returned 0 Zone Members")
 	}
 }
+
+func TestGetZoneByID(t *testing.T) {
+	setup()
+
+	zoneList, err := client.GetZones("", "", "","", "")
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	if len(zoneList.Members) == 0 {
+		t.Error("TestGetZoneByID Could not find any zones")
+		return
+	}
+
+	testId := zoneList.Members[0].ID
+	zone, err := client.GetZoneByID(testId)
+	if err != nil {
+		t.Error(err)
+	}
+	if zone.ID == "" {
+		t.Errorf("TestGetZoneByID Failed to get zone: ID is ''")
+	}
+}
