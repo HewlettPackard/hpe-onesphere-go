@@ -30,16 +30,7 @@ type Zone struct {
 	Name        string    `json:"name"`
 	ProviderURI string    `json:"providerUri"`
 	RegionURI   string    `json:"regionUri"`
-	Error       struct {
-		Message            string   `json:"message"`
-		Details            string   `json:"details"`
-		RecommendedActions []string `json:"recommendedActions"`
-		NestedErrors       string   `json:"nestedErrors"`
-		ErrorSource        string   `json:"errorSource"`
-		ErrorCode          string   `json:"errorCode"`
-		Data               string   `json:"data"`
-		CanForce           bool     `json:"canForce"`
-	} `json:"error"`
+	Error       *Error `json:"error"`
 	Status       string `json:"status"`
 	State        string `json:"state"`
 	CurrentTasks []struct {
@@ -54,16 +45,7 @@ type Zone struct {
 		Modified time.Time `json:"modified"`
 		Status   string    `json:"status"`
 		State    string    `json:"state"`
-		Error    struct {
-			Message            string   `json:"message"`
-			Details            string   `json:"details"`
-			RecommendedActions []string `json:"recommendedActions"`
-			NestedErrors       string   `json:"nestedErrors"`
-			ErrorSource        string   `json:"errorSource"`
-			ErrorCode          string   `json:"errorCode"`
-			Data               string   `json:"data"`
-			CanForce           bool     `json:"canForce"`
-		} `json:"error"`
+		Error    *Error `json:"error"`
 		Hosts []struct {
 			ID            string   `json:"id"`
 			Name          string   `json:"name"`
@@ -84,16 +66,7 @@ type Zone struct {
 			Modified time.Time `json:"modified"`
 			Status   string    `json:"status"`
 			State    string    `json:"state"`
-			Error    struct {
-				Message            string   `json:"message"`
-				Details            string   `json:"details"`
-				RecommendedActions []string `json:"recommendedActions"`
-				NestedErrors       string   `json:"nestedErrors"`
-				ErrorSource        string   `json:"errorSource"`
-				ErrorCode          string   `json:"errorCode"`
-				Data               string   `json:"data"`
-				CanForce           bool     `json:"canForce"`
-			} `json:"error"`
+			Error    *Error `json:"error"`
 		} `json:"datastores"`
 	} `json:"clusters"`
 	InTransitClusters []struct {
@@ -103,16 +76,7 @@ type Zone struct {
 		Modified time.Time `json:"modified"`
 		Status   string    `json:"status"`
 		State    string    `json:"state"`
-		Error    struct {
-			Message            string   `json:"message"`
-			Details            string   `json:"details"`
-			RecommendedActions []string `json:"recommendedActions"`
-			NestedErrors       string   `json:"nestedErrors"`
-			ErrorSource        string   `json:"errorSource"`
-			ErrorCode          string   `json:"errorCode"`
-			Data               string   `json:"data"`
-			CanForce           bool     `json:"canForce"`
-		} `json:"error"`
+		Error    *Error `json:"error"`
 		Hosts []struct {
 			ID            string   `json:"id"`
 			Name          string   `json:"name"`
@@ -133,16 +97,7 @@ type Zone struct {
 			Modified time.Time `json:"modified"`
 			Status   string    `json:"status"`
 			State    string    `json:"state"`
-			Error    struct {
-				Message            string   `json:"message"`
-				Details            string   `json:"details"`
-				RecommendedActions []string `json:"recommendedActions"`
-				NestedErrors       string   `json:"nestedErrors"`
-				ErrorSource        string   `json:"errorSource"`
-				ErrorCode          string   `json:"errorCode"`
-				Data               string   `json:"data"`
-				CanForce           bool     `json:"canForce"`
-			} `json:"error"`
+			Error    *Error `json:"error"`
 		} `json:"datastores"`
 	} `json:"inTransitClusters"`
 	EsxLcmTask struct {
@@ -162,16 +117,7 @@ type Zone struct {
 		AssociatedResourceInstanceType string `json:"associatedResourceInstanceType"`
 		State                          string `json:"state"`
 		Status                         string `json:"status"`
-		Error                          struct {
-			Message            string   `json:"message"`
-			Details            string   `json:"details"`
-			RecommendedActions []string `json:"recommendedActions"`
-			NestedErrors       string   `json:"nestedErrors"`
-			ErrorSource        string   `json:"errorSource"`
-			ErrorCode          string   `json:"errorCode"`
-			Data               string   `json:"data"`
-			CanForce           bool     `json:"canForce"`
-		} `json:"error"`
+		Error                          *Error `json:"error"`
 		TaskFailed bool   `json:"taskFailed"`
 		Created    string `json:"created"`
 		Modified   string `json:"modified"`
@@ -221,16 +167,7 @@ type Zone struct {
 			Modified time.Time `json:"modified"`
 			Status   string    `json:"status"`
 			State    string    `json:"state"`
-			Error    struct {
-				Message            string   `json:"message"`
-				Details            string   `json:"details"`
-				RecommendedActions []string `json:"recommendedActions"`
-				NestedErrors       string   `json:"nestedErrors"`
-				ErrorSource        string   `json:"errorSource"`
-				ErrorCode          string   `json:"errorCode"`
-				Data               string   `json:"data"`
-				CanForce           bool     `json:"canForce"`
-			} `json:"error"`
+			Error    *Error `json:"error"`
 		} `json:"datastores"`
 		Host struct {
 			ID            string   `json:"id"`
@@ -244,16 +181,7 @@ type Zone struct {
 			Datastores    []string `json:"datastores"`
 		} `json:"host"`
 		Roles []string `json:"roles"`
-		Error struct {
-			Message            string   `json:"message"`
-			Details            string   `json:"details"`
-			RecommendedActions []string `json:"recommendedActions"`
-			NestedErrors       string   `json:"nestedErrors"`
-			ErrorSource        string   `json:"errorSource"`
-			ErrorCode          string   `json:"errorCode"`
-			Data               string   `json:"data"`
-			CanForce           bool     `json:"canForce"`
-		} `json:"error"`
+		Error *Error `json:"error"`
 	} `json:"kvmServers"`
 	InTransitKvmServers []struct {
 		ServerURI  string    `json:"serverUri"`
@@ -271,16 +199,7 @@ type Zone struct {
 			Modified time.Time `json:"modified"`
 			Status   string    `json:"status"`
 			State    string    `json:"state"`
-			Error    struct {
-				Message            string   `json:"message"`
-				Details            string   `json:"details"`
-				RecommendedActions []string `json:"recommendedActions"`
-				NestedErrors       string   `json:"nestedErrors"`
-				ErrorSource        string   `json:"errorSource"`
-				ErrorCode          string   `json:"errorCode"`
-				Data               string   `json:"data"`
-				CanForce           bool     `json:"canForce"`
-			} `json:"error"`
+			Error    *Error `json:"error"`
 		} `json:"datastores"`
 		Host struct {
 			ID            string   `json:"id"`
@@ -294,15 +213,6 @@ type Zone struct {
 			Datastores    []string `json:"datastores"`
 		} `json:"host"`
 		Roles []string `json:"roles"`
-		Error struct {
-			Message            string   `json:"message"`
-			Details            string   `json:"details"`
-			RecommendedActions []string `json:"recommendedActions"`
-			NestedErrors       string   `json:"nestedErrors"`
-			ErrorSource        string   `json:"errorSource"`
-			ErrorCode          string   `json:"errorCode"`
-			Data               string   `json:"data"`
-			CanForce           bool     `json:"canForce"`
-		} `json:"error"`
+		Error *Error `json:"error"`
 	} `json:"inTransitKvmServers"`
 }
