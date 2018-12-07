@@ -33,3 +33,14 @@ func TestGetUserByID(t *testing.T) {
 		t.Errorf("TestGetUserByID Failed to get user: ID is ''")
 	}
 }
+
+func TestCreateUser(t *testing.T) {
+	setup()
+
+	userRequest := UserRequest{}
+
+	if _, err := client.CreateUser(userRequest); err != nil {
+		t.Error(err)
+	}
+}
+

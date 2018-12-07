@@ -26,6 +26,13 @@ import (
 	"github.com/HewlettPackard/hpe-onesphere-go/rest"
 )
 
+type UserRequest struct {
+	Email    string `json:"email"`
+	Name     string `json:"name"`
+	Password string `json:"password"`
+	Role     string `json:"role"`
+}
+
 type User struct {
 	ID      string `json:"id"`
 	Email   string `json:"email"`
@@ -82,6 +89,26 @@ func (c *Client) GetUserByID(id string) (User, error) {
 	}
 
 	response, err := c.RestAPICall(rest.GET, uri, queryParams, nil)
+
+	if err != nil {
+		return user, err
+	}
+
+	if err := json.Unmarshal([]byte(response), &user); err != nil {
+		return user, apiResponseError(response, err)
+	}
+
+	return user, err
+}
+
+// CreateUser Creates User and returns updated User
+func (c *Client) CreateUser(userRequest UserRequest) (User, error) {
+	var (
+		uri     = "/rest/users"
+		user User
+	)
+
+	response, err := c.RestAPICall(rest.POST, uri, nil, userRequest)
 
 	if err != nil {
 		return user, err
