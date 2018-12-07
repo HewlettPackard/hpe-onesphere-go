@@ -466,11 +466,6 @@ func (c *Client) UpdateServer(serverID string, patchPayload []*PatchOp) (string,
 
 // Services APIs
 
-func (c *Client) GetServices(query, userQuery, view string) (string, error) {
-	params := map[string]string{"query": query, "userQuery": userQuery, "view": view}
-	return c.callHTTPRequest("GET", "/rest/services", params, nil)
-}
-
 // view: "full|deployment"
 func (c *Client) GetService(serviceID, view string) (string, error) {
 	params := map[string]string{"view": view}
