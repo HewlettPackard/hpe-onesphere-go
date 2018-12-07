@@ -483,33 +483,6 @@ func (c *Client) GetStatus() (string, error) {
 	return c.callHTTPRequest("GET", "/rest/status", nil, nil)
 }
 
-// Users APIs
-
-func (c *Client) GetUsers(userQuery string) (string, error) {
-	params := map[string]string{"userQuery": userQuery}
-	return c.callHTTPRequest("GET", "/rest/users", params, nil)
-}
-
-// role: "administrator|analyst|consumer|project-creator"
-func (c *Client) CreateUser(email, name, password, role string) (string, error) {
-	values := map[string]string{"email": email, "name": name, "password": password, "role": role}
-	return c.callHTTPRequest("POST", "/rest/users", nil, values)
-}
-
-func (c *Client) GetUser(userID string) (string, error) {
-	return c.callHTTPRequest("GET", "/rest/users/"+userID, nil, nil)
-}
-
-// role: "administrator|analyst|consumer|project-creator"
-func (c *Client) UpdateUser(userID, email, name, password, role string) (string, error) {
-	values := map[string]string{"email": email, "name": name, "password": password, "role": role}
-	return c.callHTTPRequest("PUT", "/rest/users/"+userID, nil, values)
-}
-
-func (c *Client) DeleteUser(userID string) (string, error) {
-	return c.callHTTPRequest("DELETE", "/rest/users/"+userID, nil, nil)
-}
-
 // Versions APIs
 
 func (c *Client) GetVersions() (string, error) {
