@@ -33,14 +33,8 @@ type TagKeyRequest struct {
 type TagKey struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
-	Tags []struct {
-		ID        string `json:"id"`
-		Name      string `json:"name"`
-		TagKey    string `json:"tagKey"`
-		TagKeyURI string `json:"tagKeyUri"`
-		URI       string `json:"uri"`
-	} `json:"tags"`
-	URI string `json:"uri"`
+	Tags []*Tag `json:"tags"`
+	URI  string `json:"uri"`
 }
 
 type TagKeyList struct {
@@ -54,7 +48,7 @@ func (c *Client) GetTagKeys(view string) (TagKeyList, error) {
 	var (
 		uri         = "/rest/tag-keys"
 		queryParams = createQuery(&map[string]string{
-			"view":      view,
+			"view": view,
 		})
 		tagKeys TagKeyList
 	)
@@ -136,4 +130,3 @@ func (c *Client) DeleteTagKey(tagKey TagKey) error {
 
 	return nil
 }
-
