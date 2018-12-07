@@ -120,3 +120,20 @@ func (c *Client) CreateTagKey(tagKeyRequest TagKeyRequest) (TagKey, error) {
 	return tagKey, err
 }
 
+// DeleteTagKey Deletes TagKey
+func (c *Client) DeleteTagKey(tagKey TagKey) error {
+	if tagKey.ID == "" {
+		return fmt.Errorf("TagKey must have a non-empty ID")
+	}
+
+	var uri = "/rest/tag-keys/" + tagKey.ID
+
+	response, err := c.RestAPICall(rest.DELETE, uri, nil, nil)
+
+	if err != nil {
+		return apiResponseError(response, err)
+	}
+
+	return nil
+}
+
