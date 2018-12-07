@@ -165,3 +165,19 @@ func (c *Client) GetZoneByID(id string) (Zone, error) {
 
 	return zone, err
 }
+
+// GetZoneApplianceImage Retrieve Zone Appliance Image URI by Zone.ID
+func (c *Client) GetZoneApplianceImage(id string) (string, error) {
+	var (
+		uri        = "/rest/zones/" + id + "/appliance-image"
+		applianceImageURI string
+	)
+
+	if id == "" {
+		return applianceImageURI, fmt.Errorf("id must not be empty")
+	}
+
+	applianceImageURI, err := c.RestAPICall(rest.GET, uri, nil, nil)
+
+	return applianceImageURI, err
+}

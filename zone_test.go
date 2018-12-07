@@ -38,3 +38,16 @@ func TestGetZoneByID(t *testing.T) {
 		t.Errorf("TestGetZoneByID Failed to get zone: ID is ''")
 	}
 }
+
+func TestGetZoneApplianceImage(t *testing.T) {
+	setup()
+
+	applianceImageURI, err := client.GetZoneApplianceImage("2")
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	if applianceImageURI == "" {
+		t.Errorf("TestGetZoneApplianceImage Failed to get Appliance Image URI: ''")
+	}
+}
