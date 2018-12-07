@@ -19,3 +19,12 @@ func TestGetVirtualMachineProfilesByServiceURI(t *testing.T) {
 		t.Error(err)
 	}
 }
+
+func TestGetVirtualMachineProfilesByZoneURI(t *testing.T) {
+	setup()
+
+	_, err := client.GetVirtualMachineProfilesByZoneURI("")
+	if err != nil {
+		t.Error(err)
+	}
+}
