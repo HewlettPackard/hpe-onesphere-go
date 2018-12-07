@@ -489,17 +489,6 @@ func (c *Client) GetVersions() (string, error) {
 	return c.callHTTPRequest("GET", "/rest/about/versions", nil, nil)
 }
 
-// Virtual Machine Profiles APIs
-
-func (c *Client) GetVirtualMachineProfiles(zoneUri, serviceUri string) (string, error) {
-	params := map[string]string{"zoneUri": zoneUri, "serviceUri": serviceUri}
-	return c.callHTTPRequest("GET", "/rest/virtual-machine-profiles", params, nil)
-}
-
-func (c *Client) GetVirtualMachineProfile(vmProfileID string) (string, error) {
-	return c.callHTTPRequest("GET", "/rest/virtual-machine-profiles/"+vmProfileID, nil, nil)
-}
-
 // Volumes APIs
 
 // view: "full"
