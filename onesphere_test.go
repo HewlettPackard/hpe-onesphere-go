@@ -356,44 +356,6 @@ func TestGetStatus(t *testing.T) {
 
 }
 
-func TestGetTagKeysFull(t *testing.T) {
-	actual, err := client.GetTagKeys("full")
-	if err != nil {
-		t.Errorf("TestGetTagKeysFull Error: %v\n", err)
-	}
-
-	expected := `{
-    "total": 0,
-    "start": 0,
-    "count": 0,
-    "members": [
-        {
-            "id": "abc",
-            "name": "",
-            "uri": "/rest/tag-keys/abc",
-            "tags": {
-                "total": 0,
-                "start": 0,
-                "count": 0,
-                "members": [
-                    {
-                        "id": "a=b",
-                        "tagKeyUri": "/rest/tag-keys/a",
-                        "name": "b",
-                        "uri": "/rest/tags/a=b"
-                    }
-                ]
-            }
-        }
-    ]
-	}`
-	compareErr := compareFields(t, "onesphere.Client.GetTagKeys(\"full\")", expected, actual)
-	if compareErr != nil {
-		t.Errorf("TestGetTagKeys Error: %s\n", compareErr)
-	}
-
-}
-
 func TestGetTagsFull(t *testing.T) {
 	actual, err := client.GetTags("full")
 	if err != nil {

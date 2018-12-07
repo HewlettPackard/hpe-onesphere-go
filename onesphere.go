@@ -483,29 +483,6 @@ func (c *Client) GetStatus() (string, error) {
 	return c.callHTTPRequest("GET", "/rest/status", nil, nil)
 }
 
-// Tag Keys APIs
-
-// view: "full"
-func (c *Client) GetTagKeys(view string) (string, error) {
-	params := map[string]string{"view": view}
-	return c.callHTTPRequest("GET", "/rest/tag-keys", params, nil)
-}
-
-func (c *Client) CreateTagKey(name string) (string, error) {
-	values := map[string]string{"name": name}
-	return c.callHTTPRequest("POST", "/rest/tag-keys", nil, values)
-}
-
-// view: "full"
-func (c *Client) GetTagKey(tagKeyID, view string) (string, error) {
-	params := map[string]string{"view": view}
-	return c.callHTTPRequest("GET", "/rest/tag-keys/"+tagKeyID, params, nil)
-}
-
-func (c *Client) DeleteTagKey(tagKeyID string) (string, error) {
-	return c.callHTTPRequest("DELETE", "/rest/tag-keys/"+tagKeyID, nil, nil)
-}
-
 // Tags APIs
 
 // view: "full"
