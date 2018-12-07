@@ -55,12 +55,25 @@ func TestGetZoneApplianceImage(t *testing.T) {
 func TestGetZoneTaskStatus(t *testing.T) {
 	setup()
 
-	applianceImageURI, err := client.GetZoneTaskStatus("2")
+	taskStatus, err := client.GetZoneTaskStatus("2")
 	if err != nil {
 		t.Error(err)
 		return
 	}
-	if applianceImageURI == "" {
+	if taskStatus == "" {
 		t.Errorf("TestGetZoneTaskStatus Failed to get Task Status: ''")
+	}
+}
+
+func TestGetZoneConnections(t *testing.T) {
+	setup()
+
+	connections, err := client.GetZoneConnections("2", "")
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	if len(connections.Members) == 0 {
+		t.Skip("TestGetConnections returned 0 Connection Members")
 	}
 }
