@@ -531,10 +531,6 @@ func (c *Client) GetZoneTypeResourceProfiles(zoneTypeID string) (string, error) 
 	return c.callHTTPRequest("GET", "/rest/zone-types/"+zoneTypeID+"/resource-profiles", nil, nil)
 }
 
-func (c *Client) GetZoneApplianceImage(zoneID string) (string, error) {
-	return c.callHTTPRequest("GET", "/rest/zones/"+zoneID+"/appliance-image", nil, nil)
-}
-
 func (c *Client) GetZoneTaskStatus(zoneID string) (string, error) {
 	return c.callHTTPRequest("GET", "/rest/zones/"+zoneID+"/task-status", nil, nil)
 }
