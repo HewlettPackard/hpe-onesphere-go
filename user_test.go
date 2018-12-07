@@ -44,3 +44,14 @@ func TestCreateUser(t *testing.T) {
 	}
 }
 
+func TestUpdateUser(t *testing.T) {
+	setup()
+
+	user := User{ID: "2"}
+	updates := UserRequest{}
+
+	if _, err := client.UpdateUser(user, updates); err != nil {
+		t.Error(err)
+	}
+}
+

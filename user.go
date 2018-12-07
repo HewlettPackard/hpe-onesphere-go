@@ -120,3 +120,27 @@ func (c *Client) CreateUser(userRequest UserRequest) (User, error) {
 
 	return user, err
 }
+
+// UpdateUser using UserRequest returns updated user on success
+func (c *Client) UpdateUser(user User, updates UserRequest) (User, error) {
+	if user.ID == "" {
+		return user, fmt.Errorf("User must have a non-empty ID")
+	}
+
+	var (
+		uri            = "/rest/users/" + user.ID
+		updatedUser User
+	)
+
+	response, err := c.RestAPICall(rest.PATCH, uri, nil, updates)
+
+	if err != nil {
+		return user, err
+	}
+
+	if err := json.Unmarshal([]byte(response), &updatedUser); err != nil {
+		return user, apiResponseError(response, err)
+	}
+
+	return updatedUser, err
+}
