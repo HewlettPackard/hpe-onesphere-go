@@ -77,3 +77,13 @@ func TestGetZoneConnections(t *testing.T) {
 		t.Skip("TestGetConnections returned 0 Connection Members")
 	}
 }
+
+func TestCreateZone(t *testing.T) {
+	setup()
+
+	zoneRequest := ZoneRequest{}
+
+	if _, err := client.CreateZone(zoneRequest); err != nil {
+		t.Error(err)
+	}
+}

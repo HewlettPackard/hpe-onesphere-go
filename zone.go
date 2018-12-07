@@ -27,6 +27,41 @@ import (
 	"time"
 )
 
+type ZoneRequest struct {
+	Name            string `json:"name"`
+	ProviderURI     string `json:"providerUri"`
+	RegionURI       string `json:"regionUri"`
+	ZoneTypeURI     string `json:"zoneTypeUri"`
+	ApplianceURI    string `json:"applianceUri"`
+	NetworkSettings struct {
+		NcsManagementNetwork string   `json:"ncsManagementNetwork"`
+		EsxManagementNetwork string   `json:"esxManagementNetwork"`
+		StorageNetwork       string   `json:"storageNetwork"`
+		VMotionNetwork       string   `json:"vMotionNetwork"`
+		ProductionNetwork    []string `json:"productionNetwork"`
+		PhysicalNetworks     []struct {
+			Name        string `json:"name"`
+			NetworkType string `json:"networkType"`
+		} `json:"physicalNetworks"`
+	} `json:"networkSettings"`
+	VcenterSettings struct {
+		IPAddress string `json:"ipAddress"`
+		Username  string `json:"username"`
+		Password  string `json:"password"`
+		Port      int    `json:"port"`
+	} `json:"vcenterSettings"`
+	ResourceProfile struct {
+		ID          string `json:"id"`
+		Name        string `json:"name"`
+		Description string `json:"description"`
+	} `json:"resourceProfile"`
+	ResourceCapacity int `json:"resourceCapacity"`
+	Rates            []struct {
+		MetricName string `json:"metricName"`
+		RateValue  int    `json:"rateValue"`
+	} `json:"rates"`
+}
+
 type Zone struct {
 	Created     time.Time `json:"created"`
 	ID          string    `json:"id"`
@@ -222,3 +257,22 @@ func (c *Client) GetZoneConnections(id, uuid string) (ConnectionList, error) {
 	return connections, nil
 }
 
+// CreateZone Creates Zone and returns updated zone
+func (c *Client) CreateZone(zoneRequest ZoneRequest) (Zone, error) {
+	var (
+		uri        = "/rest/zones/"
+		zone Zone
+	)
+
+	response, err := c.RestAPICall(rest.POST, uri, nil, zoneRequest)
+
+	if err != nil {
+		return zone, err
+	}
+
+	if err := json.Unmarshal([]byte(response), &zone); err != nil {
+		return zone, apiResponseError(response, err)
+	}
+
+	return zone, err
+}
