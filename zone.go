@@ -22,6 +22,7 @@ package onesphere
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/HewlettPackard/hpe-onesphere-go/rest"
 	"time"
 )
@@ -139,4 +140,28 @@ func (c *Client) GetZones(query, regionUri, providerUri, applianceUri, view stri
 	}
 
 	return zones, nil
+}
+
+// GetZoneByID Retrieve Zone by ID
+func (c *Client) GetZoneByID(id string) (Zone, error) {
+	var (
+		uri        = "/rest/zones/" + id
+		zone Zone
+	)
+
+	if id == "" {
+		return zone, fmt.Errorf("id must not be empty")
+	}
+
+	response, err := c.RestAPICall(rest.GET, uri, nil, nil)
+
+	if err != nil {
+		return zone, err
+	}
+
+	if err := json.Unmarshal([]byte(response), &zone); err != nil {
+		return zone, apiResponseError(response, err)
+	}
+
+	return zone, err
 }
