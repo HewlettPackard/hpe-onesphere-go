@@ -464,12 +464,6 @@ func (c *Client) UpdateServer(serverID string, patchPayload []*PatchOp) (string,
 	return c.callHTTPRequest("PATCH", "/rest/servers/"+serverID, nil, values)
 }
 
-// Service Types APIs
-
-func (c *Client) GetServiceType(serviceTypeID string) (string, error) {
-	return c.callHTTPRequest("GET", "/rest/service-types/"+serviceTypeID, nil, nil)
-}
-
 // Services APIs
 
 func (c *Client) GetServices(query, userQuery, view string) (string, error) {

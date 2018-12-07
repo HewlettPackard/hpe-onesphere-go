@@ -51,3 +51,23 @@ func (c *Client) GetServiceTypes() (ServiceTypeList, error) {
 
 	return serviceTypes, err
 }
+
+// GetServiceTypeByID returns a Service Type by ID
+func (c *Client) GetServiceTypeByID(id string) (ServiceType, error) {
+	var (
+		uri     = "/rest/service-types/" + id
+		service ServiceType
+	)
+
+	response, err := c.RestAPICall(rest.GET, uri, nil, nil)
+
+	if err != nil {
+		return service, err
+	}
+
+	if err := json.Unmarshal([]byte(response), &service); err != nil {
+		return service, apiResponseError(response, err)
+	}
+
+	return service, err
+}
