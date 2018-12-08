@@ -26,12 +26,23 @@ import (
 	"time"
 )
 
+type ZoneTypeResourceProfile struct {
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+}
+
 type ZoneType struct {
 	ID       string    `json:"id"`
 	Name     string    `json:"name"`
 	URI      string    `json:"uri"`
 	Created  time.Time `json:"created"`
 	Modified time.Time `json:"modified"`
+}
+
+type ZoneTypeResourceProfileList struct {
+	Total   int        `json:"total"`
+	Members []ZoneTypeResourceProfile `json:"members"`
 }
 
 type ZoneTypeList struct {
@@ -57,4 +68,24 @@ func (c *Client) GetZoneTypes() (ZoneTypeList, error) {
 	}
 
 	return zoneTypes, err
+}
+
+// GetZoneTypeResourceProfiles returns a ZoneTypeResourceProfileList
+func (c *Client) GetZoneTypeResourceProfiles(zoneTypeId string) (ZoneTypeResourceProfileList, error) {
+	var (
+		uri       = "/rest/zone-types/" + zoneTypeId + "/resource-profiles"
+		zoneTypeResourceProfiles ZoneTypeResourceProfileList
+	)
+
+	response, err := c.RestAPICall(rest.GET, uri, nil, nil)
+
+	if err != nil {
+		return zoneTypeResourceProfiles, err
+	}
+
+	if err := json.Unmarshal([]byte(response), &zoneTypeResourceProfiles); err != nil {
+		return zoneTypeResourceProfiles, apiResponseError(response, err)
+	}
+
+	return zoneTypeResourceProfiles, err
 }

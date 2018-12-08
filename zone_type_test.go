@@ -11,3 +11,13 @@ func TestGetZoneTypes(t *testing.T) {
 	}
 }
 
+
+func TestGetZoneTypeResourceProfiles(t *testing.T) {
+	setup()
+
+	_, err := client.GetZoneTypeResourceProfiles("2")
+	if err != nil {
+		t.Error(err)
+	}
+}
+
