@@ -220,8 +220,8 @@ func (c *Client) UpdateCatalog(catalogId string, updates []*PatchOp) (Catalog, e
 }
 
 // DeleteCatalog Deletes Catalog
-func (c *Client) DeleteCatalog(catalog Catalog) error {
-	return c.notImplementedError(rest.DELETE, "/rest/catalogs/"+catalog.ID, "catalogs")
+func (c *Client) DeleteCatalog(catalogId string) error {
+	return c.notImplementedError(rest.DELETE, "/rest/catalogs/"+catalogId, "catalogs")
 }
 
 // ActionCatalog Perform an Action on Catalog

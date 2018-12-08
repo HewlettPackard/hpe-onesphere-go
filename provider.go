@@ -214,12 +214,12 @@ func (c *Client) UpdateProvider(providerId string, updates []*PatchOp) (Provider
 }
 
 // DeleteProvider Deletes Provider
-func (c *Client) DeleteProvider(provider Provider) error {
-	if provider.ID == "" {
-		return fmt.Errorf("Provider must have a non-empty ID")
+func (c *Client) DeleteProvider(providerId string) error {
+	if providerId == "" {
+		return fmt.Errorf("providerId must be non-empty")
 	}
 
-	var uri = "/rest/providers/" + provider.ID
+	var uri = "/rest/providers/" + providerId
 
 	response, err := c.RestAPICall(rest.DELETE, uri, nil, nil)
 

@@ -117,12 +117,12 @@ func (c *Client) CreateTag(tagRequest TagRequest) (Tag, error) {
 }
 
 // DeleteTag Deletes Tag
-func (c *Client) DeleteTag(tag Tag) error {
-	if tag.ID == "" {
-		return fmt.Errorf("Tag must have a non-empty ID")
+func (c *Client) DeleteTag(tagId string) error {
+	if tagId == "" {
+		return fmt.Errorf("tagId must be non-empty")
 	}
 
-	var uri = "/rest/tags/" + tag.ID
+	var uri = "/rest/tags/" + tagId
 
 	response, err := c.RestAPICall(rest.DELETE, uri, nil, nil)
 

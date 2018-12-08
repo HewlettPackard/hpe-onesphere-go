@@ -121,9 +121,7 @@ func TestUpdateZoneConnection(t *testing.T) {
 func TestDeleteZone(t *testing.T) {
 	setup()
 
-	zone := Zone{ID: "2"}
-
-	if err := client.DeleteZone(zone); err != nil {
+	if err := client.DeleteZone("2"); err != nil {
 		t.Error(err)
 	}
 }

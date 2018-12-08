@@ -47,9 +47,7 @@ func TestCreateTag(t *testing.T) {
 func TestDeleteTag(t *testing.T) {
 	setup()
 
-	tag := Tag{ID: "2"}
-
-	if err := client.DeleteTag(tag); err != nil {
+	if err := client.DeleteTag("2"); err != nil {
 		t.Skip(err)
 	}
 }

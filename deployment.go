@@ -193,12 +193,12 @@ func (c *Client) UpdateDeployment(deploymentId string, updates []*PatchOp) (Depl
 }
 
 // DeleteDeployment Deletes Deployment
-func (c *Client) DeleteDeployment(deployment Deployment) error {
-	if deployment.ID == "" {
-		return fmt.Errorf("Deployment must have a non-empty ID")
+func (c *Client) DeleteDeployment(deploymentId string) error {
+	if deploymentId == "" {
+		return fmt.Errorf("deploymentId must be non-empty")
 	}
 
-	var uri = "/rest/deployments/" + deployment.ID
+	var uri = "/rest/deployments/" + deploymentId
 
 	response, err := c.RestAPICall(rest.DELETE, uri, nil, nil)
 
