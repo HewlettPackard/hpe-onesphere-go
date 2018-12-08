@@ -128,3 +128,11 @@ func TestDeleteZone(t *testing.T) {
 		t.Error(err)
 	}
 }
+
+func TestDeleteZoneConnection(t *testing.T) {
+	setup()
+
+	if err := client.DeleteZoneConnection("2", "2222"); err != nil {
+		t.Error(err)
+	}
+}

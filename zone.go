@@ -421,3 +421,24 @@ func (c *Client) DeleteZone(zone Zone) error {
 
 	return nil
 }
+
+// DeleteZoneConnection Deletes Zone Connection
+func (c *Client) DeleteZoneConnection(zoneId, connectionUuid string) error {
+	if zoneId == "" {
+		return fmt.Errorf("zoneId must be non-empty")
+	}
+
+	if connectionUuid == "" {
+		return fmt.Errorf("connectionUuid must be non-empty")
+	}
+
+	var uri = "/rest/zones/" + zoneId + "/connections/" + connectionUuid
+
+	response, err := c.RestAPICall(rest.DELETE, uri, nil, nil)
+
+	if err != nil {
+		return apiResponseError(response, err)
+	}
+
+	return nil
+}
