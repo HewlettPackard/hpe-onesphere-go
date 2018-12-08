@@ -530,8 +530,3 @@ func (c *Client) GetZoneTypes() (string, error) {
 func (c *Client) GetZoneTypeResourceProfiles(zoneTypeID string) (string, error) {
 	return c.callHTTPRequest("GET", "/rest/zone-types/"+zoneTypeID+"/resource-profiles", nil, nil)
 }
-
-func (c *Client) DeleteZoneConnection(zoneID, uuid string) (string, error) {
-	return c.callHTTPRequest("DELETE", "/rest/zones/"+zoneID+"/connections/"+uuid, nil, nil)
-}
-
