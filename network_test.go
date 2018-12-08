@@ -40,10 +40,9 @@ func TestGetNetworkByID(t *testing.T) {
 func TestUpdateNetwork(t *testing.T) {
 	setup()
 
-	network := Network{ID: "2"}
 	updates := []*PatchOp{}
 
-	if _, err := client.UpdateNetwork(network, updates); err != nil {
+	if _, err := client.UpdateNetwork("2", updates); err != nil {
 		t.Error(err)
 	}
 }

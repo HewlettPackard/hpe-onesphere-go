@@ -151,24 +151,24 @@ func (c *Client) CreateAppliance(applianceRequest ApplianceRequest) (Appliance, 
 }
 
 // UpdateAppliance using []*PatchOp and returns updated appliance on success
-func (c *Client) UpdateAppliance(appliance Appliance, updates []*PatchOp) (Appliance, error) {
-	if appliance.ID == "" {
-		return appliance, fmt.Errorf("Appliance must have a non-empty ID")
-	}
-
+func (c *Client) UpdateAppliance(applianceId string, updates []*PatchOp) (Appliance, error) {
 	var (
-		uri              = "/rest/appliances/" + appliance.ID
+		uri              = "/rest/appliances/" + applianceId
 		updatedAppliance Appliance
 	)
+
+	if applianceId == "" {
+		return updatedAppliance, fmt.Errorf("Appliance must have a non-empty ID")
+	}
 
 	response, err := c.RestAPICall(rest.PATCH, uri, nil, updates)
 
 	if err != nil {
-		return appliance, err
+		return updatedAppliance, err
 	}
 
 	if err := json.Unmarshal([]byte(response), &updatedAppliance); err != nil {
-		return appliance, apiResponseError(response, err)
+		return updatedAppliance, apiResponseError(response, err)
 	}
 
 	return updatedAppliance, err

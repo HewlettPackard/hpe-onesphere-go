@@ -169,24 +169,24 @@ func (c *Client) CreateDeployment(deploymentRequest DeploymentRequest) (Deployme
 }
 
 // UpdateDeployment using []*PatchOp returns updated deployment on success
-func (c *Client) UpdateDeployment(deployment Deployment, updates []*PatchOp) (Deployment, error) {
-	if deployment.ID == "" {
-		return deployment, fmt.Errorf("Deployment must have a non-empty ID")
-	}
-
+func (c *Client) UpdateDeployment(deploymentId string, updates []*PatchOp) (Deployment, error) {
 	var (
-		uri               = "/rest/deployments/" + deployment.ID
+		uri               = "/rest/deployments/" + deploymentId
 		updatedDeployment Deployment
 	)
+
+	if deploymentId == "" {
+		return updatedDeployment, fmt.Errorf("Deployment must have a non-empty ID")
+	}
 
 	response, err := c.RestAPICall(rest.PATCH, uri, nil, updates)
 
 	if err != nil {
-		return deployment, err
+		return updatedDeployment, err
 	}
 
 	if err := json.Unmarshal([]byte(response), &updatedDeployment); err != nil {
-		return deployment, apiResponseError(response, err)
+		return updatedDeployment, apiResponseError(response, err)
 	}
 
 	return updatedDeployment, err

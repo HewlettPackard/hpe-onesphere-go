@@ -176,14 +176,18 @@ Path: /state
 Op: add | replace
 
 */
-func (c *Client) UpdateCatalog(catalog Catalog, updates []*PatchOp) (Catalog, error) {
-	if catalog.ID == "" {
-		return catalog, fmt.Errorf("Catalog must have a non-empty ID")
-	}
+func (c *Client) UpdateCatalog(catalogId string, updates []*PatchOp) (Catalog, error) {
+	var (
+		uri            = "/rest/catalogs/" + catalogId
+		updatedCatalog Catalog
+		allowedFields  = map[string][]string{
+			"add":     {"/name", "/password", "/accessKey", "/secretKey", "/state"},
+			"replace": {"/name", "/state"},
+		}
+	)
 
-	allowedFields := map[string][]string{
-		"add":     {"/name", "/password", "/accessKey", "/secretKey", "/state"},
-		"replace": {"/name", "/state"},
+	if catalogId == "" {
+		return updatedCatalog, fmt.Errorf("catalogId must be non-empty")
 	}
 
 	for _, pb := range updates {
@@ -198,23 +202,18 @@ func (c *Client) UpdateCatalog(catalog Catalog, updates []*PatchOp) (Catalog, er
 		}
 
 		if !fieldIsValid {
-			return catalog, fmt.Errorf("UpdateCatalog received invalid Field for update.\nReceived Op: %s\nReceived Path: %s\nValid Fields: %v\n", pb.Op, pb.Path, allowedFields)
+			return updatedCatalog, fmt.Errorf("UpdateCatalog received invalid Field for update.\nReceived Op: %s\nReceived Path: %s\nValid Fields: %v\n", pb.Op, pb.Path, allowedFields)
 		}
 	}
-
-	var (
-		uri            = "/rest/catalogs/" + catalog.ID
-		updatedCatalog Catalog
-	)
 
 	response, err := c.RestAPICall(rest.PATCH, uri, nil, updates)
 
 	if err != nil {
-		return catalog, err
+		return updatedCatalog, err
 	}
 
 	if err := json.Unmarshal([]byte(response), &updatedCatalog); err != nil {
-		return catalog, apiResponseError(response, err)
+		return updatedCatalog, apiResponseError(response, err)
 	}
 
 	return updatedCatalog, err

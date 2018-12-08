@@ -115,12 +115,16 @@ Path: projectUris
 Value: /rest/projects/abc
 
 */
-func (c *Client) UpdateNetwork(network Network, updates []*PatchOp) (Network, error) {
-	if network.ID == "" {
-		return network, fmt.Errorf("Network must have a non-empty ID")
-	}
+func (c *Client) UpdateNetwork(networkId string, updates []*PatchOp) (Network, error) {
+	var (
+		uri            = "/rest/networks/" + networkId
+		updatedNetwork Network
+		allowedOps     = []string{"add", "replace", "remove"}
+	)
 
-	allowedOps := []string{"add", "replace", "remove"}
+	if networkId == "" {
+		return updatedNetwork, fmt.Errorf("networkId must be non-empty")
+	}
 
 	for _, pb := range updates {
 		fieldIsValid := false
@@ -132,23 +136,18 @@ func (c *Client) UpdateNetwork(network Network, updates []*PatchOp) (Network, er
 		}
 
 		if !fieldIsValid {
-			return network, fmt.Errorf("UpdateNetwork received invalid Op for update.\nReceived Op: %s\nValid Ops: %v\n", pb.Op, allowedOps)
+			return updatedNetwork, fmt.Errorf("UpdateNetwork received invalid Op for update.\nReceived Op: %s\nValid Ops: %v\n", pb.Op, allowedOps)
 		}
 	}
-
-	var (
-		uri            = "/rest/networks/" + network.ID
-		updatedNetwork Network
-	)
 
 	response, err := c.RestAPICall(rest.PATCH, uri, nil, updates)
 
 	if err != nil {
-		return network, err
+		return updatedNetwork, err
 	}
 
 	if err := json.Unmarshal([]byte(response), &updatedNetwork); err != nil {
-		return network, apiResponseError(response, err)
+		return updatedNetwork, apiResponseError(response, err)
 	}
 
 	return updatedNetwork, err
