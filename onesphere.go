@@ -535,8 +535,3 @@ func (c *Client) DeleteZoneConnection(zoneID, uuid string) (string, error) {
 	return c.callHTTPRequest("DELETE", "/rest/zones/"+zoneID+"/connections/"+uuid, nil, nil)
 }
 
-// op: "add|replace|remove"
-func (c *Client) UpdateZoneConnection(zoneID, uuid, op, path string, value interface{}) (string, error) {
-	values := map[string]interface{}{"op": op, "path": path, "value": value}
-	return c.callHTTPRequest("PUT", "/rest/zones/"+zoneID+"/connections", nil, values)
-}

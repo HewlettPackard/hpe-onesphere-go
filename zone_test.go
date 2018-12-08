@@ -108,3 +108,13 @@ func TestUpdateZone(t *testing.T) {
 		t.Error(err)
 	}
 }
+
+func TestUpdateZoneConnection(t *testing.T) {
+	setup()
+
+	updates := []*PatchOp{}
+
+	if _, err := client.UpdateZoneConnection("2", "2222", updates); err != nil {
+		t.Error(err)
+	}
+}
