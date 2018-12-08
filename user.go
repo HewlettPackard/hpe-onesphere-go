@@ -43,9 +43,9 @@ type User struct {
 }
 
 type UserList struct {
-	Total   int `json:"total"`
-	Start   int `json:"start"`
-	Count   int `json:"count"`
+	Total   int    `json:"total"`
+	Start   int    `json:"start"`
+	Count   int    `json:"count"`
 	Members []User `json:"members"`
 }
 
@@ -79,7 +79,7 @@ func (c *Client) GetUserByID(id string) (User, error) {
 	var (
 		uri         = "/rest/users/" + id
 		queryParams = createQuery(&map[string]string{
-			"id":   id,
+			"id": id,
 		})
 		user User
 	)
@@ -104,7 +104,7 @@ func (c *Client) GetUserByID(id string) (User, error) {
 // CreateUser Creates User and returns updated User
 func (c *Client) CreateUser(userRequest UserRequest) (User, error) {
 	var (
-		uri     = "/rest/users"
+		uri  = "/rest/users"
 		user User
 	)
 
@@ -122,24 +122,24 @@ func (c *Client) CreateUser(userRequest UserRequest) (User, error) {
 }
 
 // UpdateUser using UserRequest returns updated user on success
-func (c *Client) UpdateUser(user User, updates UserRequest) (User, error) {
-	if user.ID == "" {
-		return user, fmt.Errorf("User must have a non-empty ID")
-	}
-
+func (c *Client) UpdateUser(userId string, updates UserRequest) (User, error) {
 	var (
-		uri            = "/rest/users/" + user.ID
+		uri         = "/rest/users/" + userId
 		updatedUser User
 	)
+
+	if userId == "" {
+		return updatedUser, fmt.Errorf("userId must be non-empty")
+	}
 
 	response, err := c.RestAPICall(rest.PATCH, uri, nil, updates)
 
 	if err != nil {
-		return user, err
+		return updatedUser, err
 	}
 
 	if err := json.Unmarshal([]byte(response), &updatedUser); err != nil {
-		return user, apiResponseError(response, err)
+		return updatedUser, apiResponseError(response, err)
 	}
 
 	return updatedUser, err

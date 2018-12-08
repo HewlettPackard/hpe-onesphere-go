@@ -360,24 +360,24 @@ Value: []struct {
 }
 
 */
-func (c *Client) UpdateZone(zone Zone, updates []*PatchOp) (Zone, error) {
-	if zone.ID == "" {
-		return zone, fmt.Errorf("Zone must have a non-empty ID")
-	}
-
+func (c *Client) UpdateZone(zoneId string, updates []*PatchOp) (Zone, error) {
 	var (
-		uri         = "/rest/zones/" + zone.ID
+		uri         = "/rest/zones/" + zoneId
 		updatedZone Zone
 	)
+
+	if zoneId == "" {
+		return updatedZone, fmt.Errorf("zoneId must be non-empty")
+	}
 
 	response, err := c.RestAPICall(rest.PATCH, uri, nil, updates)
 
 	if err != nil {
-		return zone, err
+		return updatedZone, err
 	}
 
 	if err := json.Unmarshal([]byte(response), &updatedZone); err != nil {
-		return zone, apiResponseError(response, err)
+		return updatedZone, apiResponseError(response, err)
 	}
 
 	return updatedZone, err

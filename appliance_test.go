@@ -63,10 +63,9 @@ func TestCreateAppliance(t *testing.T) {
 func TestUpdateAppliance(t *testing.T) {
 	setup()
 
-	appliance := Appliance{ID: "2"}
 	updates := []*PatchOp{}
 
-	if _, err := client.UpdateAppliance(appliance, updates); err != nil {
+	if _, err := client.UpdateAppliance("2", updates); err != nil {
 		t.Error(err)
 	}
 }

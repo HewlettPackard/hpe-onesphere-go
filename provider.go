@@ -175,12 +175,16 @@ Path: /name
 Value: new name
 
 */
-func (c *Client) UpdateProvider(provider Provider, updates []*PatchOp) (Provider, error) {
-	if provider.ID == "" {
-		return provider, fmt.Errorf("Provider must have a non-empty ID")
-	}
+func (c *Client) UpdateProvider(providerId string, updates []*PatchOp) (Provider, error) {
+	var (
+		uri             = "/rest/providers/" + providerId
+		updatedProvider Provider
+		allowedOps      = []string{"add", "replace", "remove"}
+	)
 
-	allowedOps := []string{"add", "replace", "remove"}
+	if providerId == "" {
+		return updatedProvider, fmt.Errorf("providerId must be non-empty")
+	}
 
 	for _, pb := range updates {
 		fieldIsValid := false
@@ -192,23 +196,18 @@ func (c *Client) UpdateProvider(provider Provider, updates []*PatchOp) (Provider
 		}
 
 		if !fieldIsValid {
-			return provider, fmt.Errorf("UpdateProvider received invalid Op for update.\nReceived Op: %s\nValid Ops: %v\n", pb.Op, allowedOps)
+			return updatedProvider, fmt.Errorf("UpdateProvider received invalid Op for update.\nReceived Op: %s\nValid Ops: %v\n", pb.Op, allowedOps)
 		}
 	}
-
-	var (
-		uri             = "/rest/providers/" + provider.ID
-		updatedProvider Provider
-	)
 
 	response, err := c.RestAPICall(rest.PATCH, uri, nil, updates)
 
 	if err != nil {
-		return provider, err
+		return updatedProvider, err
 	}
 
 	if err := json.Unmarshal([]byte(response), &updatedProvider); err != nil {
-		return provider, apiResponseError(response, err)
+		return updatedProvider, apiResponseError(response, err)
 	}
 
 	return updatedProvider, err

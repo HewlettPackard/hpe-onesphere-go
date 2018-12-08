@@ -47,10 +47,9 @@ func TestCreateCatalog(t *testing.T) {
 func TestUpdateCatalog(t *testing.T) {
 	setup()
 
-	catalog := Catalog{ID: "2"}
 	updates := []*PatchOp{}
 
-	if _, err := client.UpdateCatalog(catalog, updates); err != nil {
+	if _, err := client.UpdateCatalog("2", updates); err != nil {
 		t.Error(err)
 	}
 }

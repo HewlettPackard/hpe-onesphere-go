@@ -174,14 +174,18 @@ Op: add
 Path: /location
 Op: replace
 */
-func (c *Client) UpdateRegion(region Region, updates []*PatchOp) (Region, error) {
-	if region.ID == "" {
-		return region, fmt.Errorf("Region must have a non-empty ID")
-	}
+func (c *Client) UpdateRegion(regionId string, updates []*PatchOp) (Region, error) {
+	var (
+		uri           = "/rest/regions/" + regionId
+		updatedRegion Region
+		allowedFields = map[string][]string{
+			"add":     {"/name", "/location"},
+			"replace": {"/name", "/location"},
+		}
+	)
 
-	allowedFields := map[string][]string{
-		"add":     {"/name", "/location"},
-		"replace": {"/name", "/location"},
+	if regionId == "" {
+		return updatedRegion, fmt.Errorf("regionId must be non-empty")
 	}
 
 	for _, pb := range updates {
@@ -196,23 +200,18 @@ func (c *Client) UpdateRegion(region Region, updates []*PatchOp) (Region, error)
 		}
 
 		if !fieldIsValid {
-			return region, fmt.Errorf("UpdateRegion received invalid Field for update.\nReceived Op: %s\nReceived Path: %s\nValid Fields: %v\n", pb.Op, pb.Path, allowedFields)
+			return updatedRegion, fmt.Errorf("UpdateRegion received invalid Field for update.\nReceived Op: %s\nReceived Path: %s\nValid Fields: %v\n", pb.Op, pb.Path, allowedFields)
 		}
 	}
-
-	var (
-		uri           = "/rest/regions/" + region.ID
-		updatedRegion Region
-	)
 
 	response, err := c.RestAPICall(rest.PATCH, uri, nil, updates)
 
 	if err != nil {
-		return region, err
+		return updatedRegion, err
 	}
 
 	if err := json.Unmarshal([]byte(response), &updatedRegion); err != nil {
-		return region, apiResponseError(response, err)
+		return updatedRegion, apiResponseError(response, err)
 	}
 
 	return updatedRegion, err

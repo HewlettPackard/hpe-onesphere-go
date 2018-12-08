@@ -101,10 +101,9 @@ func TestCreateZoneConnection(t *testing.T) {
 func TestUpdateZone(t *testing.T) {
 	setup()
 
-	zone := Zone{ID: "2"}
 	updates := []*PatchOp{}
 
-	if _, err := client.UpdateZone(zone, updates); err != nil {
+	if _, err := client.UpdateZone("2", updates); err != nil {
 		t.Error(err)
 	}
 }

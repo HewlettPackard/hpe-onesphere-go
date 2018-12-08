@@ -86,10 +86,9 @@ func TestCreateDeployment(t *testing.T) {
 func TestUpdateDeployment(t *testing.T) {
 	setup()
 
-	deployment := Deployment{ID: "2"}
 	updates := []*PatchOp{}
 
-	if _, err := client.UpdateDeployment(deployment, updates); err != nil {
+	if _, err := client.UpdateDeployment("2", updates); err != nil {
 		t.Error(err)
 	}
 }
