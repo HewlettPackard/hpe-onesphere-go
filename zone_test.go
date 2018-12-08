@@ -118,3 +118,13 @@ func TestUpdateZoneConnection(t *testing.T) {
 		t.Error(err)
 	}
 }
+
+func TestDeleteZone(t *testing.T) {
+	setup()
+
+	zone := Zone{ID: "2"}
+
+	if err := client.DeleteZone(zone); err != nil {
+		t.Error(err)
+	}
+}
