@@ -296,3 +296,80 @@ func (c *Client) CreateZoneConnection(id string, connectionRequest ConnectionReq
 
 	return connection, err
 }
+
+/* UpdateZone using []*PatchOp returns updated zone on success
+
+Allowed Ops for PATCH of networks: add | replace | remove
+
+example:
+
+Op: "add"
+Path: "/inTransitClusters"
+Value: []struct {
+	ID    string `json:"id"`
+	State string `json:"state"`
+}{
+	{
+		ID: "domain-c51",
+		State: "Enabled",
+	},
+}
+
+example:
+
+Op: "add"
+Path: "/networkSettings"
+Value: struct {
+	NcsManagementNetwork string   `json:"ncsManagementNetwork"`
+	EsxManagementNetwork string   `json:"esxManagementNetwork"`
+	StorageNetwork       string   `json:"storageNetwork"`
+	MovementNetwork      string   `json:"movementNetwork"`
+	ProductionNetwork    []string `json:"productionNetwork"`
+} {
+	NcsManagementNetwork: "net1",
+	EsxManagementNetwork: "net2",
+	StorageNetwork: "net3",
+	MovementNetwork: "net4",
+	ProductionNetwork: []string{ "net5", "net6" },
+}
+
+example:
+
+Op: "add"
+Path: "/networkSettings"
+Value: []struct {
+	ServerURI string   `json:"serverUri"`
+	State     string   `json:"state"`
+	Roles     []string `json:"roles"`
+}{
+	{
+		ServerURI: "/rest/servers/2b5a8db7-e145-4ef9-b7f2-9b2d45976cd3",
+		State: "Enabled",
+		Roles: []string{ "ImageLibrary" },
+	},
+}
+
+*/
+func (c *Client) UpdateZone(zone Zone, updates []*PatchOp) (Zone, error) {
+	if zone.ID == "" {
+		return zone, fmt.Errorf("Zone must have a non-empty ID")
+	}
+
+	var (
+		uri               = "/rest/zones/" + zone.ID
+		updatedZone Zone
+	)
+
+	response, err := c.RestAPICall(rest.PATCH, uri, nil, updates)
+
+	if err != nil {
+		return zone, err
+	}
+
+	if err := json.Unmarshal([]byte(response), &updatedZone); err != nil {
+		return zone, apiResponseError(response, err)
+	}
+
+	return updatedZone, err
+}
+
