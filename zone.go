@@ -27,6 +27,16 @@ import (
 	"time"
 )
 
+type ResourceOps struct {
+	ResourceType     string `json:"resourceType"`
+	ResourceCapacity int    `json:"resourceCapacity"`
+}
+
+type ZoneAction struct {
+	Type        string       `json:"type"`
+	ResourceOps *ResourceOps `json:"resourceOps"`
+}
+
 type ZoneRequest struct {
 	Name            string `json:"name"`
 	ProviderURI     string `json:"providerUri"`
@@ -63,24 +73,24 @@ type ZoneRequest struct {
 }
 
 type Zone struct {
-	Created     time.Time `json:"created"`
-	ID          string    `json:"id"`
-	Metrics     []*Metric `json:"metrics"`
-	Modified    time.Time `json:"modified"`
-	Name        string    `json:"name"`
-	ProviderURI string    `json:"providerUri"`
-	RegionURI   string    `json:"regionUri"`
-	Error       *Error `json:"error"`
-	Status       string `json:"status"`
-	State        string `json:"state"`
+	Created      time.Time `json:"created"`
+	ID           string    `json:"id"`
+	Metrics      []*Metric `json:"metrics"`
+	Modified     time.Time `json:"modified"`
+	Name         string    `json:"name"`
+	ProviderURI  string    `json:"providerUri"`
+	RegionURI    string    `json:"regionUri"`
+	Error        *Error    `json:"error"`
+	Status       string    `json:"status"`
+	State        string    `json:"state"`
 	CurrentTasks []struct {
 		TaskName   string `json:"taskName"`
 		TaskState  string `json:"taskState"`
 		TaskStatus string `json:"taskStatus"`
 	} `json:"currentTasks"`
-	Clusters []*Cluster `json:"clusters"`
+	Clusters          []*Cluster `json:"clusters"`
 	InTransitClusters []*Cluster `json:"inTransitClusters"`
-	EsxLcmTask struct {
+	EsxLcmTask        struct {
 		URI             string   `json:"uri"`
 		Name            string   `json:"name"`
 		Type            string   `json:"type"`
@@ -98,9 +108,9 @@ type Zone struct {
 		State                          string `json:"state"`
 		Status                         string `json:"status"`
 		Error                          *Error `json:"error"`
-		TaskFailed bool   `json:"taskFailed"`
-		Created    string `json:"created"`
-		Modified   string `json:"modified"`
+		TaskFailed                     bool   `json:"taskFailed"`
+		Created                        string `json:"created"`
+		Modified                       string `json:"modified"`
 	} `json:"esxLcmTask"`
 	NetworkSettings struct {
 		NcsManagementNetwork string   `json:"ncsManagementNetwork"`
@@ -129,15 +139,15 @@ type Zone struct {
 		Name        string `json:"name"`
 		Description string `json:"description"`
 	} `json:"resourceProfile"`
-	Default      bool   `json:"default"`
-	ApplianceURI string `json:"applianceUri"`
-	KvmServers   []*KvmServer `json:"kvmServers"`
-	InTransitKvmServers []KvmServer `json:"inTransitKvmServers"`
+	Default             bool         `json:"default"`
+	ApplianceURI        string       `json:"applianceUri"`
+	KvmServers          []*KvmServer `json:"kvmServers"`
+	InTransitKvmServers []KvmServer  `json:"inTransitKvmServers"`
 }
 
 type ZoneList struct {
-	Total       int           `json:"total"`
-	Members     []Zone  `json:"members"`
+	Total   int    `json:"total"`
+	Members []Zone `json:"members"`
 }
 
 /* GetZones with optional query, and filters by regionUri, providerUri, applianceUri
@@ -155,11 +165,11 @@ func (c *Client) GetZones(query, regionUri, providerUri, applianceUri, view stri
 	var (
 		uri         = "/rest/zones"
 		queryParams = createQuery(&map[string]string{
-			query: "query",
-			regionUri: "regionUri",
-			providerUri: "providerUri",
+			query:        "query",
+			regionUri:    "regionUri",
+			providerUri:  "providerUri",
 			applianceUri: "applianceUri",
-			view: "view",
+			view:         "view",
 		})
 		zones ZoneList
 	)
@@ -180,7 +190,7 @@ func (c *Client) GetZones(query, regionUri, providerUri, applianceUri, view stri
 // GetZoneByID Retrieve Zone by ID
 func (c *Client) GetZoneByID(id string) (Zone, error) {
 	var (
-		uri        = "/rest/zones/" + id
+		uri  = "/rest/zones/" + id
 		zone Zone
 	)
 
@@ -204,7 +214,7 @@ func (c *Client) GetZoneByID(id string) (Zone, error) {
 // GetZoneApplianceImage Retrieve Zone Appliance Image URI by Zone.ID
 func (c *Client) GetZoneApplianceImage(id string) (string, error) {
 	var (
-		uri        = "/rest/zones/" + id + "/appliance-image"
+		uri               = "/rest/zones/" + id + "/appliance-image"
 		applianceImageURI string
 	)
 
@@ -260,7 +270,7 @@ func (c *Client) GetZoneConnections(id, uuid string) (ConnectionList, error) {
 // CreateZone Creates Zone and returns updated zone
 func (c *Client) CreateZone(zoneRequest ZoneRequest) (Zone, error) {
 	var (
-		uri        = "/rest/zones/"
+		uri  = "/rest/zones/"
 		zone Zone
 	)
 
@@ -280,7 +290,7 @@ func (c *Client) CreateZone(zoneRequest ZoneRequest) (Zone, error) {
 // CreateZoneConnection Creates Connection and returns updated connection
 func (c *Client) CreateZoneConnection(id string, connectionRequest ConnectionRequest) (Connection, error) {
 	var (
-		uri        = "/rest/zones/"+id+"/connections"
+		uri        = "/rest/zones/" + id + "/connections"
 		connection Connection
 	)
 
@@ -356,7 +366,7 @@ func (c *Client) UpdateZone(zone Zone, updates []*PatchOp) (Zone, error) {
 	}
 
 	var (
-		uri               = "/rest/zones/" + zone.ID
+		uri         = "/rest/zones/" + zone.ID
 		updatedZone Zone
 	)
 
@@ -372,7 +382,6 @@ func (c *Client) UpdateZone(zone Zone, updates []*PatchOp) (Zone, error) {
 
 	return updatedZone, err
 }
-
 
 /* UpdateZoneConnection using []*PatchOp returns updated Connection on success
 
@@ -398,7 +407,7 @@ func (c *Client) UpdateZoneConnection(zoneId, connectionUuid string, updates []*
 		return updatedConnection, err
 	}
 
-	if err := json.Unmarshal([]byte(response), & updatedConnection); err != nil {
+	if err := json.Unmarshal([]byte(response), &updatedConnection); err != nil {
 		return updatedConnection, apiResponseError(response, err)
 	}
 
@@ -435,6 +444,37 @@ func (c *Client) DeleteZoneConnection(zoneId, connectionUuid string) error {
 	var uri = "/rest/zones/" + zoneId + "/connections/" + connectionUuid
 
 	response, err := c.RestAPICall(rest.DELETE, uri, nil, nil)
+
+	if err != nil {
+		return apiResponseError(response, err)
+	}
+
+	return nil
+}
+
+/* ActionZone Perform an Action on Zone
+allowed ZoneAction.Type: reset | add-capacity | reduce-capacity
+allowed ZoneAction.ResourceOps.ResourceType: compute | storage
+
+example ZoneAction:
+
+ZoneAction{
+	Type: "add-capacity",
+	ResourceOps: &ResourceOps{
+		ResourceType:     "compute",
+		ResourceCapacity: 2,
+	},
+}
+*/
+func (c *Client) ActionZone(zoneId string, action ZoneAction) error {
+
+	if zoneId == "" {
+		return fmt.Errorf("zoneId must be non-empty")
+	}
+
+	var uri = "/rest/zones/" + zoneId + "/actions"
+
+	response, err := c.RestAPICall(rest.POST, uri, nil, action)
 
 	if err != nil {
 		return apiResponseError(response, err)

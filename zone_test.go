@@ -5,7 +5,7 @@ import "testing"
 func TestGetZones(t *testing.T) {
 	setup()
 
-	zoneList, err := client.GetZones("","","", "", "")
+	zoneList, err := client.GetZones("", "", "", "", "")
 	if err != nil {
 		t.Errorf("TestGetZones Error: %v\n", err)
 		return
@@ -19,7 +19,7 @@ func TestGetZones(t *testing.T) {
 func TestGetZoneByID(t *testing.T) {
 	setup()
 
-	zoneList, err := client.GetZones("", "", "","", "")
+	zoneList, err := client.GetZones("", "", "", "", "")
 	if err != nil {
 		t.Error(err)
 		return
@@ -133,6 +133,22 @@ func TestDeleteZoneConnection(t *testing.T) {
 	setup()
 
 	if err := client.DeleteZoneConnection("2", "2222"); err != nil {
+		t.Error(err)
+	}
+}
+
+func TestActionZone(t *testing.T) {
+	setup()
+
+	zoneAction := ZoneAction{
+		Type: "add-capacity",
+		ResourceOps: &ResourceOps{
+			ResourceType:     "compute",
+			ResourceCapacity: 2,
+		},
+	}
+
+	if err := client.ActionZone("2", zoneAction); err != nil {
 		t.Error(err)
 	}
 }
