@@ -73,9 +73,7 @@ func TestUpdateAppliance(t *testing.T) {
 func TestDeleteAppliance(t *testing.T) {
 	setup()
 
-	appliance := Appliance{ID: "2"}
-
-	if err := client.DeleteAppliance(appliance); err != nil {
+	if err := client.DeleteAppliance("2"); err != nil {
 		t.Error(err)
 	}
 }

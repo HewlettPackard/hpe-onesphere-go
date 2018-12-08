@@ -57,9 +57,7 @@ func TestUpdateUser(t *testing.T) {
 func TestDeleteUser(t *testing.T) {
 	setup()
 
-	user := User{ID: "2"}
-
-	if err := client.DeleteUser(user); err != nil {
+	if err := client.DeleteUser("2"); err != nil {
 		t.Skip(err)
 	}
 }

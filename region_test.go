@@ -59,9 +59,7 @@ func TestUpdateRegion(t *testing.T) {
 func TestDeleteRegion(t *testing.T) {
 	setup()
 
-	region := Region{ID: "2"}
-
-	if err := client.DeleteRegion(region); err != nil {
+	if err := client.DeleteRegion("2"); err != nil {
 		t.Skip(err)
 	}
 }

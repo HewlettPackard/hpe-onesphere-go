@@ -57,9 +57,7 @@ func TestUpdateProject(t *testing.T) {
 func TestDeleteProject(t *testing.T) {
 	setup()
 
-	project := Project{ID: "2"}
-
-	if err := client.DeleteProject(project); err != nil {
+	if err := client.DeleteProject("2"); err != nil {
 		t.Skip(err)
 	}
 }

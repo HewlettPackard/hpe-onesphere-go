@@ -57,9 +57,7 @@ func TestUpdateProvider(t *testing.T) {
 func TestDeleteProvider(t *testing.T) {
 	setup()
 
-	provider := Provider{ID: "2"}
-
-	if err := client.DeleteProvider(provider); err != nil {
+	if err := client.DeleteProvider("2"); err != nil {
 		t.Skip(err)
 	}
 }

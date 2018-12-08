@@ -96,9 +96,7 @@ func TestUpdateDeployment(t *testing.T) {
 func TestDeleteDeployment(t *testing.T) {
 	setup()
 
-	deployment := Deployment{ID: "2"}
-
-	if err := client.DeleteDeployment(deployment); err != nil {
+	if err := client.DeleteDeployment("2"); err != nil {
 		t.Error(err)
 	}
 }

@@ -218,12 +218,12 @@ func (c *Client) UpdateRegion(regionId string, updates []*PatchOp) (Region, erro
 }
 
 // DeleteRegion Deletes Region
-func (c *Client) DeleteRegion(region Region) error {
-	if region.ID == "" {
-		return fmt.Errorf("Region must have a non-empty ID")
+func (c *Client) DeleteRegion(regionId string) error {
+	if regionId == "" {
+		return fmt.Errorf("regionId must be non-empty")
 	}
 
-	var uri = "/rest/regions/" + region.ID
+	var uri = "/rest/regions/" + regionId
 
 	response, err := c.RestAPICall(rest.DELETE, uri, nil, nil)
 
