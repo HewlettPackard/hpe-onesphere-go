@@ -521,12 +521,3 @@ func (c *Client) DeleteVolume(volumeID string) (string, error) {
 	return c.callHTTPRequest("DELETE", "/rest/volumes/"+volumeID, nil, nil)
 }
 
-// Zone Types APIs
-
-func (c *Client) GetZoneTypes() (string, error) {
-	return c.callHTTPRequest("GET", "/rest/zone-types", nil, nil)
-}
-
-func (c *Client) GetZoneTypeResourceProfiles(zoneTypeID string) (string, error) {
-	return c.callHTTPRequest("GET", "/rest/zone-types/"+zoneTypeID+"/resource-profiles", nil, nil)
-}

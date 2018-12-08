@@ -356,27 +356,3 @@ func TestGetStatus(t *testing.T) {
 
 }
 
-func TestGetZoneTypes(t *testing.T) {
-	actual, err := client.GetZoneTypes()
-	if err != nil {
-		t.Errorf("TestGetZoneTypes Error: %v\n", err)
-	}
-
-	expected := `{
-    "total": 0,
-    "start": 0,
-    "count": 0,
-    "members": [
-        {
-            "id": "abc",
-            "name": "",
-            "uri": "/rest/zone-types/abc"
-        }
-    ]
-	}`
-	compareErr := compareFields(t, "onesphere.Client.GetZoneTypes", expected, actual)
-	if compareErr != nil {
-		t.Errorf("TestGetZoneTypes Error: %s\n", compareErr)
-	}
-
-}
