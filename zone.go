@@ -373,3 +373,35 @@ func (c *Client) UpdateZone(zone Zone, updates []*PatchOp) (Zone, error) {
 	return updatedZone, err
 }
 
+
+/* UpdateZoneConnection using []*PatchOp returns updated Connection on success
+
+Allowed Ops for PATCH of networks: add | replace | remove
+*/
+func (c *Client) UpdateZoneConnection(zoneId, connectionUuid string, updates []*PatchOp) (Connection, error) {
+	var (
+		uri               = "/rest/zones/" + zoneId + "/connections/" + connectionUuid
+		updatedConnection Connection
+	)
+
+	if zoneId == "" {
+		return updatedConnection, fmt.Errorf("zoneId must be non-empty")
+	}
+
+	if connectionUuid == "" {
+		return updatedConnection, fmt.Errorf("connectionUuid must be non-empty")
+	}
+
+	response, err := c.RestAPICall(rest.PATCH, uri, nil, updates)
+
+	if err != nil {
+		return updatedConnection, err
+	}
+
+	if err := json.Unmarshal([]byte(response), & updatedConnection); err != nil {
+		return updatedConnection, apiResponseError(response, err)
+	}
+
+	return updatedConnection, err
+}
+
