@@ -34,6 +34,15 @@ func TestGetProjectByID(t *testing.T) {
 	}
 }
 
+func TestGetProjectByName(t *testing.T) {
+	setup()
+
+	_, err := client.GetProjectByName("2")
+	if err != nil {
+		t.Error(err)
+	}
+}
+
 func TestCreateProject(t *testing.T) {
 	setup()
 

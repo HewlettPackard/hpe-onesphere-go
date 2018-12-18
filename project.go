@@ -152,6 +152,28 @@ func (c *Client) GetProjectByID(id, view string) (Project, error) {
 	return project, err
 }
 
+// GetProjectByName returns a Project by name
+func (c *Client) GetProjectByName(name string) (Project, error) {
+	var project Project
+
+	if name == "" {
+		return project, fmt.Errorf("name must not be empty")
+	}
+
+	projects, err := c.GetProjects("", "")
+
+	if len(projects.Members) > 0 {
+		for i := 0; i < len(projects.Members); i++ {
+			project = projects.Members[i]
+			if project.Name == name {
+				return project, err
+			}
+		}
+	}
+
+	return project, err
+}
+
 // CreateProject Creates Project and returns updated Project
 func (c *Client) CreateProject(projectRequest ProjectRequest) (Project, error) {
 	var (
