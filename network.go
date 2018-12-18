@@ -80,7 +80,7 @@ func (c *Client) GetNetworks(query string) (NetworkList, error) {
 	return networks, err
 }
 
-// GetNetwork returns an Network by id
+// GetNetworkByID returns an Network by id
 func (c *Client) GetNetworkByID(id string) (Network, error) {
 	var (
 		uri     = "/rest/networks/" + id
@@ -100,6 +100,24 @@ func (c *Client) GetNetworkByID(id string) (Network, error) {
 	if err := json.Unmarshal([]byte(response), &network); err != nil {
 		return network, apiResponseError(response, err)
 	}
+
+	return network, err
+}
+
+// GetNetworkByZoneURI returns an Network by zoneUri
+func (c *Client) GetNetworkByZoneURI(zoneUri string) (Network, error) {
+	var network Network
+
+	if zoneUri == "" {
+		return network, fmt.Errorf("zoneUri must not be empty")
+	}
+
+	networks, err := c.GetNetworks("zoneUri EQ " + zoneUri)
+
+	if len(networks.Members) == 0 {
+		return network, err
+	}
+	network = networks.Members[0]
 
 	return network, err
 }
