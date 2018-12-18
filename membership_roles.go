@@ -22,6 +22,7 @@ package onesphere
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/HewlettPackard/hpe-onesphere-go/rest"
 )
 
@@ -50,4 +51,26 @@ func (c *Client) GetMembershipRoles() (MembershipRoleList, error) {
 	}
 
 	return membershipRoles, err
+}
+
+// GetMembershipRoleByName returns a list of all MembershipRole filtered by name
+func (c *Client) GetMembershipRoleByName(name string) (MembershipRole, error) {
+	var membershipRole MembershipRole
+
+	if name == "" {
+		return membershipRole, fmt.Errorf("name must not be empty")
+	}
+
+	membershipRoles, err := c.GetMembershipRoles()
+
+	if len(membershipRoles.Members) > 0 {
+		for i := 0; i < len(membershipRoles.Members); i++ {
+			if membershipRoles.Members[i].Name == name {
+				membershipRole = membershipRoles.Members[i]
+				return membershipRole, err
+			}
+		}
+	}
+
+	return membershipRole, err
 }
