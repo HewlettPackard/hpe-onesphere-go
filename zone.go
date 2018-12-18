@@ -211,6 +211,20 @@ func (c *Client) GetZoneByID(id string) (Zone, error) {
 	return zone, err
 }
 
+// GetZoneByID Retrieve Zone by Name
+func (c *Client) GetZoneByName(name string) (Zone, error) {
+	var zone Zone
+
+	zones, err := c.GetZones("name EQ "+name, "", "", "", "")
+
+	if len(zones.Members) == 0 {
+		return zone, err
+	}
+	zone = zones.Members[0]
+
+	return zone, err
+}
+
 // GetZoneApplianceImage Retrieve Zone Appliance Image URI by Zone.ID
 func (c *Client) GetZoneApplianceImage(id string) (string, error) {
 	var (
