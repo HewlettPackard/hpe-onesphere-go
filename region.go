@@ -142,6 +142,28 @@ func (c *Client) GetRegionByID(id, view string, discover bool) (Region, error) {
 	return region, err
 }
 
+// GetRegionByName Retrieve Region by Name
+func (c *Client) GetRegionByName(name string) (Region, error) {
+	var region Region
+
+	if name == "" {
+		return region, fmt.Errorf("name must not be empty")
+	}
+
+	regions, err := c.GetRegions("", "")
+
+	if len(regions.Members) > 0 {
+		for i := 0; i < len(regions.Members); i++ {
+			region = regions.Members[i]
+			if region.Name == name {
+				return region, err
+			}
+		}
+	}
+
+	return region, err
+}
+
 // CreateRegion Creates Region and returns updated Region
 func (c *Client) CreateRegion(regionRequest RegionRequest) (Region, error) {
 	var (

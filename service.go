@@ -22,6 +22,7 @@ package onesphere
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/HewlettPackard/hpe-onesphere-go/rest"
 )
 
@@ -78,6 +79,10 @@ func (c *Client) GetServiceByID(id string) (Service, error) {
 // GetServiceByName returns a Service by Name
 func (c *Client) GetServiceByName(name string) (Service, error) {
 	var service Service
+
+	if name == "" {
+		return service, fmt.Errorf("name must not be empty")
+	}
 
 	services, err := c.GetServices()
 

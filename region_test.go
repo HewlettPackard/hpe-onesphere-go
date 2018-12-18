@@ -36,6 +36,15 @@ func TestGetRegionByID(t *testing.T) {
 	}
 }
 
+func TestGetRegionByName(t *testing.T) {
+	setup()
+
+	_, err := client.GetRegionByName("2")
+	if err != nil {
+		t.Error(err)
+	}
+}
+
 func TestCreateRegion(t *testing.T) {
 	setup()
 
