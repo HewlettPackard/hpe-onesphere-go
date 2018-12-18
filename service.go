@@ -88,8 +88,8 @@ func (c *Client) GetServiceByName(name string) (Service, error) {
 
 	if len(services.Members) > 0 {
 		for i := 0; i < len(services.Members); i++ {
-			service := services.Members[i]
-			if service.Name == name {
+			if services.Members[i].Name == name {
+				service = services.Members[i]
 				return service, err
 			}
 		}

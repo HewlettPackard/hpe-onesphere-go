@@ -122,6 +122,32 @@ func (c *Client) GetNetworkByZoneURI(zoneUri string) (Network, error) {
 	return network, err
 }
 
+// GetNetworkByNameAndZoneURI returns an Network by name and zoneUri
+func (c *Client) GetNetworkByNameAndZoneURI(name, zoneUri string) (Network, error) {
+	var network Network
+
+	if zoneUri == "" {
+		return network, fmt.Errorf("zoneUri must not be empty")
+	}
+
+	if name == "" {
+		return network, fmt.Errorf("name must not be empty")
+	}
+
+	networks, err := c.GetNetworks("zoneUri EQ " + zoneUri)
+
+	if len(networks.Members) > 0 {
+		for i := 0; i < len(networks.Members); i++ {
+			if networks.Members[i].Name == name {
+				network = networks.Members[i]
+				return network, err
+			}
+		}
+	}
+
+	return network, err
+}
+
 /* UpdateNetwork using []*PatchOp returns updated network on success
 
 Allowed Ops for PATCH of networks: add | replace | remove

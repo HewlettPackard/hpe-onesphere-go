@@ -154,8 +154,8 @@ func (c *Client) GetRegionByName(name string) (Region, error) {
 
 	if len(regions.Members) > 0 {
 		for i := 0; i < len(regions.Members); i++ {
-			region = regions.Members[i]
-			if region.Name == name {
+			if regions.Members[i].Name == name {
+				region = regions.Members[i]
 				return region, err
 			}
 		}
