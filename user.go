@@ -74,7 +74,7 @@ func (c *Client) GetUsers(userQuery string) (UserList, error) {
 	return users, err
 }
 
-// GetUserByID returns an User by id
+// GetUserByID returns a User by id
 func (c *Client) GetUserByID(id string) (User, error) {
 	var (
 		uri         = "/rest/users/" + id
@@ -96,6 +96,28 @@ func (c *Client) GetUserByID(id string) (User, error) {
 
 	if err := json.Unmarshal([]byte(response), &user); err != nil {
 		return user, apiResponseError(response, err)
+	}
+
+	return user, err
+}
+
+// GetUserByID returns a User by name
+func (c *Client) GetUserByName(name string) (User, error) {
+	var user User
+
+	if name == "" {
+		return user, fmt.Errorf("name must not be empty")
+	}
+
+	users, err := c.GetUsers(name)
+
+	if len(users.Members) > 0 {
+		for i := 0; i < len(users.Members); i++ {
+			if users.Members[i].Name == name {
+				user = users.Members[i]
+				return user, err
+			}
+		}
 	}
 
 	return user, err

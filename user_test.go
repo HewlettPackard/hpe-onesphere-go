@@ -34,6 +34,15 @@ func TestGetUserByID(t *testing.T) {
 	}
 }
 
+func TestGetUserByName(t *testing.T) {
+	setup()
+
+	_, err := client.GetUserByName("2")
+	if err != nil {
+		t.Error(err)
+	}
+}
+
 func TestCreateUser(t *testing.T) {
 	setup()
 
