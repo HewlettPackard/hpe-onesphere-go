@@ -29,6 +29,7 @@ import (
 type MembershipRequest = Membership
 
 type Membership struct {
+	ID                string `json:"id"`
 	GroupURI          string `json:"groupUri"`
 	MembershipRoleURI string `json:"membershipRoleUri"`
 	ProjectURI        string `json:"projectUri"`
@@ -98,6 +99,28 @@ func (c *Client) GetMembershipsByRole(roleUri string) (MembershipList, error) {
 		return MembershipList{}, fmt.Errorf("roleUri must be a non-empty value")
 	}
 	return c.GetMemberships("roleUri EQ " + roleUri)
+}
+
+// GetMembershipByID returns a Membership by ID
+func (c *Client) GetMembershipByID(id string) (Membership, error) {
+	var membership Membership
+
+	if id == "" {
+		return membership, fmt.Errorf("id must not be empty")
+	}
+
+	memberships, err := c.GetMemberships("")
+
+	if len(memberships.Members) > 0 {
+		for i := 0; i < len(memberships.Members); i++ {
+			membership = memberships.Members[i]
+			if membership.ID == id {
+				return membership, err
+			}
+		}
+	}
+
+	return membership, err
 }
 
 // CreateMembership Creates Membership and returns updated Membership
