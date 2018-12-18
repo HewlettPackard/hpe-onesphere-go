@@ -37,6 +37,15 @@ func TestGetNetworkByID(t *testing.T) {
 	}
 }
 
+func TestGetNetworkByZoneURI(t *testing.T) {
+	setup()
+
+	_, err := client.GetNetworkByZoneURI("2")
+	if err != nil {
+		t.Error(err)
+	}
+}
+
 func TestUpdateNetwork(t *testing.T) {
 	setup()
 
