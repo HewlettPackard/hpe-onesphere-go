@@ -143,24 +143,15 @@ func (c *Client) CreateMembership(membershipRequest MembershipRequest) (Membersh
 	return membership, err
 }
 
-// DeleteMembership Deletes Membership
-func (c *Client) DeleteMembership(membership Membership) error {
-	if membership.MembershipRoleURI == "" {
-		return fmt.Errorf("Membership must have a non-empty MembershipRoleURI")
-	}
-	if membership.UserURI == "" {
-		return fmt.Errorf("Membership must have a non-empty UserURI")
-	}
-	if membership.GroupURI == "" {
-		return fmt.Errorf("Membership must have a non-empty GroupURI")
-	}
-	if membership.ProjectURI == "" {
-		return fmt.Errorf("Membership must have a non-empty ProjectURI")
+// DeleteMembershipByID Deletes Membership by ID
+func (c *Client) DeleteMembershipByID(membershipId string) error {
+	if membershipId == "" {
+		return fmt.Errorf("membershipId must be non-empty")
 	}
 
-	var uri = "/rest/memberships"
+	var uri = "/rest/memberships/" + membershipId
 
-	response, err := c.RestAPICall(rest.DELETE, uri, nil, membership)
+	response, err := c.RestAPICall(rest.DELETE, uri, nil, nil)
 
 	if err != nil {
 		return apiResponseError(response, err)

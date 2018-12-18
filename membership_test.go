@@ -66,17 +66,10 @@ func TestCreateMembership(t *testing.T) {
 	}
 }
 
-func TestDeleteMembership(t *testing.T) {
+func TestDeleteMembershipByID(t *testing.T) {
 	setup()
 
-	membership := Membership{
-		GroupURI:          "2",
-		ProjectURI:        "2",
-		UserURI:           "2",
-		MembershipRoleURI: "2",
-	}
-
-	if err := client.DeleteMembership(membership); err != nil {
-		t.Skip(err)
+	if err := client.DeleteMembershipByID("2"); err != nil {
+		t.Error(err)
 	}
 }
