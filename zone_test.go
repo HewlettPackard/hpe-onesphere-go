@@ -39,6 +39,15 @@ func TestGetZoneByID(t *testing.T) {
 	}
 }
 
+func TestGetZoneByName(t *testing.T) {
+	setup()
+
+	_, err := client.GetZoneByName("2")
+	if err != nil {
+		t.Error(err)
+	}
+}
+
 func TestGetZoneApplianceImage(t *testing.T) {
 	setup()
 
