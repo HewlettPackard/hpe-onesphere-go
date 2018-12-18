@@ -47,6 +47,15 @@ func TestGetMembershipsByRole(t *testing.T) {
 	}
 }
 
+func TestGetMembershipByID(t *testing.T) {
+	setup()
+
+	_, err := client.GetMembershipByID("2")
+	if err != nil {
+		t.Error(err)
+	}
+}
+
 func TestCreateMembership(t *testing.T) {
 	setup()
 
