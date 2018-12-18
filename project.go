@@ -164,8 +164,8 @@ func (c *Client) GetProjectByName(name string) (Project, error) {
 
 	if len(projects.Members) > 0 {
 		for i := 0; i < len(projects.Members); i++ {
-			project = projects.Members[i]
-			if project.Name == name {
+			if projects.Members[i].Name == name {
+				project = projects.Members[i]
 				return project, err
 			}
 		}
