@@ -33,3 +33,12 @@ func TestGetServiceByID(t *testing.T) {
 		t.Errorf("TestGetServiceByID Failed to get service: ID is ''\n%+v", testId)
 	}
 }
+
+func TestGetServiceByName(t *testing.T) {
+	setup()
+
+	_, err := client.GetServiceByName("2")
+	if err != nil {
+		t.Error(err)
+	}
+}

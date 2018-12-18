@@ -74,3 +74,21 @@ func (c *Client) GetServiceByID(id string) (Service, error) {
 
 	return service, err
 }
+
+// GetServiceByName returns a Service by Name
+func (c *Client) GetServiceByName(name string) (Service, error) {
+	var service Service
+
+	services, err := c.GetServices()
+
+	if len(services.Members) > 0 {
+		for i := 0; i < len(services.Members); i++ {
+			service := services.Members[i]
+			if service.Name == name {
+				return service, err
+			}
+		}
+	}
+
+	return service, err
+}
