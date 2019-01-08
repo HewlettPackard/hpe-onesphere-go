@@ -179,7 +179,7 @@ func (c *Client) UpdateDeployment(deploymentId string, updates []*PatchOp) (Depl
 		return updatedDeployment, fmt.Errorf("Deployment must have a non-empty ID")
 	}
 
-	response, err := c.RestAPICall(rest.PATCH, uri, nil, updates)
+	response, err := c.RestAPICallPatch(uri, nil, updates)
 
 	if err != nil {
 		return updatedDeployment, err

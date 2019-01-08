@@ -163,7 +163,8 @@ func apiResponseError(response string, err error) error {
 	return fmt.Errorf("Unmarshal Error:\n\tRaw Response: %v\n\tError: %v", response, err)
 }
 
-func (c *Client) RestAPICall(method rest.Method, path string, queryParams map[string]string, values interface{}) (string, error) {
+func (c *Client) RestAPICallCustomHeaders(method rest.Method, customHeaders map[string]string, path string, queryParams map[string]string, values interface{}) (string, error) {
+
 	jsonValue, err := json.Marshal(values)
 	if err != nil {
 		return "", err
@@ -172,9 +173,12 @@ func (c *Client) RestAPICall(method rest.Method, path string, queryParams map[st
 	if err != nil {
 		return "", err
 	}
-	req.Header.Set("Accept", "application/json")
-	req.Header.Set("Content-Type", "application/json")
+
 	req.Header.Set("Authorization", c.Auth.Token)
+	for key, value := range customHeaders {
+		req.Header.Set(key, value)
+
+	}
 
 	if queryParams != nil && len(queryParams) > 0 {
 		q := req.URL.Query()
@@ -197,6 +201,20 @@ func (c *Client) RestAPICall(method rest.Method, path string, queryParams map[st
 	}
 	bodyStr := string(bodyBytes)
 	return bodyStr, nil
+}
+
+func (c *Client) RestAPICall(method rest.Method, path string, queryParams map[string]string, values interface{}) (string, error) {
+	return c.RestAPICallCustomHeaders(method, map[string]string{
+		"Accept":       "application/json",
+		"Content-Type": "application/json",
+	}, path, queryParams, values)
+}
+
+func (c *Client) RestAPICallPatch(path string, queryParams map[string]string, values interface{}) (string, error) {
+	return c.RestAPICallCustomHeaders(rest.PATCH, map[string]string{
+		"Accept":       "application/json",
+		"Content-Type": "application/json-patch+json",
+	}, path, queryParams, values)
 }
 
 func (c *Client) buildURL(path string) string {
@@ -520,4 +538,3 @@ func (c *Client) UpdateVolume(volumeID, name string, sizeGiB int) (string, error
 func (c *Client) DeleteVolume(volumeID string) (string, error) {
 	return c.callHTTPRequest("DELETE", "/rest/volumes/"+volumeID, nil, nil)
 }
-

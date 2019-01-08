@@ -200,7 +200,7 @@ func (c *Client) UpdateProvider(providerId string, updates []*PatchOp) (Provider
 		}
 	}
 
-	response, err := c.RestAPICall(rest.PATCH, uri, nil, updates)
+	response, err := c.RestAPICallPatch(uri, nil, updates)
 
 	if err != nil {
 		return updatedProvider, err

@@ -206,7 +206,7 @@ func (c *Client) UpdateCatalog(catalogId string, updates []*PatchOp) (Catalog, e
 		}
 	}
 
-	response, err := c.RestAPICall(rest.PATCH, uri, nil, updates)
+	response, err := c.RestAPICallPatch(uri, nil, updates)
 
 	if err != nil {
 		return updatedCatalog, err

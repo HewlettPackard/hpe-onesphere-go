@@ -384,7 +384,7 @@ func (c *Client) UpdateZone(zoneId string, updates []*PatchOp) (Zone, error) {
 		return updatedZone, fmt.Errorf("zoneId must be non-empty")
 	}
 
-	response, err := c.RestAPICall(rest.PATCH, uri, nil, updates)
+	response, err := c.RestAPICallPatch(uri, nil, updates)
 
 	if err != nil {
 		return updatedZone, err
@@ -415,7 +415,7 @@ func (c *Client) UpdateZoneConnection(zoneId, connectionUuid string, updates []*
 		return updatedConnection, fmt.Errorf("connectionUuid must be non-empty")
 	}
 
-	response, err := c.RestAPICall(rest.PATCH, uri, nil, updates)
+	response, err := c.RestAPICallPatch(uri, nil, updates)
 
 	if err != nil {
 		return updatedConnection, err
