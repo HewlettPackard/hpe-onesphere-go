@@ -161,7 +161,7 @@ func (c *Client) UpdateAppliance(applianceId string, updates []*PatchOp) (Applia
 		return updatedAppliance, fmt.Errorf("Appliance must have a non-empty ID")
 	}
 
-	response, err := c.RestAPICall(rest.PATCH, uri, nil, updates)
+	response, err := c.RestAPICallPatch(uri, nil, updates)
 
 	if err != nil {
 		return updatedAppliance, err

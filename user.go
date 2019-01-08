@@ -154,7 +154,7 @@ func (c *Client) UpdateUser(userId string, updates UserRequest) (User, error) {
 		return updatedUser, fmt.Errorf("userId must be non-empty")
 	}
 
-	response, err := c.RestAPICall(rest.PATCH, uri, nil, updates)
+	response, err := c.RestAPICallPatch(uri, nil, updates)
 
 	if err != nil {
 		return updatedUser, err

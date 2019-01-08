@@ -184,12 +184,13 @@ func (c *Client) UpdateNetwork(networkId string, updates []*PatchOp) (Network, e
 		}
 	}
 
-	response, err := c.RestAPICall(rest.PATCH, uri, nil, updates)
+	response, err := c.RestAPICallPatch(uri, nil, updates)
 
 	if err != nil {
 		return updatedNetwork, err
 	}
 
+	fmt.Printf("DEBUG +%v", response)
 	if err := json.Unmarshal([]byte(response), &updatedNetwork); err != nil {
 		return updatedNetwork, apiResponseError(response, err)
 	}

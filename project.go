@@ -205,7 +205,7 @@ func (c *Client) UpdateProject(projectId string, updates ProjectRequest) (Projec
 		return updatedProject, fmt.Errorf("projectId must be non-empty")
 	}
 
-	response, err := c.RestAPICall(rest.PATCH, uri, nil, updates)
+	response, err := c.RestAPICallPatch(uri, nil, updates)
 
 	if err != nil {
 		return updatedProject, err

@@ -226,7 +226,7 @@ func (c *Client) UpdateRegion(regionId string, updates []*PatchOp) (Region, erro
 		}
 	}
 
-	response, err := c.RestAPICall(rest.PATCH, uri, nil, updates)
+	response, err := c.RestAPICallPatch(uri, nil, updates)
 
 	if err != nil {
 		return updatedRegion, err
