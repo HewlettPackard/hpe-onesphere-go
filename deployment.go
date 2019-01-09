@@ -29,20 +29,35 @@ import (
 )
 
 type DeploymentRequest struct {
-	AssignExternalIP string        `json:"assignExternalIP,omitempty"`
-	PublicKey        string        `json:"publicKey,omitempty"`
-	Name             string        `json:"name,omitempty"`
-	ZoneURI          string        `json:"zoneUri,omitempty"`
-	ProjectURI       utils.Nstring `json:"projectUri,omitempty"`
-	Networks         []struct {
+	AssignExternalIP string `json:"assignExternalIP,omitempty"`
+	Firewall         []struct {
+		AllowedIPs string   `json:"allowedIPs"`
+		Ports      []string `json:"ports"`
+	} `json:"firewall"`
+	HTTPProxy           string `json:"httpProxy,omitempty"`
+	HTTPProxyPassword   string `json:"httpProxyPassword,omitempty"`
+	HTTPProxyUserName   string `json:"httpProxyUserName,omitempty"`
+	Image               string `json:"image,omitempty"`
+	K8SDeploymentRegion string `json:"k8sDeploymentRegion,omitempty"`
+	K8SDomainURI        string `json:"k8sDomainUri,omitempty"`
+	K8SMasterFlavor     string `json:"k8sMasterFlavor,omitempty"`
+	K8SNumMasters       string `json:"k8sNumMasters,omitempty"`
+	K8SWorkerFlavor     string `json:"k8sWorkerFlavor,omitempty"`
+	K8SnumWorkers       string `json:"k8snumWorkers,omitempty"`
+	Name                string `json:"name,omitempty"`
+	Networks            []struct {
 		NetworkURI string `json:"networkUri,omitempty"`
 	} `json:"networks,omitempty"`
-	ServiceURI               utils.Nstring `json:"serviceUri,omitempty"`
-	UserData                 string        `json:"userData"`
-	Version                  string        `json:"version,omitempty"`
+	Parameters               string        `json:"parameters,omitempty"`
+	ProjectURI               utils.Nstring `json:"projectUri,omitempty"`
+	PublicKey                string        `json:"publicKey,omitempty"`
 	RegionURI                utils.Nstring `json:"regionUri,omitempty"`
-	VirtualMachineProfileURI utils.Nstring `json:"virtualMachineProfileUri,omitempty"`
 	ServiceInput             string        `json:"serviceInput,omitempty"`
+	ServiceURI               utils.Nstring `json:"serviceUri,omitempty"`
+	UserData                 string        `json:"userData,omitempty"`
+	Version                  string        `json:"version,omitempty"`
+	VirtualMachineProfileURI utils.Nstring `json:"virtualMachineProfileUri,omitempty"`
+	ZoneURI                  string        `json:"zoneUri,omitempty"`
 }
 
 type Deployment struct {
@@ -160,6 +175,8 @@ func (c *Client) CreateDeployment(deploymentRequest DeploymentRequest) (Deployme
 	if err != nil {
 		return deployment, err
 	}
+
+	fmt.Printf("DEBUG +%v", response)
 
 	if err := json.Unmarshal([]byte(response), &deployment); err != nil {
 		return deployment, apiResponseError(response, err)
