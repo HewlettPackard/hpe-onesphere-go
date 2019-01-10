@@ -1,11 +1,13 @@
 package onesphere
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestGetServices(t *testing.T) {
 	setup()
 
-	_, err := client.GetServices()
+	_, err := client.GetServices("", "")
 	if err != nil {
 		t.Error(err)
 	}
@@ -14,7 +16,7 @@ func TestGetServices(t *testing.T) {
 func TestGetServiceByID(t *testing.T) {
 	setup()
 
-	serviceList, err := client.GetServices()
+	serviceList, err := client.GetServices("", "")
 	if err != nil {
 		t.Error(err)
 		return
@@ -37,7 +39,7 @@ func TestGetServiceByID(t *testing.T) {
 func TestGetServiceByName(t *testing.T) {
 	setup()
 
-	_, err := client.GetServiceByName("2")
+	_, err := client.GetServiceByName("")
 	if err != nil {
 		t.Error(err)
 	}
