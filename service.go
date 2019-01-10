@@ -37,13 +37,17 @@ type ServiceList struct {
 // leave filter blank to get all services
 // example query: "serviceTypeUri EQ /rest/service-types/zone"
 // example userQuery: "kub"
-func (c *Client) GetServices() (ServiceList, error) {
+func (c *Client) GetServices(query, userQuery string) (ServiceList, error) {
 	var (
-		uri      = "/rest/services"
+		uri         = "/rest/services"
+		queryParams = createQuery(&map[string]string{
+			"query":     query,
+			"userQuery": userQuery,
+		})
 		services ServiceList
 	)
 
-	response, err := c.RestAPICall(rest.GET, uri, nil, nil)
+	response, err := c.RestAPICall(rest.GET, uri, queryParams, nil)
 
 	if err != nil {
 		return services, err
@@ -84,7 +88,7 @@ func (c *Client) GetServiceByName(name string) (Service, error) {
 		return service, fmt.Errorf("name must not be empty")
 	}
 
-	services, err := c.GetServices()
+	services, err := c.GetServices("", name)
 
 	if len(services.Members) > 0 {
 		for i := 0; i < len(services.Members); i++ {
