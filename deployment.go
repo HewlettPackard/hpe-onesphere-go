@@ -28,36 +28,38 @@ import (
 	"github.com/HewlettPackard/hpe-onesphere-go/utils"
 )
 
+type DeploymentNetworks struct {
+	NetworkURI string `json:"networkUri,omitempty"`
+}
+
 type DeploymentRequest struct {
 	AssignExternalIP string `json:"assignExternalIP,omitempty"`
 	Firewall         []struct {
 		AllowedIPs string   `json:"allowedIPs"`
 		Ports      []string `json:"ports"`
 	} `json:"firewall"`
-	HTTPProxy           string `json:"httpProxy,omitempty"`
-	HTTPProxyPassword   string `json:"httpProxyPassword,omitempty"`
-	HTTPProxyUserName   string `json:"httpProxyUserName,omitempty"`
-	Image               string `json:"image,omitempty"`
-	K8SDeploymentRegion string `json:"k8sDeploymentRegion,omitempty"`
-	K8SDomainURI        string `json:"k8sDomainUri,omitempty"`
-	K8SMasterFlavor     string `json:"k8sMasterFlavor,omitempty"`
-	K8SNumMasters       string `json:"k8sNumMasters,omitempty"`
-	K8SWorkerFlavor     string `json:"k8sWorkerFlavor,omitempty"`
-	K8SnumWorkers       string `json:"k8snumWorkers,omitempty"`
-	Name                string `json:"name,omitempty"`
-	Networks            []struct {
-		NetworkURI string `json:"networkUri,omitempty"`
-	} `json:"networks,omitempty"`
-	Parameters               string        `json:"parameters,omitempty"`
-	ProjectURI               utils.Nstring `json:"projectUri,omitempty"`
-	PublicKey                string        `json:"publicKey,omitempty"`
-	RegionURI                utils.Nstring `json:"regionUri,omitempty"`
-	ServiceInput             string        `json:"serviceInput,omitempty"`
-	ServiceURI               utils.Nstring `json:"serviceUri,omitempty"`
-	UserData                 string        `json:"userData,omitempty"`
-	Version                  string        `json:"version,omitempty"`
-	VirtualMachineProfileURI utils.Nstring `json:"virtualMachineProfileUri,omitempty"`
-	ZoneURI                  string        `json:"zoneUri,omitempty"`
+	HTTPProxy                string               `json:"httpProxy,omitempty"`
+	HTTPProxyPassword        string               `json:"httpProxyPassword,omitempty"`
+	HTTPProxyUserName        string               `json:"httpProxyUserName,omitempty"`
+	Image                    string               `json:"image,omitempty"`
+	K8SDeploymentRegion      string               `json:"k8sDeploymentRegion,omitempty"`
+	K8SDomainURI             string               `json:"k8sDomainUri,omitempty"`
+	K8SMasterFlavor          string               `json:"k8sMasterFlavor,omitempty"`
+	K8SNumMasters            string               `json:"k8sNumMasters,omitempty"`
+	K8SWorkerFlavor          string               `json:"k8sWorkerFlavor,omitempty"`
+	K8SnumWorkers            string               `json:"k8snumWorkers,omitempty"`
+	Name                     string               `json:"name,omitempty"`
+	Networks                 []DeploymentNetworks `json:"networks,omitempty"`
+	Parameters               string               `json:"parameters,omitempty"`
+	ProjectURI               utils.Nstring        `json:"projectUri,omitempty"`
+	PublicKey                string               `json:"publicKey,omitempty"`
+	RegionURI                utils.Nstring        `json:"regionUri,omitempty"`
+	ServiceInput             string               `json:"serviceInput,omitempty"`
+	ServiceURI               utils.Nstring        `json:"serviceUri,omitempty"`
+	UserData                 string               `json:"userData,omitempty"`
+	Version                  string               `json:"version,omitempty"`
+	VirtualMachineProfileURI utils.Nstring        `json:"virtualMachineProfileUri,omitempty"`
+	ZoneURI                  string               `json:"zoneUri,omitempty"`
 }
 
 type Deployment struct {
@@ -146,9 +148,7 @@ func (c *Client) GetDeploymentByID(id string) (Deployment, error) {
 }
 
 func (c *Client) GetDeploymentsByName(name string) (DeploymentList, error) {
-	userQuery := fmt.Sprintf("name matches '%s'", name)
-
-	return c.GetDeployments("", userQuery, "name:asc")
+	return c.GetDeployments("", fmt.Sprintf("'%s'", name), "name:asc")
 }
 
 // GetDeploymentByName returns first member of GetDeploymentsByName
@@ -156,11 +156,14 @@ func (c *Client) GetDeploymentByName(name string) (Deployment, error) {
 	var deployment Deployment
 
 	deployments, err := c.GetDeploymentsByName(name)
-	if len(deployments.Members) > 0 {
-		return deployments.Members[0], err
-	} else {
-		return deployment, err
+
+	for _, d := range deployments.Members {
+		if d.Name == name {
+			deployment = d
+		}
 	}
+
+	return deployment, err
 }
 
 // CreateDeployment Creates Deployment and returns updated deployment
@@ -175,8 +178,6 @@ func (c *Client) CreateDeployment(deploymentRequest DeploymentRequest) (Deployme
 	if err != nil {
 		return deployment, err
 	}
-
-	fmt.Printf("DEBUG +%v", response)
 
 	if err := json.Unmarshal([]byte(response), &deployment); err != nil {
 		return deployment, apiResponseError(response, err)
